@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 DOCS = ROOT / "docs"
-HTML = ROOT / "ppl_quiz_ultra.html"
+HTML = ROOT / "index.html"
 OUT = ROOT / "questions_bank.js"
 META = ROOT / "questions_meta.json"
 

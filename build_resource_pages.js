@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const dir = __dirname;
-const html = fs.readFileSync(path.join(dir, 'ppl_quiz_ultra.html'), 'utf8');
+const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
 const script = html.match(/<script>\s*([\s\S]*?)<\/script>\s*<\/body>/)[1];
 const fullCss = fs.readFileSync(path.join(dir, 'ppl_theme.css'), 'utf8');
 
@@ -68,7 +68,7 @@ const fichesShared = [
 ].join('\n');
 
 const formulasPageJs = sharedUtils + '\n' + formulaBlock + `
-function goQuizTopic(ref){window.location.href='ppl_quiz_ultra.html?topic='+encodeURIComponent(ref);}
+function goQuizTopic(ref){window.location.href='index.html?topic='+encodeURIComponent(ref);}
 function launchTopicReview(ref){ goQuizTopic(ref); }
 
 document.getElementById('formulas-panel').addEventListener('click',e=>{
@@ -90,13 +90,13 @@ buildFormulasPanel();
 const fichesPageJs = fichesShared + storageInit + '\n' + formulaBlock + '\n' + ficheBlock + `
 let revTab='library', ficheLibSearch='', ficheLibMod='all';
 
-function goQuizTopic(ref){window.location.href='ppl_quiz_ultra.html?topic='+encodeURIComponent(ref);}
+function goQuizTopic(ref){window.location.href='index.html?topic='+encodeURIComponent(ref);}
 function launchTopicReview(ref){ goQuizTopic(ref); }
 function launchRevision(){
-  window.location.href='ppl_quiz_ultra.html?mode=weak';
+  window.location.href='index.html?mode=weak';
 }
 function launchSingleQuestion(idx){
-  window.location.href='ppl_quiz_ultra.html?q='+idx;
+  window.location.href='index.html?q='+idx;
 }
 
 const revPanel=document.getElementById('rev-panel');
@@ -151,16 +151,16 @@ const formulesHtml = `<!DOCTYPE html>
 <div class="glows"><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
 <div class="wrap app-shell">
 <header class="app-header">
-  <a href="ppl_quiz_ultra.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
+  <a href="index.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
   <nav class="app-nav">
-    <a href="ppl_quiz_ultra.html" class="app-nav-link">Quiz</a>
+    <a href="index.html" class="app-nav-link">Quiz</a>
     <a href="formules.html" class="app-nav-link on">Formules</a>
     <a href="fiches.html" class="app-nav-link">Fiches</a>
   </nav>
 </header>
   <div class="resource-screen">
     <div class="resource-top">
-      <a href="ppl_quiz_ultra.html" class="btn-back">← Quiz PPL</a>
+      <a href="index.html" class="btn-back">← Quiz PPL</a>
       <h2>📐 Formules PPL</h2>
     </div>
     <div class="resource-body formulas-panel" id="formulas-panel"></div>
@@ -195,16 +195,16 @@ const fichesHtml = `<!DOCTYPE html>
 <div class="glows"><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
 <div class="wrap app-shell">
 <header class="app-header">
-  <a href="ppl_quiz_ultra.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
+  <a href="index.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
   <nav class="app-nav">
-    <a href="ppl_quiz_ultra.html" class="app-nav-link">Quiz</a>
+    <a href="index.html" class="app-nav-link">Quiz</a>
     <a href="formules.html" class="app-nav-link">Formules</a>
     <a href="fiches.html" class="app-nav-link on">Fiches</a>
   </nav>
 </header>
   <div class="resource-screen">
     <div class="resource-top">
-      <a href="ppl_quiz_ultra.html" class="btn-back">← Quiz PPL</a>
+      <a href="index.html" class="btn-back">← Quiz PPL</a>
       <h2>📚 Fiches explicatives</h2>
     </div>
     <div class="resource-body">

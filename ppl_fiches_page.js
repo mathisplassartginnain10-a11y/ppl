@@ -865,14 +865,14 @@ let revTab='library', ficheLibSearch='', ficheLibMod='all';
 
 function goQuizTopic(ref){
   const r=typeof resolveTopicRef==='function'?resolveTopicRef(ref):ref;
-  window.location.href='ppl_quiz_ultra.html?topic='+encodeURIComponent(r);
+  window.location.href='index.html?topic='+encodeURIComponent(r);
 }
 function launchTopicReview(ref){ goQuizTopic(ref); }
 function launchRevision(){
-  window.location.href='ppl_quiz_ultra.html?mode=weak';
+  window.location.href='index.html?mode=weak';
 }
 function launchSingleQuestion(idx){
-  window.location.href='ppl_quiz_ultra.html?q='+idx;
+  window.location.href='index.html?q='+idx;
 }
 
 const revPanel=document.getElementById('rev-panel');

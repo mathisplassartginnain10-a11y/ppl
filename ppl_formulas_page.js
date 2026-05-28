@@ -180,7 +180,7 @@ function buildFormulasPanel() {
 
 function goQuizTopic(ref) {
   const r = typeof resolveTopicRef === 'function' ? resolveTopicRef(ref) : ref;
-  window.location.href = 'ppl_quiz_ultra.html?topic=' + encodeURIComponent(r);
+  window.location.href = 'index.html?topic=' + encodeURIComponent(r);
 }
 function launchTopicReview(ref) {
   goQuizTopic(ref);

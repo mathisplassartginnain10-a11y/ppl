@@ -71,7 +71,7 @@
         <p class="fiche-q-text">${esc(q.q)}</p>
         <details class="fiche-q-answer"><summary>Voir la réponse</summary><p class="fiche-q-ans">✓ ${esc(ans)}</p>${q.e ? `<p class="fiche-q-exp">${esc(q.e)}</p>` : ''}</details>
         <div class="fiche-q-actions">
-          <a href="ppl_quiz_ultra.html?q=${idx}" class="rev-btn-sm">Refaire cette question</a>
+          <a href="index.html?q=${idx}" class="rev-btn-sm">Refaire cette question</a>
         </div>
       </article>`;
       })
