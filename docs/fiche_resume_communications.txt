@@ -1,0 +1,93 @@
+www.aerogligli.fr
+1/2
+LES COMMUNICATIONS LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 01 novembre 2025
+091 Communication/ Epreuve commune
+LAPL / PPL
+Les fréquences
+La gamme de fréquences VHF dédiée à l’aéronautique est comprise entre 108 MHz et 137 MHz.
+Les Services Mobiles Aéronautiques sont associés à la bande de fréquences de radiocommunication.
+Les fréquences particulières :
+121,500 MHz : fréquence de détresse internationale
+123,500 MHz : fréquence dite club, attribuée par défaut aux aérodromes au traﬁc réduit. 
+123,450 MHz : fréquence utilisée pour la communication entre aéronefs.
+123,065 MHz : fréquence attribuée par défaut aux altisurfaces et altiports au traﬁc réduit.              
+125,335 MHz : fréquence utilisée sur les bases ULM
+La portée des ondes VHF est optique : il ne doit y avoir aucun obstacle entre l’émetteur et le récepteur. 
+La distance de réception en NM est égale à : D = 1,23 √h (avec «h» hauteur de l’aéronef en pieds). 
+La phraséologie
+Ordre de priorité des messages
+Messages de détresse : précédés de l’expression MAYDAY, répétée 3 fois.
+Messages d’urgence : précédés de l’expression PAN-PAN ou PAN-PAN MEDICAL dans le cas d’un 
+transport sanitaire, répétée  3 fois.
+Messages du contrôle de la circulation aérienne : clairance, régulation du traﬁc, compte-rendu de 
+position. Messages d’information de vol
+Messages entre exploitants d’aéronefs et pilotes.
+Quelques expressions conventionnelles
+Afﬁrme : oui
+Approuvé : permission accordée
+Autorisé : utilisé uniquement pour le décollage, l’atterrissage, le toucher et l’option.
+Break break : permet de séparer des messages dans la même communication dans un environnement 
+encombré. Conﬁrmez : demande de conﬁrmation
+Correction : corrige le message émis précédent et contenant une erreur.
+Négatif : non
+Roger : j’ai reçu en entier votre dernière transmission
+Wilco : votre message a été compris et sera exécuté
+Alphabet aéronautique international
+A  Alfa F  Foxtrot K  Kilo P  Papa U  Uniform Z Zulu
+B  Bravo G  Golf L  Lima Q  Quebec V  Victor
+C  Charlie H  Hotel M Mike R  Romeo W Whiskey
+D  Delta I   India N  November S  Sierra X  X-Ray
+E  Echo J  Juliet O  Oscar T  Tango Y  Yankee
+Radionavigation Radiocommunication
+108 à 111,975 MHz 112 à 117,975 MHz 117,975 à 137 MHz
+ILS et VOR VOR DME les échanges radio, les ATIS
+www.aerogligli.fr
+LES COMMUNICATIONS LES RÉSUMÉS
+2/2
+© Aérogligli 2014 - document actualisé le 08 octobre 2014
+091 Communication/ Epreuve commune
+LAPL / PPL
+Contact radio
+Au premier contact, le pilote appelle la station au sol, identiﬁ ée par le nom de l’emplacement suivi d’un sufﬁ xe 
+indiquant l’organisme ou le service rendu.
+Exemple : PARIS RADAR
+Cependant, si aucun risque de confusion n’est possible, on peut se contenter du nom de l’emplacement,  
+sauf dans le cas d’une fréquence d’information de vol.
+Exemples : AUXERRE et TOULOUSE INFO.
+L’indicatif d’appel de l’avion sera complet au premier contact. Exemple : PITHIVIERS de F-GRRX, bonjour. 
+Ensuite, l’indicatif abrégé sera utilisé à l’initiative du contrôleur. L’indicatif abrégé est constitué de la première et 
+des deux dernières lettres de l’indicatif complet. Exemple : F-GRRX sera abrégé en F-RX.
+Si un risque de confusion existe, le contrôleur vous donnera un autre indicatif abrégé. Exemple, si vous êtes 
+immatriculé F-GOIS et qu’un autre avion immatriculé F-GRIS a déjà pris contact, le contrôleur pourra vous 
+appeler F-OIS et l’autre aéronef F-RIS.
+Les 2 types de conﬁ rmation de réception
+Le pilote dispose de 2 types de messages pour conﬁ rmer aux services de la circulation aérienne la bonne 
+réception des messages reçus :
+• Accusé de réception : message simple pour informer la réception du message précédent.
+- F-GE, pour info du fauchage en cours
+- Roger, F-GE
+• collationnement : répétition du message reçu ou d’une partie pour conﬁ rmer sa bonne réception.
+- F-BO, passez sur la fréquence tour 119,6, au revoir
+- 119,6, F-BO, au revoir
+Informations à collationner
+Fréquence
+Code transpondeur
+Calage altimétrique
+Niveau ou altitude
+Cap
+Vitesse
+Piste en service
+Conditions d’une autorisation conditionnelle
+Echelle de lisibilité radiotéléphonique
+1. illisible
+2. lisible par moments
+3. difﬁ  cilement lisible
+4. lisible
+5. parfaitement lisible
+Règles générales
+On signe toujours un message par son indicatif.
+Avant d’émettre un premier message sur une fréquence, on écoute quelques secondes aﬁ  n de ne pas couper 
+un échange en cours.
+On ne quitte jamais une fréquence sans l’accord du contrôleur. Sinon, celui-ci pourrait vous croire en difﬁ  culté 
+et déclencher les procédures de secours.

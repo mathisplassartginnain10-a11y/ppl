@@ -1,0 +1,780 @@
+www.aerogligli.fr
+1
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 14 juillet 2025
+COMPILATION
+020 Connaissance générale de l'aéronef 
+LAPL / PPL
+L'ALPHABET GREC
+GÉOMÉTRIE DE L'AVION
+LE MOTEUR GÉNÉRALITÉS
+LE MOTEUR LE CYCLE À 4 TEMPS
+L'HÉLICE
+L'ANÉMOMÉTRE
+L'ALTIMÉTRE
+LE VARIOMÉTRE
+2
+3
+5
+7
+9
+11
+16
+19
+L'HORIZON ARTIFICIEL
+LE CONSERVATEUR DE CAP OU DIRECTIONNEL
+LE COORDINATEUR DE VIRAGE
+21
+24
+27
+www.aerogligli.fr
+2
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 11 janvier 2022
+ALPHABET GREC
+De nombreuses définitions et notions utilisées en aéronautique utilisent des lettres de l'alphabet grec.
+C'est pourquoi nous vous proposons ce tableau pour connaître cet alphabet.
+Pas d'inquiétude vous n'êtes pas en formation "lettres modernes, option grec"  
+
+www.aerogligli.fr
+3
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 05 novembre 2014
+GÉOMÉTRIE DE L’AVION
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Voici quelques déﬁ  nitions relatives aux dimensions et à la géométrie d’un avion
+Bord d’attaque : partie avant de l’aile
+Bord de fuite : partie arrière de l’aile
+Corde : droite reliant le bord d’attaque au bord de fuite, appelée également longueur de corde
+Emplanture : jonction entre l’aile et le fuselage
+Flèche : angle entre la ligne perpendiculaire à l’axe de symétrie longitudinal et le bord d’attaque ; dans l’exemple 
+la ﬂ  èche est positive.
+Saumon : extrémité d’aile proﬁ  lée
+Surface alaire : surface totale de l’aile y compris la partie du fuselage, notée S
+Voie : distance entre les 2 jambes des trains principaux
+Envergure : distance entre les extrémités de l’aile, notée E
+
+www.aerogligli.fr
+GÉOMÉTRIE DE L ’AVION LES RÉSUMÉS
+4
+© Aérogligli 2014 - document actualisé le 05 novembre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Dièdre : angle entre l’axe de l’aile et l’horizontale. Valeur positive dans l’exemple du Piper Archer ci-dessous.
+Le dièdre sur les avions Robin, valeur +14°
+Angle de calage : angle entre la corde de l’aile et l’axe longitudinal de l’avion.
+Empattement : distance séparant les trains principaux et le train auxiliaire
+Angle de garde : angle compris entre la droite verticale passant par le centre de gravité et l’axe des trains principaux
+Angle de déport : angle compris entre la verticale et l’axe du train avant
+
+www.aerogligli.fr
+5
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 30 décembre 2014
+LE MOTEUR - généralités
+020 Connaissance générale de l’aéronef
+ LAPL / PPL
+Principe 
+Les moteurs utilisés en aviation sont qualifiés de thermiques*. 
+La chaleur produite par la combustion d’un comburant et d’un combustible appelé carburant, est transformé en 
+mouvement. 
+En aviation légère, ce sont des moteurs à pistons qui utilisent ce principe de base. 
+L’aviation commerciale utilise également un autre type de moteur thermique : les moteurs à turbines ou 
+turbomachines.
+* Solar Impulse et les projets E-fan et Wattsup utilisent des moteurs électriques.
+Fonctionnement
+ps : l’admission 
+Dans notre activité, on rencontre 2 types de fonctionnements pour les moteurs à pistons qui équipent nos avions.
+A combustion commandée ou à explosion A combustion spontanée
+L’allumage du mélange comburant - carburant 
+est réalisé par un arc électrique (étincelle) 
+Le carburant le plus utilisé est l’essence 100LL 
+appelée également AVGAS et de couleur bleutée 
+Solution la plus utilisée
+L’allumage du mélange comburant - carburant  
+est réalisé sans étincelle. 
+L’injection du carburant dans la chambre de combus-
+tion provoque l’explosion 
+Le carburant le plus utilisé est le JET A1 
+de couleur brune 
+Solution récente de moteurs Diesel
+pour avions légers développée  
+depuis une quinzaine d’années
+Moteur à pistons Turbomachine
+www.aerogligli.fr
+LE MOTEUR - généralités LES RÉSUMÉS
+6
+© Aérogligli 2014 - document actualisé le 30 décembre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+La combustion a lieu dans un espace dédié : la chambre de combustion située dans le cylindre. 
+Le piston se déplace à l’intérieur du cylindre sous l’effet de l’explosion du mélange air-essence. 
+C’est la 1ère pièce mobile du moteur qui assure la transformation de la combustion en énergie mécanique
+à l’aide de son mouvement linéaire.  
+La plupart des moteurs à pistons utilisés disposent de 4 ou 6 cylindres, montés à plat et opposés.
+Les principaux éléments
+Chaque cylindre est constitué de 2 parties : 
+• la culasse en alliage léger aluminium vissée sur le fût,
+• le fût avec ailettes de refroidissement en acier ou alliage aluminium et le revêtement intérieur en acier.
+Chacune de ces 2 parties comporte différents équipements :
+Le cylindre
+Moteur à piston 1 cylindre Moteur à piston 4 cylindres
+Les autres équipements
+www.aerogligli.fr
+7
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 30 décembre 2014
+LE MOTEUR - cycle à 4 temps
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Les moteurs, à 4 ou 6 cylindres, fonctionnent avec un cycle à 4 temps appelé cycle de Beau de Rochas et 
+également connu sous le nom de cycle d’Otto.
+Les 4 temps sont :
+• l’admission,
+• la 	compression,
+• l’explosion 	appelé également	la	détente,
+• l’échappement.
+1° temps : l’admission 
+La soupape d’admission s’ouvre. Le mélange air-essence est aspiré par le mouvement de descente du piston.
+La soupape d’échappement bloque l’échappement.
+2° temps : la compression
+Les 2 soupapes bloquent le mélange air-essence dans la chambre de combustion. Le piston compresse le 
+mélange en remontant.
+3° temps : l’explosion
+Les 2 soupapes ferment la chambre de combustion. Les bougies allument le mélange air-essence comprimé qui 
+s’enflamme. L’allumage a lieu peu avant que le piston atteigne le point le plus haut de sa course.
+Le piston redescend poussé par la forte pression due à la dilatation du mélange.
+4° temps : l’échappement
+Le piston remonte. La soupape d’échappement s’ouvre pour évacuer les gaz brulés poussés par le piston.
+
+www.aerogligli.fr
+LE MOTEUR - cycle à 4 temps LES RÉSUMÉS
+8
+© Aérogligli 2014 - document actualisé le 30 décembre 2014
+020 Connaissance générale de l’aéronef 
+LAPL / PPL
+Informations	diverses
+Les cycles des cylindres sont décalés dans le temps pour offrir la meilleure régularité de fonctionnement que le 
+moteur comporte 4 ou 6 cylindres.
+Exemple des 4 temps à un instant donné
+Les 3 temps - admission, compression, échappement – sont dits résistants. 
+Le piston est entraîné par inertie par le vilbrequin.
+Le temps de l’explosion est dit temps moteur.
+C’est le seul temps où le piston entraîne le vilbrequin.
+A l’occasion d’un cycle complet, le piston effectue 2 allers-retours.
+Les	défauts	de	fonctionnement
+Explosion sans combustion complète 
+générant de fortes pressions. 
+Provoquée par une température élevée 
+l’explosion s’effectue trop tôt.
+Difficultés d’extinction du moteur  
+dues à la présence de particules 
+(cendres, poussières de carbone déposées 
+sur les bougies…) allumant le mélange air-essence.
+La	détonation L’auto-allumage
+www.aerogligli.fr
+9
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 30 janvier 2015
+L’HELICE
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Angle de calage
+C’est l’angle, noté ω, entre le plan de rotation
+de l’hélice et la corde de référence d’une pale.
+Angle d’incidence
+C’est l’angle, noté α, entre la corde de
+référence d’une pale et la vitesse résultante 
+représentant le vent relatif.
+Caractéristiques générales
+Dans notre activité, la plupart des 
+hélices comportent 2 ou 3 pales.
+Le cône participe au refroidissement 
+du moteur en orientant l’air vers les 
+entrées d’air du capot moteur.
+Cet angle dépend de la vitesse de rotation 
+de l’hélice et de la vitesse de l’avion.
+L’angle de calage diminue entre le moyeu
+et le bout de pale.
+www.aerogligli.fr
+L ’HELICE LES RÉSUMÉS
+10
+© Aérogligli 2015 - document actualisé le 30 janvier 2015
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Types d’hélices utilisées
+Dans notre activité, 2 types d’hélice sont principalement utilisés :
+Hélice à calage ﬁ  xe Hélice à vitesse constante
+Simple et économique, 
+elle offre un compromis d’utilisation
+Son rendement est mauvais pour 
+certaines phases du vol,
+fonction de son calage
+Sa vitesse de rotation
+dépend de la pression d’admission
+et de la vitesse de l’avion
+La manette de puissance ou de gaz gère 
+le régime de rotation moteur
+indiqué par un tachymètre
+si le vol s’effectue 
+à plus de 50 NM de la côte
+Appelée couramment « à pas variable »
+elle propose un calage adapté 
+aux différentes phases du vol
+Si le calage est réglé « petit pas »
+elle est adaptée au décollage et remise de gaz
+Si le calage est réglé « grand pas »
+elle est adaptée à la croisière 
+Tachymètre
+unités tours/min
+(compte-tours moteur)
+Tachymètre
+unités tours/min
+(compte-tours hélice)
+Manomètre
+unités pouce de mercure
+(pression d’admission cylindres)
+La manette de puissance gère la pression 
+d’admission indiquée par un manomètre
+www.aerogligli.fr
+11
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 03 octobre 2014
+L’ANÉMOMÈTRE
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Principe
+Il est l’un des 3 instruments du circuit anémométrique constitué également de l’altimètre et du variomètre.
+Il indique la vitesse de l’aéronef sur sa trajectoire par rapport à la masse d’air dans laquelle il évolue.
+Pour réaliser cette opération, l’anémomètre mesure la différence entre la pression statique et la pression totale
+pour obtenir la pression dynamique représentative de la vitesse.
+P totale = P statique + P dynamique
+La pression dynamique est égale à P totale – P statique.
+Cette mesure de la différence est réalisée mécaniquement et illustrée sur le schéma suivant : 
+La différence de pression, entre la pression totale relevée par le tube Pitot et la pression statique, déforme la 
+capsule et actionne le système mécanique constitué d’engrenages et des aiguilles du cadran.
+Pt
+Ps Ps
+Pt
+Ps
+Ps
+boîtier étanche
+capsule anéroïde
+tube Pitot
+prise de
+pression statique
+système mécanique
+cadran
+www.aerogligli.fr
+L ’ANÉMOMÈTRE LES RÉSUMÉS
+12
+© Aérogligli 2014 - document actualisé le 03 octobre 2014
+020 Connaissance générale de l’aéronef 
+LAPL / PPL
+Inconvénient du système
+La pression dynamique est égale à : ½ ρ V² avec  ρ masse volumique de l’air à l’altitude de l’avion.
+La pression dynamique est proportionnelle à la vitesse V, c’est la raison pour laquelle elle est utilisée !
+En revanche, la pression dynamique dépend de la masse volumique de l’air ρ. 
+Cela implique que pour une même vitesse de l’avion, l’anémomètre aura une indication différente selon l’altitude. 
+La masse volumique varie selon l’altitude. Elle diminue lorsque l’altitude augmente.
+L’anémomètre est calibré par rapport à l’atmosphère type. 
+Ainsi l’indication de l’aném omètre n’est juste que lorsque il se trouve à une pression de 1013 hPa et à une 
+température de +15°C. Dans toute autre condition, il faut appliquer des corrections :
+Correction d’altitude : Ajouter 1% pour toute tranche de 600 ft au-dessus de la surface 1013 hPa. 
+Exemple : vous volez au FL 65, avec une vitesse indiquée de 100 kt. Le FL 65 c’est 6500 ft au-dessus de 
+1013 hPa, soit à peu près 10 tranches de 600 ft. Il faudra donc ajouter 10% à la Vi pour obtenir la Vitesse 
+Propre (Vp) : 110 kt.
+Correction de température : +/- 1% par tranche de 4° d’écart à la température standard.
+En reprenant l’exemple précédent, s’il fait +10°C au FL 65, nous sommes en ISA + 8 (la température standard 
+au FL65 est +2°C, il fait +10°C, on est donc en ISA + 8).
+La correction est donc de 100 kt + 10% + 2% = 112 kt.
+D’où les expressions à retenir : 
+Plus haut, plus vite et plus chaud, plus vite.
+Les différentes types de vitesses
+Vitesse indiquée (VI) ou IAS pour Indicated AirSpeed en anglais
+C’est la vitesse... lue sur l’anémomètre, celle indiquée par l’aiguille du cadran de l’anémomètre.
+Vitesse conventionnelle (Vc) ou CAS  Calibrated AirSpeed
+C’est 
+la Vi corrigée des erreurs instrumentales ou de mesure. On l’appelle conventionnelle parce que l’anémomètre 
+est étalonné par convention en atmosphère type.
+Vitesse équivalente ou Equivalent de vitesse (Ve)
+C’est la Vc corrigée de la compressibilité. Les problèmes de compressibilité n’apparaissant qu’au delà de 250 
+kt, il est peu probable que le PPL moyen s’en soucie.
+Vitesse Propre (Vp) ou Vitesse Vraie (Vv) notée TAS  True AirSpeed 
+C’est la vitesse réelle de l’avion par rapport à l’air
+, corrigée de la masse volumique – voir ci-dessus.
+Certains anémomètres disposent d’un système d’afﬁ chage pour obtenir cette vitesse.
+Les EFIS Electronic Flight Instrument System indiquent cette vitesse. 
+V
+itesse Sol (Vs)
+C’est la vitesse de l’avion par rapport au sol.
+Elle est égale à la Vp +/- la composante de vent arrière ou avant appelée vent effectif.
+www.aerogligli.fr
+L ’ANÉMOMÈTRE LES RÉSUMÉS
+13
+© Aérogligli 2014 - document actualisé le 03 octobre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+En pratique, sur les avions légers, on peut ignorer la différence  entre Vi  et Vc, ainsi que les problèmes 
+de compressibilité. Cependant  n’hésitez pas à vériﬁ er  dans le manuel de vol de votre avion, les vitesses 
+conventionnelles renseignées par le constructeur.
+Vous n’aurez qu’à appliquer les corrections de température et d’altitude à votre Vi pour avoir une estimation 
+correcte de votre Vp : +1 % par tranche de 600 ft et +/- 1% par tranche de 4° d’écart à la température standard.
+Les vitesses caractéristiques de l’avion
+Vs0 pour Velocity Stall 0 en anglais
+Vitesse 
+de décrochage en conﬁ guration atterrissage. La Vs0 indiquée dans le manuel de vol et sur l’anémomètre 
+est celle correspondant à la masse maximale en vol horizontal stabilisé. Souvenez-vous que le décrochage est 
+d’abord associé à une incidence maximale plutôt qu’une vitesse.
+Vs1 - V
+elocity Stall 1 en anglais
+Vitesse de décrochage en conﬁ guration autre que l’atterrissage.
+VFE - Velocity Flaps Extended
+V
+itesse maximale d’utilisation des volets position maximale de sortie
+VLE - Velocity Landing Extended
+Vitesse maximale train d’atterrissage sorti pour un avion équipé d’un train rentrant.
+VLO - Velocity Landing Operation 
+Vitesse maximale de sortie ou de rentrée du train d’atterrissage. Cette vitesse peut être différente de VLE.
+VNO - Velocity Normal Operating
+Vitesse maximale en air turbulent. On peut voler à une vitesse supérieure, mais seulement en air calme, et sans 
+manœuvre brusque aux commandes. Les efforts sur la structure de la vitesse sont importants et on ne doit pas 
+augmenter le facteur de charge.
+VNE - Velocity Never Exceed
+Vitesse maximale à 
+ne jamais dépasser. Au-delà de cette vitesse, le constructeur ne garantit pas que l’avion 
+reste en un seul morceau !
+VA - Vitesse de manoeuvre
+Vitesse calculée par le constructeur permettant le braquage à fond des gouvernes de vol sans endommager la 
+cellule et ...les gouvernes. Cette vitesse est indiquée par une plaquette sur le tableau de bord et dans le manuel 
+de vol de l’avion en section 2 – limitations.
+www.aerogligli.fr
+L ’ANÉMOMÈTRE LES RÉSUMÉS
+14
+© Aérogligli 2014 - document actualisé le 03 octobre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Les différentes vitesses renseignées par l’anémomètre 
+Des plages de vitesses aux couleurs normalisées ﬁ gurent sur les anémomètres. Cela permet de connaître les 
+vitesses caractéristiques de l’avion en regardant simplement l’instrument.
+Arc blanc : plage de vitesses d’utilisation des volets. Elle débute à Vs0 et se termine à VFE.
+Arc vert : plage de vitesses d’utilisation de l’avion sans volets ou dit « en lisse ». Elle commence à Vs1 et ﬁ nit 
+à VNO. Notez que l’arc blanc et l’arc vert se chevauchent partiellement.
+Arc jaune 
+: plage des vitesses à utiliser avec précaution en air calme. Elle commence à VNO et ﬁ nit à VNE . 
+Si les conditions de vol sont turbulentes, vous devez adopter une vitesse inférieure à l’arc jaune.
+Trait rouge : VNE.Divers
+L’anémomètre est appelé communément « badin », du nom de son concepteur Raoul Badin. Ce nom est devenu 
+ensuite la marque d’instruments d’aviation.
+2 unités sont utilisées :
+• le nœud noté kt équivalent à 1 mile nautique NM /heure ou 1,852 km/h
+• le km/h
+Certains anémomètres ont une double échelle de lecture. 
+L’anémomètre ci-dessus à droite est gradué en km/h - couronne extérieure - et en kt – couronne intérieure.
+Pour changer d’unité, de nœud (kt) en km/h : on multiplie par 2 et on enlève ensuite 10 %
+Exemple 100 kt équivaut à 180 km/h : 
+(100 x 2) – 10 % = 180 km/h
+AIR
+SPEED
+240
+AIR
+SPEED
+240
+240
+ 40
+60
+80
+100
+120140
+160
+180
+200
+V s0
+V s1
+V F E
+V N O
+V N E
+Anémomètre à double échelle de lecturePlages de vitesses
+www.aerogligli.fr
+L ’ANÉMOMÈTRE LES RÉSUMÉS
+15
+© Aérogligli 2014 - document actualisé le 03 octobre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Pannes possibles
+En dehors de la panne mécanique de l’instrument lui-même, l’anémomètre dépend de la bonne mesure des 
+pressions totale et statique.
+En été principalement, les prises statiques et le tube Pitot peuvent être obturées par des insectes. 
+De nombreuses p’tites bestioles apprécient l’abri fourni par les prises !
+En cas de panne d’indica
+tion fournie par l’anémomètre due à l’obstruction d’une des prises de pression, 
+la pression qui régnait à l’intérieur du circuit est maintenue.
+Si le tube Pitot est obstrué, la vitesse restera bloquée à la même valeur à altitude constante. 
+• En montant, la pression statique diminue, donc la différence entre la pression totale bloquée et la pression
+statique augmente et la Vi augmente.
+• En descente, l’inverse se produit, la Vi diminue.
+Si la prise statique est obstruée
+• En palier, les indications de vitesse resteront à peu près correctes. En effet, une pression statique constante
+est synonyme d’altitude constante. Comme la pression totale va varier, l’anémomètre fonctionnera correctement.
+• En montée à vitesse constante ou à une altitude supérieure, la pression totale va diminuer, mais pas la
+pression statique bloquée. La différence sera donc plus faible, et la Vi sera inférieure à la valeur réelle.
+• En descente à vitesse constante ou à une altitude inférieure, la pression totale va augmenter. La différence
+sera donc plus élevée, et la Vi sera supérieure à la valeur réelle.
+• Certains avions disposent d’une prise statique de secours située dans le cockpit. Elle est actionnée par une
+commande mise en oeuvre par le pilote s’il détecte l’obstruction de la prise statique principale
+Comment s’en sortir ?
+Une vitesse est obtenue avec une incidence et un régime moteur. 
+On parle alors de pré-afﬁ  chages : assiette et régime moteur. 
+Dès les premiers vols votre instructeur vous a précisé les pré-afﬁ  chages pour votre avion
+Si vous avez l’assiette de palier avec le régime de croisière, vous aurez la vitesse de croisière. 
+Si vous afﬁ  cher l’assiette de descente et le régime de descente, vous aurez la vitesse de descente.
+Connaissez vos paramètres et la panne de badin sera presque un non-événement.
+www.aerogligli.fr
+16
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 24 septembre 2014
+L’AL TIMETRE
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Principe
+Il est l’un des 3 instruments du circuit anémométrique constitué également de l’anémomètre et du variomètre.
+Il indique la distance verticale de l’avion en fonction d’un calage de référence choisi par le pilote.
+Pour fournir cette information de distance verticale, l’altimètre utilise la pression atmosphérique et ses variations. 
+Plus on s’élève dans l’atmosphère et plus la pression diminue. 
+L’altimètre est un baromètre qui mesure la pression atmosphérique appelée également pression statique par 
+opposition à la pression dynamique associée au déplacement de l’avion dans l’air. 
+L’altimètre est constitué d’un boîtier étanche dans lequel est placé une capsule anéroïde munie d’un ressort. 
+L’intérieur du boîtier 
+est soumis à la pression statique ambiante, transmise par les prises de pression statique situées 
+sur les côtés du fuselage.
+Les variations de pression statique liées aux variations d’altitude provoquent des déformations de la capsule.
+Ces déformations sont transmises à l’aiguille placée sur le cadran de l’instrument, par un système mécanique.
+Ps
+système mécanique
+boîtier étanche
+capsules anéroïdes
+prise de
+pression statique
+Ps Ps
+cadran
+fenêtre de réglage 
+et tambour 
+des pressions
+indépendant des 
+capsules
+ici en hPa
+molette de réglage
+www.aerogligli.fr
+L ’AL TIMETRE LES RÉSUMÉS
+17
+© Aérogligli 2014 - document actualisé le 24 septembre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Utilisation
+L’altimètre est étalonné en fonction de l’atmosphère type OACI avec les paramètres suivants :
+• pression atmosphérique au niveau de la mer : 1 013,25 hPa
+• température au niveau de la mer : +15°C
+• décroissance de température : -2°C par 1 000 ft
+Le pilote choisit un calage de référence à l’aide du bouton de réglage situé à coté du cadran de l’instrument.
+La fenêtre de réglage du calage s’appelle « fenêtre de Kolsman » du nom de son inventeur ! 
+3 calages sont disponibles, seulement 2 sont utilisés :
+> le calage QFE, abandonné
+> le calage QNH
+> le calage 1 013,25 hPa
+Instrument EFIS et présentation de l’altitude
+repère d’altitude 
+sélectionné par le pilote
+calage altimétrique 
+réglé par le pilote
+altitude actuelle
+Instrument classique mécanique
+www.aerogligli.fr
+L ’AL TIMETRE LES RÉSUMÉS
+18
+© Aérogligli 2014 - document actualisé le 24 septembre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Inconvénients
+Gradient de pression
+L’altimètre mesure une différence de pression par rapport à une référence, en se basant sur les gradients de 
+pression de l’atmosphère type. On parle de gradients de pression pour indiquer l’évolution de la pression en fonction de l’altitude. 
+En atmosphère type, les gradients de 
+ pression sont renseignés par une table de correspondances altitude-
+pression-température.
+Il est rare que le gradient de pression du jour soit équivalent à celui de l’atmosphère type ! 
+C’est la raison pour laquelle des corrections doivent être appliquées pour connaître au mieux la pression du jour.
+Par exemple : si entre 0 ft et 5 000 ft, le gradient de pression moyen est inférieur au gradient de l’atmosphère 
+type, mettons 25 ft / hPa au lieu d’environ 30 ft / hPa, l’altitude indiquée par l’altimètre sera supérieure à l’altitude 
+réelle. En effet, en mesurant une différence de 1 hPa, l’altimètre croit qu’il est monté de 30 ft alors qu’en fait il 
+n’est monté que de 25 ft.
+Pour corriger cette erreur , il faudrait connaître précisément le gradient de pression en permanence dans la 
+tranche d’atmosphère dans laquelle on vole, ce qui est impossible.
+Température
+Une masse d’air chaude sera plus volumineuse qu’une masse d’air froid. L’altimètre afﬁ chera donc une altitude 
+erronée si l’atmosphère n’est pas à la température standard.
+Lorsque la température moyenne de la masse d’air entre le sol et l’avion est plus froide qu’en atmosphère type, 
+l’altimètre indiquera une altitude supérieure à l’altitude réelle. C’est une situation dangereuse car vous êtes plus 
+bas que l’altitude indiquée par l’altimètre. En VFR, le danger est minime, car vous avez toujours la vue du relief. 
+Mais cette erreur peut avoir avoir des conséquences dramatiques en cas de vol avec une visibilité réduite !
+Correction simpliﬁ ée
+Corriger l’altitude indiquée de 4 ft par 1 000 ft d’altitude et par 1°C d’écart par rapport à la température 
+standard.
+Exemple : 
+Votre altimètre indique 3 500 ft, la température extérieure est de -10°C.
+Nombre de tranches de 1 000 ft : 3 500 / 1 000 = 3,5
+Température standard à 3 500 ft : 15 - (3,5 x 2) = 8°C
+Ecart : 18°C
+Correction : 4 x 3,5 x 18 = 252 ft
+L’altitude réelle est 3 500 - 252 = 3 248 ft
+Pannes possibles
+En dehors de la panne mécanique de l’instrument lui-même, la panne la plus fréquente que vous pourrez 
+rencontrer est l’obstruction des prises statiques. La pression ainsi emprisonnée dans le boîtier de l’altimètre reste 
+constante, et si cette obstruction est étanche, l’altitude indiquée ne bougera plus. En pratique, les obstructions 
+des prises statiques sont souvent partielles, et l’altimètre connaît alors du retard à l’afﬁ chage.
+Certains avions disposent d’une prise statique de secours située dans le cockpit.
+Elle est actionnée par une commande mise en oeuvre par le pilote s’il détecte l’obstruction de la ou des prises 
+de pression statique principales.
+www.aerogligli.fr
+19
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 12 novembre 2014
+LE VARIOMETRE
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Principe
+Il est l’un des 3 instruments du circuit anémométrique et indique la vitesse verticale de l’aéronef notée Vz.
+On parle également de taux de montée ou de taux de descente en fonction du sens de la vitesse verticale.
+La vitesse de l’aéronef sur le plan vertical est exprimée en pieds/min ou m/s avec l’équivalence simpliﬁ  ée de 
+200 ft/min pour 1 m/s.
+Le variomètre fonctionne comme un manomètre différentiel et mesure la différence de pression entre la pression 
+statique à un instant t et la pression statique retardée à l’instant t’. 
+Un boîtier étanche comporte une capsule métallique déformable.
+L’intérieur de cette capsule est soumis à la pression statique relevée par la prise de pression éponyme.
+L’intérieur du boîtier est soumis à la pression statique retardée.
+Le retard est obtenu par l’utilisation d’un tube très ﬁ  n appelé tube capillaire.
+Le diamètre réduit de ce tube retarde le passage de l’air à la pression statique.
+La différence de pression entre le boitier et celle de la capsule déforme cette dernière.
+Le mouvement créé par les déformations entraîne alors un système mécanique constitué d’engrenages, de 
+pivots et l’aiguille du cadran.
+Les déformations sont fonction de la vitesse des variations de pressions.
+Plus la différence de pression est importante et rapide, plus la vitesse verticale est importante.
+Inconvénient du système
+En cas de changement de trajectoire dans le plan vertical, le pilote ne peut pas utiliser immédiatement les 
+indications du variomètre. Il doit attendre 4 à 5 secondes que le vol soit stabilisé pour bénéﬁ  cier d’indications 
+précises. Ceci est dû au principe du variomètre : le retard créé pour obtenir la différence de pression.
+capsule métallique
+déformable
+système mécanique
+tube capillaire
+prise de 
+pression statique
+cadran
+Ps pression statique
+P’s pression statique
+      retardée
+Ps
+P’s P’s
+P’s
+www.aerogligli.fr
+LE VARIOMETRE LES RÉSUMÉS
+20
+© Aérogligli 2014 - document actualisé le 12 novembre 2014
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Réalisation pratique 
+Le variomètre comporte un cadran à aiguille gradué en centaines de pieds par min (ft/min) plus rarement en m/sec.
+Le variomètre d’un équipement E.F.I.S comporte un bandeau vertical et un curseur mobile indiquant la valeur 
+instantanée de la vitesse verticale.
+Trucs & astuces
+Détermination du taux de descente à l’aide de la vitesse sol :  Vz = plan de descente (%) x Vsol
+Exemple : vous volez avec une vitesse sol de 90 kt et vous descendez sur un plan de 5 % alors le taux de 
+descente ou la vitesse verticale est égale à Vz = 5 x 90 = 450 ft/min
+Précautions d’utilisation 
+La panne la plus courante est l’obturation de la prise de pression statique.
+Dans ce cas la pression statique reste bloquée à la valeur lors de l’obturation.
+Le variomètre n’indique alors aucune vitesse verticale.
+Si l’obturation de la prise de pression statique est partielle, les indications du variomètre sont sous-estimées.
+Au sol ou en vol en palier                En montée ou en descente
+L’aguille indique alors
+une vitesse verticale positive ou négative
+Vz = 0 ft/min  Taux de montée
+Vz = +300 ft/min
+«vario» positif
+Taux de chute
+Vz = -700 ft/min
+«vario» négatif
+Taux de montée
+Vz = +900 ft/min
+Variomètre
+www.aerogligli.fr
+21
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 12 janvier 2015
+L’HORIZON ARTIFICIEL
+020 Connaissances générales de l’aéronef
+LAPL / PPL
+Principe
+Il est l’un des 3 instruments gyroscopiques et l’instrument de référence pour le pilotage. 
+Il indique l’assiette et l’inclinaison de l’aéronef appelées également attitude. 
+Dans notre activité de vols VFR, cet instrument permet au pilote de confirmer l’attitude de l’aéronef. 
+Il est équipé d’un gyroscope à 2 degrés de liberté dont la propriété de fixité est utilisée. 
+L’axe de la toupie ou du rotor est vertical. 
+Les 2 cadres du gyroscope sont montés à la cardan.  
+Un disque placé en face avant de l’instrument est fixé sur le cadre extérieur.
+Description simplifiée
+Evolutions sur l’axe de tangage (actions à cabrer ou à piquer et angle associé : l’assiette)
+L’axe du rotor et le cadre intérieur restent verticaux. 
+Le cadre extérieur s’incline en fonction de l’assiette et le disque mobile associé à ce cadre extérieur s’incline. 
+Il indique l’assiette et correspond à l’écart mesuré entre les 2 cadres.
+Evolutions sur l’axe de roulis (manche incliné à droite ou à gauche et angle associé : l’inclinaison)
+L’axe du rotor et le cadre intérieur restent verticaux. La propriété de fixité du gyroscope est utilisée. 
+Le cadre extérieur reste horizontal comme le disque mobile.  
+C’est l’ensemble boîtier-aéronef qui s’incline autour de l’axe de rotation du cadre extérieur. 
+L’inclinaison correspond à l’écart mesuré entre le cadre extérieur et le boîtier de l’instrument.
+
+www.aerogligli.fr
+L ’HORIZON ARTIFICIEL LES RÉSUMÉS
+22
+© Aérogligli 2014 - document actualisé le 12 janvier 2015
+020 Connaissances générales de l’aéronef
+LAPL / PPL
+Description de la face avant de l’instrument
+La couronne fi xe e t l e disque m obile c omportent 2  c ouleurs symboliques ( bleu e t b run o u b leu e t noir). 
+Ces 2 couleurs représentent le ciel et la surface terrestre.
+Le disque mobile et la couronne fixe i ndiquent l a v aleur d e l ’assiette et d e l ’inclinaison respectivement, en 
+degrés.
+Utilisation
+Pour des vols réalisés selon les règles de vol à vue ou VFR, cet instrument n’est pas indispensable.
+Il est utile et nécessaire dans les cas particuliers où les références extérieures sont moins pertinentes mais 
+restent valables pour du vol VFR  : survol maritime (mer et horizon peuvent être confondus, brume, VFR de 
+nuit…).
+Le pilote vérifie l’horizon artificiel avant le décollage  : stabilité lors du roulage et pas d’indication erronée.  
+Il ajuste la maquette pour afficher l’assiette de référence.
+Si l’horizon artificiel est équipé d’un gyroscope pneumatique alimenté par un circuit de dépression, le pilote sera 
+attentif à l’indicateur de dépression ou de succion précisant l’état du circuit pendant le vol.
+Horizon artificiel / gyroscope pneumatique
+Horizon artificiel / gyroscope électrique
+
+www.aerogligli.fr
+L ’HORIZON ARTIFICIEL LES RÉSUMÉS
+23
+© Aérogligli 2014 - document actualisé le 12 janvier 2015
+020 Connaissances générales de l’aéronef
+ LAPL / PPL
+Exemples d’affichage
+L’assiette représente l’angle entre l’horizontale et la référence longitudinale de l’aéronef. 
+Un aéronef peut avoir une assiette positive ou dite à cabrer avec une trajectoire descendante ou l’inverse !
+Assiette nulle
+Assiette à cabrer de 5°
+Assiette à piquer de 10°
+www.aerogligli.fr
+24
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 15 janvier 2015
+LE CONSERVATEUR DE CAP
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Principe
+Il est l’un des 3 instruments gyroscopiques et indique le cap suivi par l’aéronef.
+Pour remédier aux erreurs du compas magnétique, le conservateur de cap comporte un gyroscope où la 
+propriété de ﬁ  xité est utilisée. Cet instrument est constitué d’un boîtier à l’intérieur duquel se situe le gyroscope 
+à 2 cadres montés à la cardan. L’axe du rotor du gyroscope est horizontal.
+Description simpliﬁ  ée
+Lors des évolutions de l’aéronef, l’axe du gyroscope est ﬁ  xe par rapport à un point de repère dans l’espace et 
+maintenu horizontal. Il constitue la référence pour l’information de cap.
+Les 2 cadres assurent les degrés de liberté au gyroscope.
+C’est le boîtier solidaire de l’aéronef qui tourne autour du gyroscope ! 
+Dans les virages l’axe du cadre extérieur s’incline associé au boîtier et à l’aéronef.
+
+www.aerogligli.fr
+LE CONSERVATEUR DE CAP LES RÉSUMÉS
+25
+© Aérogligli 2015 - document actualisé le 15 janvier 2015
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Cependant le gyroscope utilisé par le conservateur de cap n’indique pas l’information initiale de cap au début du vol : 
+il ne peut pas s’orienter seul.
+Pour fournir l’information initiale, il doit être réglé – on parle plutôt de calage – à l’aide l’information de cap 
+fournie par le compas magnétique. Le calage est effectué à l’aide du bouton situé en face avant de l’instrument.
+Description de la face avant de l’instrument
+Le pilote lit le cap suivi en face de l’index. Les valeurs indiquées sur la rose des caps sont simpliﬁ  ées.
+Les caps sont exprimés en dizaines de degrés. Les 4 points cardinaux sont repérés Nord, Est, Sud, Ouest ou 
+West.
+Utilisation
+Au début du vol (au parking et aligné sur la piste avec la connaissance précise du QFU), le pilote cale le 
+directionnel avec l’information de cap fournie par le compas magnétique.
+Au roulage, il vériﬁ  e la cohérence du directionnel.
+Virages à gauche, les caps diminuent Virages à droite, les caps augmentent
+www.aerogligli.fr
+LE CONSERVATEUR DE CAP LES RÉSUMÉS
+26
+© Aérogligli 2015 - document actualisé le 15 janvier 2015
+020 Connaissance générale de l’aéronef 
+LAPL / PPL
+Pour pallier l’erreur due à la précession astronomique qui affecte le gyroscope, le pilote doit recaler 
+régulièrement le conservateur de cap environ tous les 20 minutes. Lors de ce recalage, l’aéronef doit être en 
+palier et en vol rectiligne.
+Un système appelé « vanne de ﬂ ux » ou magnétomètre disponible à bord des aéronefs performants ou ceux 
+équipés d’EFIS évite le recalage du directionnel.
+Le gyroscope du conservateur de cap peut être alimenté par dépression par un circuit pneumatique.
+Le pilote sera attentif durant le vol aux informations fournies par l’indicateur de dépression ou de succion.En cas de défaut ou d’absence d’alimentation, certains instruments sont équipés d’un drapeau ou « ﬂ  ag » pour 
+indiquer au pilote l’état de l’instrument.
+
+www.aerogligli.fr
+27
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 14 janvier 2015
+LE COORDINATEUR DE VIRAGE
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Principe
+Il est l’un des 3 instruments gyroscopiques et indique le sens et le taux de virage.
+Le taux de virage, appelé également cadence de virage, correspond à la variation de cap pendant un instant 
+donné.
+Il utilise un gyroscope à un degré de liberté et la propriété de précession gyroscopique.
+Cet instrument est disponible avec l’une des 2 présentations ci-dessous et il est complété par un autre instrument 
+appelé « la bille » ou indicateur de symétrie.
+La présentation de cet instrument installé sur les aéronefs les plus anciens est appelé « bille-aiguille » ou indicateur de virage.
+Description simpliﬁ  ée de l’indicateur de virage
+L’instrument est constitué d’un boîtier solidaire de l’aéronef à l’intérieur duquel est monté un gyroscope à 1 seul 
+cadre :
+• l’axe du rotor du gyroscope est parallèle à l’axe de tangage de l’aéronef,
+• l’axe de rotation du cadre est parallèle à l’axe de roulis de l’aéronef.
+
+www.aerogligli.fr
+LE COORDINATEUR DE VIRAGE LES RÉSUMÉS
+28
+© Aérogligli 2015 - document actualisé le 14 janvier 2015
+020 Connaissance générale de l’aéronef
+LAPL / PPL
+Si l’aéronef tourne sur son axe vertical, la précessi on gyroscopique va faire tourner le cadre du gyroscope 
+autour de l’axe longitudinal de l’aéronef.
+Le cadre entraîne à son tour un système mécaniqu e qui actionne un indicateur appelé « aiguille » placé en 
+façade avant de l’instrume nt. L’aiguille indique le sens du virage (droite ou gauche) et le taux de virage grâce 
+aux repères placés sur le cadran.
+Description du coordinateur de virage
+Le coordinateur de virage de conception plus récente équipe la plupart de nos aéronefs.
+Il est souvent appelé du nom de son prédécesseur l’indicateur de virage !
+Le cadre est monté incliné d’environ 30° par rapport à l’axe longitudinal de l’aéronef. Ce montage particulier du 
+cadre incliné offre une meilleure réactivité. Le cadre entraîne un système mécanique qui actionne un indicateur 
+appelé « maquette » Elle indique le sens et le taux de virage grâce aux repères placés sur le cadran.
+Présentation de la face avant de l’instrument
+La plupart des instruments sont équipés de gyroscopes électriques.
+C’est la raison de la présence de l’information suivante : DC ELEC pour Direct Current signiﬁ  ant courant continu.
+
+www.aerogligli.fr
+LE COORDINATEUR DE VIRAGE LES RÉSUMÉS
+29
+© Aérogligli 2015 - document actualisé le 14 janvier 2015
+020 Connaissance générale de l’aéronef
+ LAPL / PPL
+* Le taux de virage 1 ou taux standard correspond à une variation de cap de 360° en 2 min.
+Utilisation
+Au roulage avant le décollage, le pilote vériﬁ  e le témoin de fonctionnement et la cohérence des informations lues :
+• en virant à gauche, l’aiguille ou la maquette s’inclinent à gauche,
+• en virant à droite, l’aiguille ou la maquette s’inclinent à droite.
+Durant le vol le pilote s’assure du bon fonctionnement de cet instrument à l’aide du témoin.
+Dans le cadre des vols à vue, le taux de virage n’est pas pertinent. 
+En revanche, l’indication du sens de virage conﬁ  rme au pilote l’évolution de l’aéronef.
+Exemples d’afﬁ  chage

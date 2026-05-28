@@ -1,0 +1,853 @@
+www.aerogligli.fr
+  1
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 14 juillet 2025
+COMPILATION 
+050 MÉTÉOROLOGIE
+ LAPL / PPL
+L'ATMOSPHÈRE TYPE OU STANDARD
+LA PRESSION ATMOSPÉRIQUE
+LA TEMPÉRATURE
+LE VENT
+LES NUAGES & LA NÉBULOSITÉ
+LES MASSES D'AIR & LES FRONTS
+LES PERTURBATIONS
+LES CARTES TEMSI
+LES CARTES WINTEM
+LES MESSAGES METAR
+LES MESSAGES TAF
+2
+3
+6
+8
+10
+11
+16
+18
+21
+22
+24
+www.aerogligli.fr
+  2
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 04 février 2015
+L’ATMOSPHERE TYPE
+050 Météorologie 
+ LAPL / PPL
+Déﬁ  nie par l’OACI, l’atmosphère type ou atmosphère standard est l’atmosphère de référence. Elle est utilisée :
+• en météorologie et en navigation,
+• pour le calcul des performances d’un aéronef (décollage, montée, croisière, descente et atterrissage),
+• pour calibrer les instruments de vol (anémomètre, altimètre et variomètre).
+Notée ISA (International Standard Atmosphere) elle détermine des correspondances entre la pression, la 
+température et l’altitude.
+Les conditions standard au niveau de la mer
+Evolution de la température en fonction de l’altitude
+Evolution de la pression en fonction de l’altitude
+Les variations de pression en fonction de l’altitude sont plus fortes dans les basses couches.
+En atmosphère standard, 
+la température, la pression et la densité diminuent avec l’augmentation d’altitude. 
+En atmosphère réelle,
+les évolutions de la température et de la pression peuvent varier différemment en fonction de l’altitude.
+Exemple : la température réelle à 4 000 ft aujourd’hui est de +2°C°. 
+La différence avec celle en atmosphère type est de -5°C et notée delta ISA-5
+Pression 
+1 013, 25 hPa
+Température
++15°C ou 288 K
+Masse volumique ρ0 = 1,225 kg/m3 
+Densité = 1
+Décroissance linéaire de la température
+Exemple : quelle température à 4 000 ft en atmosphère type ?  Réponse +7°C = +15°C - (2 x 4)
+-2°C par 1 000 ft
+jusqu’à 36 000 ft
+altitude moyenne de la tropopause
+-6,5°C par 1 000 m
+jusqu’à 11 000 m
+altitude moyenne de la tropopause
+OU
+Décroissance non linéaire de la pression
+Extrait table de correspondance entre pression et altitude
+Pression Altitude Gradient de pression
+300 hPa 30 000 ft 1 hPa pour 75 ft
+500 hPa 18 000 ft 1hPa pour 50 ft
+700 hPa 10 000 ft 1 hPa pour 37 ft
+850 hPa 5 000 ft 1 hPa pour 30 ft
+1 013,25 hPa mer 1 hPa pour 28 ft
+www.aerogligli.fr
+  3
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 10 octobre 2014
+LA PRESSION ATMOSPHERIQUE
+050 Météorologie
+LAPL / PPL
+Déﬁ  nitions
+La pression atmosphérique représente le poids de la colonne d’air qui se situe au-dessus de l’endroit de la 
+mesure. Cependant, la pression ne se mesure pas uniquement de haut en bas, mais dans toutes les directions.
+Unités de mesures
+Le millibar (noté mbar)
+N’est plus utilisé de nos jours, remplacé par l’hectopascal. 1 mbar = 1 hPa.
+L’hectopascal (noté hPa)
+L’unité du système international est le Pascal (Pa), mais on ne l’utilise pas car les pressions sont de l’ordre de 100 
+000 Pa et on préfère utiliser un multiple, l’hectopascal. Il représente 100 Pa. Les pressions mesurées en hPa sont 
+donc de l’ordre de 1 000 hPa au niveau de la mer.
+Le millimètre de mercure (noté mmHg)
+L’instrument de base de la mesure de la pression est le baromètre à mercure. Le mmHg a donc été longtemps l’unité 
+de la pression avec l’équivalence 750 mmHg = 1 000 hPa.
+Le pouce de mercure (noté inHg)
+Les américains, qui ne font jamais rien comme le système international, utilisent le pouce de mercure.
+1 000 hPa équivaut à 29,54 inHg. 
+Variations de la pression
+Avec l’altitude
+Plus on monte, moins il y a d’air. La pression étant la force exercée par la masse d’air, elle diminue donc avec 
+l’altitude. Cette diminution de pression n’est pas linéaire, car l’air est compressible.
+Au niveau de la mer, on perd 1 hPa en montant de 28 ft, mais à 10 000 ft, il faut monter de 37 ft pour perdre 1 hPa et 
+à 30 000 ft il faut monter de 75 ft pour perdre 1 hPa.
+Avec le lieu
+La pression n’est pas identique sur toute la surface de la Terre. Il ne règnera pas la même pression à Leménil-Mitry 
+qu’à Caunette-sur-Lauquet.
+Avec l’heure du jour
+La pression en un même lieu varie légèrement, de l’ordre de +/- 1 hPa, au cours de la journée. On appelle ce 
+phénomène la marée barométrique. Les minimums se situent vers 6 h et 18 h, et les maximums vers 12 h et 24 h.
+www.aerogligli.fr
+LA PRESSION ATMOSPHERIQUE LES RÉSUMÉS
+  4
+© Aérogligli 2014 - document actualisé le 10 octobre 2014
+050 Météorologie 
+LAPL / PPL
+Champ de pression
+Le champ de pression est la répartition de la pression atmosphérique en fonction du lieu et/ou de l’altitude.
+Représentation
+On représente le champ de pression de deux façons différentes :
+Avec les isobares
+Une surface isobare est une surface joignant les points de même pression. Les lignes isobares sont des lignes 
+joignant les points de même pression pour une altitude donnée, en particulier au niveau de la mer.
+Avec les isohypses
+Une ligne isohypse relie les points de pression identique et de même altitude. Les lignes isohypses sont déﬁ  nies 
+par leur altitude géopotentielle. Les cartes d’isohypses ressemblent aux cartes isobares.
+
+www.aerogligli.fr
+LA PRESSION ATMOSPHERIQUE LES RÉSUMÉS
+  5
+© Aérogligli 2014 - document actualisé le 10 octobre 2014
+050 Météorologie
+LAPL / PPL
+Vocabulaire
+Le tracé des lignes isobares s’inspire de la représe ntation des courbes de niveaux utilisées sur les cartes 
+topographiques.
+Anticyclone : 
+zone de hautes pressions
+Dépression : zone de basses pressions
+Thalweg : axe de basses pressions (vallée)
+Dorsale : axe de hautes pressions.
+Marais barométrique : zone de vaste étendue dans laquelle la pression varie peu, comprise autour de 1 013 hPa. 
+Col : zone de transition entre 2 dépressions et 2 anticyclones.
+
+www.aerogligli.fr
+  6
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 10 octobre 2014
+LA TEMPERATURE
+050 Météorologie
+ LAPL / PPL
+La température est un élément déterminant de nos vols. Elle renseigne la formation de nuages et inﬂ  uence les 
+performances de nos aéronefs. La température affecte les indications des instruments du circuit anémométrique 
+en particulier l’altimètre et l’anémomètre.
+Unités de mesures
+Avec les équivalences suivantes : congélation de l’eau   0°C / 32°F / 273 K
+Température standard
+Le modèle de l’atmosphère type déﬁ  nit la température standard et ses variations :
+• +15°C au niveau de la mer
+• Décroissance de 2°C par 1 000 ft d’altitude ou 0,65°C / 100 m jusqu’à la tropopause située à 36 000 ft
+(11 000 mètres). Ensuite, il règne une isothermie à -56,5°C.
+Exemple :
+Quelle est la température à 5 000 ft en atmosphère standard ?
+5 000 ft = 5 x 1 000 ft donc la température est inférieure de 5 x 2°C = 10°C.
+Il fait donc 15 - 10 = +5°C à 5 000 ft en standard.
+On compare la température réelle à la température standard. Si vous volez à 5 000 ft et que votre thermomètre extérieur 
+indique une température de 0°C, on dit que vous êtes en ISA - 5, car il fait 5°C de moins qu’en atmosphère type.
+Les cartes WINTEM renseignent sur la température à différents niveaux de vol (FL020, FL050, FL100).
+Les messages météorologiques METAR et TAF indiquent la température sur les aérodromes concernés.
+Déﬁ  nitions
+Isothermie : température constante avec l’altitude.
+Inversion de température : température augmentant avec l’altitude.
+Effets de la température sur les performances
+La densité de l’air est inversement proportionnelle à la température. Un air chaud est moins dense qu’un air 
+froid. Or, les performances de l’avion sont liées à la densité de l’air. Un avion sera donc moins performant dans 
+un air chaud, à la fois du point de vue aérodynamique et du point de vue rendement du moteur.
+Rappel : la densité est le rapport entre la masse volumique à l’altitude du vol et la masse volumique de référence au niveau de la mer
+Température et altitude
+L’altimètre est calibré en atmosphère type. L’air chaud occupe plus de volume car il se dilate. Inversement, l’air 
+froid contracte la masse d’air. L’altimètre étalonné par rapport à la température standard ne tient pas compte de 
+l’effet de la température. Une différence se crée entre l’altitude indiquée par l’altimètre notée Zi et l’altitude vraie 
+ou réelle notée Zv.
+Le degré Celsius noté °C Le degré Fahrenheit noté °F Le  Kelvin noté K
+Utilisé en aéronautique Utilisé aux Etats-Unis, Canada Unité du système international
+www.aerogligli.fr
+LA TEMPERATURE LES RÉSUMÉS
+  7
+© Aérogligli 2014 - document actualisé le 10 octobre 2014
+050 Météorologie
+LAPL / PPL
+Le danger apparaît si l’air est froid c’est-à-dire inférieur à la température standard à l’altitude du vol. La Zv est 
+plus basse que la Zi. L’altimètre indique une altitude plus élevée que l’altitude vraie, mais la masse d’air est plus 
+contractée : vous êtes donc plus bas que l’altitude afﬁ chée par l’altimètre.
+Comment le Soleil réchauffe la Terre et l’air
+L’air n’est pas chauffé directement. Le Soleil réchauffe la Terre par rayonnement : ce sont les rayons solaires 
+qui chauffent le sol. Ensuite, l’air qui est en contact avec le sol (basses couches) est réchauffé par conduction : 
+la particule d’air qui touche le sol chaud se réchauffe  de la même façon que votre main quand vous touchez 
+le radiateur. Ensuite, cette particule d’air plus chaude qui est plus légère va s’élever dans l’atmosphère et être 
+remplacée par de l’air plus froid qui va lui aussi être réchauffé : c’est la convection.
+Refroidissement des particules d’air
+Lorsqu’une particule d’air s’élève, elle va se refroidir au rythme de 3°C tous les 1 000 ft en air sec, et environ 
+1,5°C tous les 1 000 ft en air saturé (dans les nuages). ATTENTION : ne pas confondre ces refroidissements, 
+qu’on appelle adiabatique et pseudo-adiabatique, avec la décroissance de température dans l’atmosphère type 
+vue précédemment !
+Stabilité et instabilité
+L’air froid est plus lourd que l’air chaud. Lorsqu’une particule d’air est soulevée, elle perd 3°C par 1 000 ft. 
+Si l’atmosphère est standard, elle va donc se refroidir plus vite que l’air ambiant (décroissance de température 
+standard 2°C par 1 000 ft). Elle est donc plus lourde et redescend à sa place : l’atmosphère est stable. 
+Inversement, si la décroissance de température de l’atmosphère ce jour-là est supérieure à 3°C par 1 000 ft, 
+notre particule sera toujours plus chaude que l’air ambiant et continuera de monter : l’atmosphère est instable.
+Température minimale et température maximale
+Au cours de la journée, la température va connaître une valeur minimale et une valeur maximale.
+La température minimale est atteinte environ ½ heure après le lever du Soleil.
+La température maximale est atteinte environ 2 heures après le passage du Soleil au zénith.
+Ceci est bien évidemment théorique, de nombreux autres facteurs inﬂ uencent la température au cours d’une 
+journée (ensoleillement, passage de front, pluie, etc.)
+Un ciel nuageux va diminuer l’amplitude thermique en empêchant le Soleil de réchauffer la Terre le jour et en 
+empêchant la chaleur de rayonner dans l’espace la nuit.
+Température et humidité
+Une particule d’air froid peut contenir moins d’humidité qu’une particule d’air chaud.
+Point de rosée
+La température du point de rosée est la température à laquelle il faut abaisser une particule d’air à pression 
+constante pour qu’elle arrive à saturation, c’est à dire 100% d’humidité. Si la température descend encore, il y 
+aura condensation et formation de brume ou de brouillard.
+Point de condensation
+Lorsqu’on soulève une particule d’air, elle se refroidit. Elle va donc pouvoir contenir de moins en moins d’humidité. 
+La température à laquelle elle arrive à saturation après un soulèvement s’appelle le point de condensation. C’est 
+à cette altitude que se formeront les nuages.
+www.aerogligli.fr
+  8
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 11 mars 2015
+LE VENT
+050 Météorologie
+ LAPL / PPL
+Définition
+Il représente le mouvement horizontal d’une masse d’air par rapport à la surface terrestre. 
+Il est défini par :
+• sa direction ou orientation (d’où il vient)
+exprimée en degrés, arrondie à la dizaine la plus proche par rapport au Nord vrai ou au Nord magnétique,
+• sa force ou intensité,
+exprimée en noeuds (kt) ou éventuellement en m/s avec l’équivalence 1 m/s pour 2 kt.
+Origine
+Ce sont les différences de pression sur le plan horizontal qui créent les mouvements horizontaux des masses d’air. 
+Plus les lignes isobares sont proches ou resserrées, plus le vent est fort.
+Le vent se déplace des hautes pressions vers les basses pressions. 
+La force de Coriolis influence également le sens du vent. On parle alors de vent géostrophique.
+Le vent souffle alors parallèle aux lignes isobares ou aux lignes isohypses avec des sens opposés suivant le 
+type de masse d’air et d’hémisphère.
+Dans l’hémisphère Nord, le vent au sol est orienté d’environ de 30° à gauche par rapport à la direction en 
+altitude. L’intensité du vent au sol est environ 30 à 50 % plus faible que celle en altitude (au-dessus de 3 000 ft 
+sol)
+Exemple : au sol vent du 060° 15 kt et en altitude 090° 30 kt.
+Représentation
+Sur les cartes WINTEM, le vent est représenté par un trait orienté par rapport au Nord vrai et une terminaison 
+calibrée, appelée barbule.
+Les terminaisons calibrées peuvent s’additionner sur un même trait orienté pour définir le vent et co mportent les 
+figures suivantes :
+• un triangle représente 50 kt,
+• un trait long représente 10 kt,
+• un trait court représente 5 kt.
+Dans l'hémisphère Sud, le sens de 
+rotation des vents est inversé.
+Dans l'hémisphère Sud, la règle est 
+inversée : dos au vent, dépressions à 
+droite et anticyclones à gauche
+www.aerogligli.fr
+LE VENT LES RÉSUMÉS
+  9
+© Aérogligli 2015 - document actualisé le 11 mars 2015
+050 Météorologie
+ LAPL / PPL
+Dans les communications radio (ATIS, TWR, sol, …) le vent est indiqué par son orientation par rapport au Nord 
+magnétique et son intensité moyenne sur les 2 dernières minutes.
+Dans les messages météorologiques (METAR, TAF, SPECI), le vent (valeur moyenne des 10 dernières min) est 
+défini par son orientation par rapport au Nord vrai, exprimée par 3 chiffres et son intensité en kt.
+Le vent en rafales est renseigné si une force de plus de 10 kt est mesurée par rapport à la valeur moyennée sur 2 min.
+Exemples :
+Vents régionaux
+Le Mistral souffle du Nord dans le couloir rhodanien.
+La Tramontane souffle de secteur Ouest à Nord-Ouest sur les contreforts des Pyrénées, le Sud du Massif 
+Central, le Roussillon et le Sud du Languedoc.
+Le ve
+nt d’Autan souffle de secteur Sud à Sud Est sur les côtes du Languedoc, du Roussillon et jusqu’à la Garonne. 
+Le Marin ou vent d’Autan noir est un vent humide qui souffle du Sud Est sur les côtes du Languedoc, du Roussillon.
+Vents locaux
+Une brise de mer souffle de la mer vers la terre, le jour lors d’un anticyclone ou un marais barométrique.
+Le sol se réchauffe plus rapidement que l’étendue d’eau. 
+Une brise de terre souffle de la terre vers la mer
+, la nuit lors d’un anticyclone ou un marais barométrique. 
+L’océan ou la mer libère plus de chaleur que la terre. 
+Une brise de pente montante s’établit de la vallée vers les sommets, de jour.
+Une brise de pente descendante s’établit des sommets vers les fonds de vallées, de nuit
+.
+
+www.aerogligli.fr
+ 10 
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 17 mars 2015
+LES NUAGES & LA NÉBULOSITÉ
+050 Météorologie
+LAPL / PPL
+Généralités
+Un nuage se forme suivant l’un des 3 processus suivants :
+1. augmentation de la quantité de vapeur d’eau,
+2. baisse de la température de la masse d’air, à pression constante - refroidissement isobare,
+3. baisse de la pression de la masse d’air associée à une baisse de la température - refroidissement adiabatique.
+et se décline selon l’un des 4 types de formation :
+1. soulèvement frontal,
+2. soulèvement orographique,
+3. convection,
+4. refroidissement de la base.
+Classiﬁ  cation
+Les nuages sont classés en 11 genres suivant leur répartition verticale organisée en 3 étages.
+La nébulosité
+Elle représente la quantité de nuages qui occupe le ciel, découpé en 8 octas.
+La nébulosité peut prendre une des 5 valeurs suivantes et exprimée par un code en 3 lettres :
+Codes Nombre d’octas Qualiﬁ  cation Commentaires
+NSC 0 Pas de nuages signiﬁ  catifs No Signiﬁ  cant Cloud
+FEW 1 à 2 Peu
+SCT 3 à 4 Epars Scattered
+BKN 5 à 7 Fragmentés Broken
+Plafond aéronautique
+OVC 8 Couvert
+*Le Nimbostratus peut occuper les 3 étages
+*
+www.aerogligli.fr
+ 11
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 20 mai 2015
+MASSES D’AIR & FRONTS
+050 Météorologie 
+ LAPL / PPL
+Généralités
+Une masse d’air est un vaste volume d’air sur une grande étendue géographique où règne des caractéristiques 
+identiques de température et d’humidité. Sauf cas particulier, les masses d’air de nature différente ne se 
+mélangent pas.
+Elles sont qualiﬁ  ées en fonction de :  
+• leur origine avec 4 masses d’air principales - arctique ou antarctique, polaire, tropical, équatorial -
+• l’humidité associée à la surface où elles évoluent. Au-dessus des mers et océans, on parle de masses d’air
+humide et au-dessus des terres de masses d’air continental, c’est à dire peu humide.
+Masses d’air
+dans l’hémisphère nord
+Un front est la zone de transition entre 2 masses d’air différentes.
+Il existe principalement 4 types de fronts : froid, chaud, occlus et stationnaire.
+Front froid
+La masse d’air froid avance plus rapidement que l’air chaud qui le précède.
+L’air chaud est repoussé en altitude.
+La zone frontale a une épaisseur comprise entre 100 m à 1 ou 2 km.
+Le front froid est la trace au sol de la zone frontale.
+La pente réelle de la zone frontale est de l’ordre de 1 km pour 50 km 
+à 1 km pour 150 km.
+Symbolisation sur les cartes TEMSI 
+(TEMps Signiﬁ  catif) et les cartes de fronts 
+Front chaud
+La masse d’air chaud avance plus rapidement que l’air froid.
+L’air chaud est soulevé en altitude. 
+La zone frontale a une épaisseur comprise entre 100 m à 1 ou 2 km.
+Le front chaud est la trace au sol de la zone frontale.
+La pente réelle de la zone frontale est de l’ordre de 1 km pour 300 km
+à 1 km pour 500 km.
+Symbolisation sur les cartes TEMSI 
+(TEMps Signiﬁ  catif) et les cartes de fronts
+
+www.aerogligli.fr
+LES RÉSUMÉS
+ 12
+© Aérogligli 2015 - document actualisé le 20 mai 2015
+MASSES D’AIR & FRONTS
+050 Météorologie
+ LAPL / PPL
+Front occlus
+Dans une perturbation constituée d’un front chaud suivi d’un front froid, la zone entre les 2 fronts s’appelle 
+le secteur chaud.
+A l’avant du secteur chaud, l’air chaud passe au-dessus de l’air plus froid.
+A l’arrière du secteur chaud, l’air chaud est soulevé par l’arrivée de l’air froid.
+Appelé également occlusion, le front occlus se crée lorsque le front froid rattrape le front chaud qui le précède.
+Le secteur chaud est alors rejeté en altitude.
+Symbolisation sur les cartes TEMSI (TEMps Signiﬁ  catif) et les cartes de fronts
+
+www.aerogligli.fr
+LES RÉSUMÉS
+ 13
+© Aérogligli 2015 - document actualisé le 20 mai 2015
+MASSES D’AIR & FRONTS
+050 Météorologie 
+ LAPL / PPL
+Il existe 2 types de fronts occlus :
+Front occlus à caractère de front froid Front occlus à caractère de front chaud
+Le front froid se déplace plus vite
+que le front chaud qui le précède et le rattrape.
+L’air froid associé au front froid soulève l’air chaud
+du front chaud qui le précède.
+Le secteur chaud est rejeté en altitude.
+On parle alors de vallée d’air chaud en altitude.
+Il s’agit en réalité d’air moins froid que l’air froid
+antérieur au front chaud. En rattrapant le front chaud 
+précédent, l’air frais passe au-dessus de l’air froid 
+antérieur.
+Front quasi-stationnaire (appelé couramment front stationnaire)
+Les 2 types de masses d’air n’évoluent pas et se déplacent pas ou très peu.
+Symbolisation sur les cartes TEMSI (TEMps Signiﬁ  catif) et les cartes de fronts
+
+www.aerogligli.fr
+LES RÉSUMÉS
+ 14
+© Aérogligli 2015 - document actualisé le 20 mai 2015
+MASSES D’AIR & FRONTS
+050 Météorologie 
+ LAPL / PPL
+Proﬁ  l typiqued’un front froid
+Proﬁ  l typique d’un front chaud
+Evolutions des paramètres lors du passage du front froid
+La température diminue puis se stabilise
+La pression diminue puis augmente 
+Renforcement et rotation du vent du secteur ouest au secteur nord ouest
+La visibilité et le plafond diminuent puis augmentent sauf sous les Cb et les averses
+Evolutions des paramètres lors du passage du front chaud
+La température augmente 
+La pression diminue
+Renforcement et rotation du vent du secteur sud au secteur sud ouest
+La visibilité et le plafond diminuent
+www.aerogligli.fr
+LES RÉSUMÉS
+ 15
+© Aérogligli 2015 - document actualisé le 20 mai 2015
+MASSES D’AIR & FRONTS
+050 Météorologie
+ LAPL / PPL
+Proﬁ  l typiqued’un front occlus
+Les 3 types de fronts peuvent adopter un caractère instable et des nuages cumuliformes peuvent être présents 
+en plus grand nombre associés à l’instabilité. 
+Des averses, des cumulonimbus sont possibles.
+Liste des abréviations des nuages 
+Ci Cirrus
+Cs Cirrostratus
+Ac Altocumulus
+As Altostratus
+Ns Nimbostratus
+Sc Stratocumulus
+Cu Cumulus
+Tcu Tower Cumulus 
+Cb Cumulonimbus
+www.aerogligli.fr
+ 16
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 18 mai 2015
+LES PERTURBATIONS
+050 Météorologie
+ LAPL / PPL
+Généralités
+Une perturbation est l’ensemble des phénomènes météorologiques associés à une dépression (zone de basses pressions) :
+• fronts chaud, froid et occlus,
+• variations de pressions, de températures, d’humidité, du vent, de la nébulosité et de la visibilité horizontale,
+• précipitations, orages, givrage, turbulences...
+Une perturbation se déplace de plusieurs milliers de km, à la vitesse moyenne de 25 kt et dure
+en moyenne 5 à 7 jours.
+La frontogénèse est le mécanisme de création d’une perturbation et des fronts associés.
+La frontolyse caractérise la ﬁ n d’une dépression et la dissipation des fronts associés.
+Déﬁnitions
+Une perturbation est constituée de 4 secteurs principaux :
+1. la tête, partie avant de la perturbation,
+2. le corps, constitué des fronts chaud, froid et occlus,
+3. le secteur chaud, partie intermédiaire entre les fronts,
+4. la traîne, partie à l’arrière de la perturbation.
+Perturbation typique constituée                                               
+d’un front chaud, d’un front 
+froid et d’un front occlus
+
+www.aerogligli.fr
+LES RÉSUMÉS
+ 17
+© Aérogligli 2015 - document actualisé le 18 mai 2015
+LES PERTURBATIONS
+050 Météorologie
+ LAPL / PPL
+Caractéristiques principales (coupes horizontales)
+Chaque partie d’une perturbation est caractérisée par des nuages typiques.
+Chaque partie d’une perturbation est caractérisée par des phénomènes typiques.
+
+www.aerogligli.fr
+ 18
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 30 décembre 2022
+LES CARTES MÉTÉOROLOGIQUES 
+TEMSI
+050 Météorologie
+LAPL / PPL
+Les cartes TEMSI (TEMps Signiﬁ  catif) sont des cartes de prévision des phénomènes météorologiques 
+signiﬁ  catifs et des masses nuageuses pour une heure donnée.
+Elles sont éditées par zones géographiques pour des limites verticales déﬁ  nies.
+En France métropolitaine et en Europe, vous utilisez les cartes TEMSI France et TEMSI EUROC (EuropeOccidentale) 
+éditées par Météo France.
+Carte TEMSI France      Carte TEMSI Euroc
+Carte TEMSI France Carte TEMSI EUROC
+Heures de validité 0h, 6h, 9h, 12h, 15h, 18h, 21h Diffusée toutes les 3h de minuit à 21h
+Disponible 2h avant les heures de validité Disponible 4h avant les heures de validité
+Elle couvre la France 
+de la surface à 15 000 ft QNH
+Elle couvre l’Europe occidentale 
+de la surface au niveau de vol 450
+Référence altimétrique : le niveau moyen de la mer Référence altimétrique : le calage standard 1013,25 hPa
+Altitudes indiquées en QNH Niveaux de vol ou FL
+Nébulosité renseignée de SCT à OVC Nébulosité BKN ou OVC au-dessus du FL100
+Altitudes des isothermes 0°C et -10°C indiquées Températures et niveaux de la tropopause indiqués
+Visibilité horizontale en surface indiquée 
+(V0, V1,5, V5, V8)
+Pas de visibilité horizontale renseignée
+Les vitesses sont indiquées en nœuds (kt)
+Les pressions sont exprimées en hPa
+Abréviations de la localisation des phénomènes
+MAR En mer MON Au-dessus des montagnes
+COT Sur les côtes SFC En surface
+LAN A l’intérieur des terres CIT A proximité ou au-dessus des villes importantes
+VAL Dans les vallées LOC Localement
+www.aerogligli.fr
+LES RÉSUMÉS
+ 19
+© Aérogligli 2015 - document actualisé le 17 mars 2015
+LES CARTES MÉTÉOROLOGIQUES 
+TEMSI
+050 Météorologie
+LAPL / PPL
+Les principaux symboles utilisés sur les 2 cartes
+Symbole Description Symbole Description
+Ligne festonnée :
+limite des zones de temps 
+signiﬁ  catif
+Pluie
+Ligne ﬁ  ne discontinue :
+limite des sous zones à l’intérieur 
+d’une zone festonnée
+Bruine
+Ligne épaisse discontinue :
+limite des zones de turbulences ou 
+limite de zones de grande étendue 
+de vent supérieur > 30 kt
+Averse
+Chiffre dans un carré :
+renvoi vers la légende précisant les 
+caractéristiques de la ligne épaisse 
+discontinue
+Pluie surfondue
+Lettre dans un carré :
+renvoi vers la légende précisant les 
+conditions de la sous zone en plus 
+de la zone festonnée
+Grêle
+Front froid en surface Brume
+Front chaud en surface Brouillard
+Projection en surface
+du front occlus Brouillard givrant
+Front stationnaire Orages
+Obscurcissement des sommets Givrage modéré
+Neige Givrage fort
+
+www.aerogligli.fr
+LES RÉSUMÉS
+ 20
+© Aérogligli 2015 - document actualisé le 17 mars 2015
+LES CARTES MÉTÉOROLOGIQUES 
+TEMSI
+050 Météorologie
+LAPL / PPL
+Symbole Description Symbole Description
+Turbulence modérée Ondes orographiques
+Turbulence forte Ligne de grains forts
+Vent fort de surface supérieur
+ou égal à 30 kt
+sur une grande étendue
+ici 40 kt
+Brume sèche
+ de grande étendue
+Centre de basses pressions
+(Dépression)
+Centre de hautes pressions
+(Anticyclone)
+Symboles utilisés seulement sur les cartes TEMSI EUROC
+Axe de courant jet
+avec indications du vent maximal et 
+du niveau de vol où il se situe.
+Température et niveau de vol 
+maximal de la tropopause
+Température et niveau de vol
+de la tropopause
+Température et niveau de vol
+minimal de la tropopause
+
+www.aerogligli.fr
+ 21
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 12 mars 2015
+LES CARTES MÉTÉOROLOGIQUES 
+WINTEM
+050 Météorologie
+LAPL / PPL
+Les cartes WINTEM
+Les cartes WINTEM (WINd - vent - TEMperature) sont des cartes de prévision des vents et des températures 
+pour différents niveaux de vols et une zone géographique.
+Elles sont utilisées pour optimiser vos navigations et les performances de vos avions.
+En France métropolitaine et en Europe, les cartes WINTEM France et EUROC (Europe Occidentale) sont 
+éditées par Météo France. Elles sont proposées pour des prévisions toutes les 3 heures.
+Les vents sont représentés par un trait orienté par rapport au Nord vrai et associé à un ou plusieurs symboles d’intensité.
+Un triangle équivaut à 50 kt, un trait long à 10 kt et un trait court à 5 kt.
+Ces symboles peuvent être répétés sur un même trait pour indiquer l’intensité du vent.
+Les températures positives sont précédées d’un signe + et les températures négatives ne comportent pas de signe.
+Carte WINTEM France
+Niveaux de vol 020, 050 et 100
+     Carte WINTEM Euroc
+Niveaux de vol 050, 100, 180, 300, 340, 390
+Données du Jeudi 12 mars 2015 à 04:01 UTC
+ Données du Jeudi 12 mars 2015 à 14:32 UTC
+Exemples d’informations de vents et de températures
+
+www.aerogligli.fr
+ 22
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 06 mai 2015
+LES MESSAGES MÉTÉOROLOGIQUES 
+METAR
+050 Météorologie
+LAPL / PPL
+Les messages METAR (METeorological Aerodrome Report) sont des messages d’observations météorologiques 
+pour un aérodrome et une heure donnée.
+Ils sont publiés toutes les heures ou toutes les demi-heures suivant l’importance de l’aérodrome.
+Ils sont qualiﬁ  és d’automatiques et notés AUTO lorsque l’observation est automatisée. 
+Ils peuvent être complétés par des messages d’observations spéciaux appelés SPECI en cas de changements 
+signiﬁ  catifs depuis la dernière publication METAR.
+Un message METAR est constitué de groupes d’éléments codés rangés dans un ordre déﬁ  ni.
+Exemple 1
+Message décodé
+Exemple 2
+Message décodé
+Les différents groupes de codes d’un METAR
+1 Type de message : METAR ou SPECI 6 Temps présent
+2 Identiﬁ  cation du lieu où est émis le message 
+(code OACI en 4 lettres) 7 Nébulosité et type de nuages
+3 Jour et heure de l’observation 8 Température de l’air et température du point de rosée
+4 Vent 9 QNH local
+5 Visibilité horizontale éventuellement portée 
+visuelle de piste 10  Informations complémentaires
+1 Message METAR 6 Pluie
+2 Aéroport Paris Charles de Gaulle 7 Nuages fragmentés à une hauteur de 3 000 ft
+3 Valable le 19 du mois à 16 heures UTC 8 Température de l’air +12°C, 
+température du point de rosée +8°C
+4
+Vent soufﬂ  ant du 320° pour 10 kt 9 QNH 1 010 hPa
+5 Visibilité dominante 6 000 m 10 Pas de changement signiﬁ  catif dans les 2 
+heures. Le symbole = indique ﬁ  n du message
+1 Message METAR AUTO 6 Brume sèche
+2 Aérodrome de Rouen 7 Pas de nuages signiﬁ  catifs (No Signiﬁ  cant Cloud)
+3 Valable le 18  du mois à 17 heures 30  UTC 8 Température de l’air +11°C, 
+température du point de rosée +5°C
+4 Vent soufﬂ  ant du 010° pour 10 kt 9 QNH 1 028 hPa
+5 Visibilité dominante 5 000 m Le symbole = indique la ﬁ  n du message.
+www.aerogligli.fr
+LES RÉSUMÉS
+ 23
+© Aérogligli 2015 - document actualisé le 06 mai 2015
+LES MESSAGES MÉTÉOROLOGIQUES 
+METAR
+050 Météorologie
+LAPL / PPL
+Les caractéristiques des différents groupes de codes
+Type et lieu du message
+Groupes 1 et 2 Déﬁ  nis précédemment
+Jour et heure de l’observation
+Groupe 3
+Jour du mois et heure exprimée en UTC
+Peut être suivi des codes suivants
+AUTO : observation automatisée
+COR : message corrigé
+Vent
+Groupe 4
+Déﬁ  ni par son orientation par rapport au Nord vrai, exprimée par 3 chiffres et 
+son intensité en kt.
+Le vent en rafales, est renseigné si une force de plus de 10 kt est mesurée par 
+rapport à la valeur moyenne sur 10 min. La lettre G est indiquée pour Gust en 
+anglais.
+Exemple : 26015G30KT vent du 260° 15 KT rafales 30 kt
+Visibilité horizontale
+Groupe 5
+Visibilité dominante exprimée en m.
+9999 signiﬁ  e 10 km ou plus
+Une visibilité minimale peut être indiquée avec sa direction :
+si elle est inférieure à 1 500 m
+ou inférieure à 50 % de la visibilité dominante et inférieure à 5 000 m
+Temps présent
+Groupe 6
+Indique les phénomènes météorologiques (intensité, descripteur, précipitations, 
+obscurcissement…)
+L’intensité est indiquée par le signe – (faible, modérée) et le signe + (forte)
+Quelques sigles : SH averse, TS orage, FZ se congelant, DZ bruine, RA pluie, 
+SN neige
+Hauteur de la base des nuages
+Groupe 7
+Attention HAUTEUR exprimée en pieds et nébulosité exprimée en octats :
+FEW 1 à 2 octats, SCT 3 à 4 octats, BKN 5 à 7 octats et OVC 8 octats
+2 types de nuages sont indiqués s’ils sont identiﬁ  és :
+CB cumulonimbus
+TCU tower congestus
+CAVOK signiﬁ  e Ceiling And Visibility OK avec 4 conditions à remplir
+1) visibilité dominante supérieure à 10 km,
+2) pas de nuage au dessous du plus élevé des niveaux suivants : la différence
+entre l’altitude minimale de secteur et l’altitude de l’aérodrome ou 1 500 m (5 000 ft) 
+au dessus du point de référence de l’aérodrome
+3) pas de CB ou de TCU
+4) pas de temps signiﬁ  catif.
+Température de l’air / 
+Température du point de rosée
+Groupe 8
+Exprimée en °C
+Un nombre précédé de la lettre M (minus en anglais) indique une température 
+négative.
+QNH local
+Groupe 9
+Exprimé en hPa et arrondi à l’unité inférieure.
+Renseignements 
+complémentaires
+Groupe 10
+Phénomènes récents indiqués précédés du code RE 
+Tendance pour les 2 heures qui suivent l’heure d’observation du message :
+exemple NOSIG pas de changement signiﬁ  catif dans les 2 heures.
+www.aerogligli.fr
+ 24
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 05 mai 2015
+LES MESSAGES MÉTÉOROLOGIQUES 
+TAF
+050 Météorologie 
+LAPL / PPL
+Les messages TAF (Terminal Aerodrome Forecast) sont des messages de prévisions météorologiques pour un 
+aérodrome et une période donnée.
+Ils sont appelés :  
+• TAF courts avec une validité de 9 h et émis toutes les 3 heures,
+• TAF longs avec une validité de 24 h ou 30 h et émis toutes les 6 heures.
+Ces messages sont disponibles 1 heure avant le début de leur validité.
+Un message TAF est constitué de groupes d’éléments codés rangés dans un ordre déﬁ  ni.
+Les groupes 1 à 8 décrivent le temps prévu à l’heure du début de la période de validité du message.
+Si le temps doit évoluer de manière signiﬁ  cative au cours de la période, les modiﬁ  cations sont précisées par le groupe
+d’évolutions et de probabilités décrivant les phénomènes attendus.
+Exemple 1
+Message décodé
+Exemple 2
+Message décodé
+Les différents groupes de codes d’un TAF
+1 Type de message :  TAF 6 Visibilité horizontale
+2  Identiﬁ  cation du lieu où est émis le message
+(code OACI en 4 lettres) 7 Temps signiﬁ  catif prévu
+3 Jour et heure de la prévision 8 Nébulosité et type de nuages
+4 Période de validité 9 Evolutions et probabilités
+5 Vent 10 Températures extrêmes prévues - code facultatif
+1 Message TAF 6 Ceiling and visibility OK
+2 Aéroport Brive Souillac
+9
+Probabilité d’occurence modérée 
+temporairement le 29 entre 21 heures UTC 
+et 24 heures UTC visibilité dominante 3 000 m 
+orage et pluie nuages fragmentés 1 500 pieds 
+cumulonimbus
+3 Emis le 29 du mois à 14 heures UTC 
+4
+Valable du 29 à 15 heures UTC au 29 à 24 heures UTC
+5 Vent soufﬂ  ant du 240° pour 6 kt
+1 Message TAF 6 Visibilité dominante 10 km ou plus
+2 Aéroport Rennes Saint Jacques 7 Averse de pluie
+3 Emis le 3 du mois à 11 heures UTC 8 Nuages fragmentés à une hauteur de 3000 pieds
+4 Valable du 3 à 12 heures UTC au 4 à 12 heures UTC
+9
+Temporairement le 3 entre 12 heures UTC et 18 
+heures UTC le vent va s'orienter au 230° pour 15 kt 
+rafales 25 kt puis à partir du 4 à 1 heure UTC au 4 
+à 7 heures UTC la visibilité dominante sera de 
+5 000 m avec de la pluie.
+5 Vent soufﬂ  ant du 220° pour 10 kt
+10
+Pas de températures extrêmes prévues : 
+actuellement en France LFPG et LFML sont les 
+seuls aérodromes à indiquer ces informations 
+www.aerogligli.fr
+LES RÉSUMÉS
+ 25
+© Aérogligli 2015 - document actualisé le 05 mai 2015
+LES MESSAGES MÉTÉOROLOGIQUES 
+TAF
+050 Météorologie
+LAPL / PPL
+Les caractéristiques des différents groupes de codes
+Type et lieu du message
+Groupes 1 et 2
+Si une modiﬁ  cation de la prévision est constatée (phénomène dangereux non 
+prévu ou prévu à tort) entre l’heure d’émission et la ﬁ  n de la période de validité, 
+un TAF amendé est alors émis et noté TAF AMD.
+Jour et heure de la prévision
+Groupe 3
+Jour du mois et heure de l’émission de la prévision exprimée en UTC
+Période de validité
+Groupe 4
+Jour du mois et heure de début de la validité suivis du jour du mois et heure de 
+ﬁ  n de validité.
+3 valeurs de périodes de validité : 9h, 24 h et 30 h.
+Vent
+Groupe 5
+Déﬁ  ni par son orientation par rapport au Nord vrai, exprimée par 3 chiffres et son 
+intensité en kt.
+Le vent en rafales, est renseigné si une force de plus de 10 kt est mesurée par 
+rapport à la valeur moyenne sur 10 min. La lettre G est indiquée pour Gust en 
+anglais.
+Exemple : 26015G30KT vent du 260° 15 KT rafales 30 kt
+Visibilité horizontale
+Groupe 6
+Visibilité dominante exprimée en mètres. 9999 signiﬁ  e 10 km ou plus.
+Une visibilité minimale peut être indiquée avec sa direction :
+si elle est inférieure à 1500 m ou inférieure à 50 % de la visibilité dominante et 
+inférieure à 5 000 m.
+CAVOK signiﬁ  e Ceiling And Visibility OK avec 4 conditions à remplir
+1) visibilité dominante supérieure à 10 km,
+2) pas de nuage au dessous du plus élevé des niveaux suivants : la différence
+entre l’altitude minimale de secteur et l’altitude de l’aérodrome ou 1 500 m
+(5 000 ft) au dessus du point de référence de l’aérodrome,
+3) pas de CB ou de TCU,
+4) pas de temps signiﬁ  catif.
+Temps signiﬁ  catif prévu
+Groupe 7
+Indique les phénomènes météorologiques
+L’intensité est indiquée par le signe – (faible, modérée) et le signe + (forte)
+Quelques sigles : SH averse, TS orage, FZ se congelant, DZ bruine, RA pluie, 
+SN neige
+NSW (No Signiﬁ  cant Weather) aucun phénomène météorologique signiﬁ  catif prévu
+Hauteur de la base des nuages
+Groupe 8
+Attention HAUTEUR exprimée en pieds et nébulosité exprimée en octats :
+FEW 1 à 2 octats, SCT 3 à 4 octats, BKN 5 à 7 octats et OVC 8 octats
+2 types de nuages sont indiqués s’ils sont identiﬁ  és :
+CB cumulonimbus
+TCU tower congestus
+Evolutions et probabilités
+Groupe 9
+FM (From) code indicateur de début de changement prévu
+TEMPO code indicateur des ﬂ  uctuations temporaires d’un ou plusieurs para-
+mètres, durant moins d’une heure et couvrant moins de la moitié de la période.
+BECM (Becoming) code indicateur d’évolution régulière ou irrégulière des para-
+mètres, entre les heures indiquées, sur une période normalement de 2 heures, 
+et strictement inférieure à 4 heures.
+PROB code indicateur de probabilité d’occurrence des phénomènes décrits 
+suivi de 30 ou 40 pour indiquer 30 % risque faible ou 40 % risque modéré.
+Températures extrêmes
+prévues
+Groupe 10
+Le code TX est suivi de la température maximale puis par l’heure et le jour prévus.
+Le code TN est suivi de la température minimale suivie par l’heure et le jour prévus.
+Exemple TX21/0415Z TN12/0406Z  température maximale + 21°C le 4 à 15 
+heures Zulu ou UTC et température minimale +12°C le 4 à 6 heures Zulu ou UTC

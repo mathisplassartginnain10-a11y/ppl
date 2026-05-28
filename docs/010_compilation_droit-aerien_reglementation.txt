@@ -1,0 +1,1576 @@
+www.aerogligli.fr
+  1
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 14 juillet 2025
+           COMPILATION
+010 Réglementation
+LAPL / PPL
+LES LICENCES LAPL & PPL AVION 2
+7
+11
+12
+13
+21
+23
+24
+26
+28
+31
+32
+LES RÈGLES DE L'AIR EUROPÉENNES SERA
+LES HAUTEURS DE SURVOL
+LES RÈGLES DE PRIORITÉ ET DE PRÉVENTION
+DES COLLISIONS
+LES SIGNAUX LUMINEUX, PANNEAUX AU SOL, PLACEUR 
+LES SIGNAUX D'INTERCEPTION
+LA RÈGLE SEMI-CIRCULAIRE
+L'ESPACE AÉRIEN
+NOTIONS D'ALTIMÉTRIE
+UTILISATION DES ESPACES AÉRIENS
+CONDITIONS MÉTÉOROLOGIQUES ET CALAGES
+PLAN DE VOL DÉPOSÉ (FPL)
+EQUIPEMENTS RÉGLEMENTAIRES
+ASSISTANCE RESPIRATOIRE, SURVOL DE L'EAU, 
+INSTRUMENTS DE BORD
+LES ABRÉVIATIONS AÉRONAUTIQUES 35
+www.aerogligli.fr
+  2
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 04 décembre 2023
+LES LICENCES LAPL & PPL
+010 Réglementation  LAPL / PPL
+Le cadre réglementaire
+L’Agence Européenne de Sécurité Aérienne régit les licences des personnels navigants.
+Les règlements européens n°1178/2011 et n° 290/2012 organisent les différents types de licences de 
+pilotes en fonction de l’aéronef ou de l’aérostat utilisé (avion, hélicoptère, planeur, ballon, dirigeable, etc.).
+La DGAC - Direction Générale de l’Aviation Civile – est l’organisme national français qui assure l’application de 
+ces règlements.
+Pour les avions, il s’agit de 4 licences :
+• LAPL(A) : licence de Pilote d’aéronefs légers Avion / Light Aircraft Pilot License
+• PPL(A) : licence de Pilote Privé Avion / Private Pilot License
+• CPL(A) : licence de Pilote Professionnel Avion / Commercial Pilot License
+• ATPL(A) : licence de Pilote de Ligne Avion / Airline Transport Pilot License
+Les titulaires des licences LAPL et PPL ne peuvent pas être rémunérés pour les vols qu’ils réalisent.
+Les pilotes titulaires des licences CPL et ATPL peuvent être rémunérés. 
+La licence PPL est la licence la plus répandue dans notre activité d’aviation légère. La licence LAPL vient d’être mise en place.
+L’organisme de formation dans lequel vous effectuez votre formation est un organisme approuvé appelé ATO 
+(Approved Training Organisation).
+LAPL avion
+Age minimal : 17 ans pour l’obtention de la licence, 16 ans pour le premier vol solo.
+Aptitude physique et mentale : certiﬁ  cat médical de classe 1 ou 2
+Privilèges et conditions : 
+• exercer sans rémunération les fonctions de commandant de bord (CDB) d’un avion dont la masse est
+inférieure à 2 tonnes.
+• validité 2 ans + conditions d’expérience récente (voir ci-dessous).
+• emport de 3 passagers maximum (4 personnes à bord maximum).
+• emport de passagers après 10h de vol en tant que CDB, validation par l’Autorité.
+• passerelle vers la licence PPL.
+Expérience minimale pour son obtention
+• Total : 30 heures de vol dont au moins :
+• 15 heures de vol en double commande.
+• 6 heures de vol en solo supervisé dont au moins 3 h de vol en campagne (navigation) avec un vol de 80
+NM comportant un atterrissage complet sur 1 aérodrome différent de l’aérodrome de départ.
+Conditions d’expérience récente :
+Les titulaires d’une licence LAPL ne peuvent exercer les privilèges de cette licence que s’ils ont réalisé dans les 
+24 derniers mois :
+• au moins 12 heures de vol en tant que CDB incluant 12 atterrissages et décollages,
+• 1 h de vol avec un FI - Flight Instructor.
+Si les pilotes LAPL ne satisfont pas aux exigences précisées ci-dessus, ils devront effectuer :
+• un contrôle de compétences avec un FE - Flight Examiner -
+• réaliser des vols, des décollages & atterrissages additionnels en double commande ou en solo supervisé.
+
+www.aerogligli.fr
+LES LICENCES LAPL & PPL LES RÉSUMÉS
+  3
+© Aérogligli 2014 - document actualisé le 04 décembre 2023
+010 Réglementation  LAPL / PPL
+PPL avion
+Age minimal : 17 ans pour l’obtention de la licence, 16 ans pour le premier vol solo.
+Aptitude physique et mentale : certiﬁ  cat médical de classe 1 ou 2 - voir certiﬁ  cat médical ci-dessous
+Privilèges et conditions : 
+• exercer sans rémunération les fonctions de commandant de bord (CDB)
+• validité 2 ans
+Expérience minimale pour obtention
+• Total : 45 heures de vol dont au moins :
+• 25 heures en double commande.
+• 10 heures de vol en solo supervisé dont au moins 5 heures de vol en campagne (navigation) avec un vol
+de 150 NM avec 2 atterrissages complets sur 2 aérodromes différents de l’aérodrome de départ.
+• 5 heures peuvent être effectuées sur un simulateur agréé de type BITD.
+• L’expérience acquise en tant que commandant de bord sur d’autres aéronefs - planeurs, hélicoptères - ou
+avec le brevet de base - titre français - peut être prise en compte dans une limite de 10 % du total réalisé en
+tant que CDB sur ces aéronefs, avec un maximum ﬁ  xé à 10 heures.
+Prorogation et Renouvellement
+La qualiﬁ  cation de classe SEP, la plus commune dans notre activité, est valide 24 mois.
+Les dates de validité sont toujours le dernier jour du mois. 2 termes sont associés à cette notion de validité.
+Prorogation : prolongation de la validité avant la date d’expiration de la qualiﬁ  cation de classe.
+Renouvellement : rétablissement de la validité après la date d’expiration de la qualiﬁ  cation de classe.
+Pour proroger la qualiﬁ  cation de classe SEP sur la licence PPL, il faut dans les 12 mois qui précèdent l’expiration :
+• avoir effectué 12 HdV, dont au moins 6 en CdB,
+• avoir réalisé une heure avec instructeur ou FI
+• avoir exécuté 12 décollages et 12 atterrissages.
+On parle alors de prorogation par expérience.
+
+www.aerogligli.fr
+LES LICENCES LAPL & PPL LES RÉSUMÉS
+  4
+© Aérogligli 2014 - document actualisé le 04 décembre 2023
+010 Réglementation 
+LAPL / PPL
+Si vous ne remplissez pas ces conditions, un vol de contrôle doit être réalisé avec un examinateur dans les 3 
+mois qui précèdent l’expiration.
+Si votre qualiﬁ cation SEP, n’est plus valide - date expirée - il faut effectuer  un vol de contrôle avec un FE ou 
+examinateur. C’est le renouvellement. A l’issue du vol l’examinateur délivre à nouveau l’aptitude à la qualiﬁ cation 
+SEP... si vous avez les compétences nécessaires.
+Examens
+La licence LAPL et la licence PPL s’obtiennent après 
+le passage d’un examen théorique et une épreuve 
+pratique en vol avec un examinateur.
+L’examen théorique est commun aux licences LAPL et PPL.
+Il est organisé en 9 épreuves indépendantes.
+Il comporte au total 128 QCM questions à choix multiple et à réponse unique, sans point négatif.
+Vous devez obtenir au moins 75 % de bonnes réponses, par épreuve, pour la réussir.
+Vous disposez d’un délai de 18 mois à partir du 1°passage de l’une des épreuves pour réussir les 9 épreuves. 
+Le nombre de présentations à l’examen est limité à 6 et un maximum de 4 par épreuve.
+Le certiﬁ cat d’aptitude théorique est valable 2 ans. Si au bout de 2 ans vous n’avez toujours pas passé l’épreuve 
+pratique, vous devez repasser l’examen théorique.
+L’examen pratique LAPL est composé de 5 sections : préparation vol, maniabilité, navigation, atterrissage et 
+procédures d’urgence.
+Il est réalisé sous l’autorité d’un examinateur ou FE - Flight Examiner
+Si vous échouez à une section, vous ne repasserez que cette section.
+Si vous échouez à plus d’une section, vous repassez l’épreuve au complet.
+L’examen pratique PPL est composé de 6 sections : préparation vol, maniabilité, navigation, atterrissage, 
+procédures d’urgence et utilisation sur un seul moteur dans le cas où la formation et le test se déroulent sur un 
+avion bimoteur.
+On peut passer sa licence PPL sur un bimoteur !
+Comme pour la licence LAPL,il est réalisé sous l’autorité d’un examinateur ou FE - Flight Examiner.
+Si vous échouez à une section, vous ne repasserez que cette section. Si vous échouez à plus d’une section, 
+vous repassez l’épreuve au complet.
+www.aerogligli.fr
+LES LICENCES LAPL & PPL LES RÉSUMÉS
+  5
+© Aérogligli 2014 - document actualisé le 02 septembre 2014
+010 Réglementation 
+LAPL / PPL
+Les licences LAPL & PPL
+Elles se présentent sous la forme d’un triptyque cartonné, sur lequel ﬁ gurent vos informations personnelles, la 
+liste et la validité des qualiﬁ cations associées.
+Les informations personnelles
+Vos noms, prénoms, adresse,...sont renseignés mais pas de photo. Vous devez avoir avec vous une 
+pièce d’identité ofﬁ  cielle CNI, passeport, permis de conduire,… pour conﬁ  rmer votre identité de pilote !
+La validité
+Les licences LAPL et PPL sont délivrées à vie, mais la validité de la licence dépend des qualiﬁ  cations associées 
+et du certiﬁ  cat médical. En clair, vous ne pouvez pas voler avec votre licence si vous n’avez pas de qualiﬁ  cation 
+valide pour l’avion que vous voulez utiliser et/ou que votre certiﬁ cat médical n’est pas valide.
+Le certiﬁ  cat médical
+Il existe 2 types de certiﬁ  cat médical : 
+certiﬁ  cat médical classe 1 pour les professionnels et certiﬁ  cat médical classe 2 pour les pilotes privés.
+Le certiﬁ  cat médical classe 1 est obtenu après une visite dans un centre médical du personnel navigant.
+Le certiﬁ  cat médical classe 2 est délivré par un médecin agréé aéronautique.
+Si votre certiﬁ  cat médical n’est plus valide, vous ne pouvez pas ...voler !
+Modèle de licence (verso)
+Modèle de licence (recto)
+www.aerogligli.fr
+LES LICENCES LAPL & PPL LES RÉSUMÉS
+  6
+© Aérogligli 2014 - document actualisé le 02 septembre 2014
+010 Réglementation  LAPL / PPL
+Validité du certiﬁ  cat médical pour une licence PPL :
+• 60 mois jusqu’à ce que le titulaire de la licence atteigne l’âge de 40 ans. Un certiﬁ  cat médical délivré à un
+titulaire de licence n’ayant pas 40 ans cesse d’être valable quand celui-ci atteint l’âge de 42 ans ;
+• 24 mois si le titulaire de la licence a entre 40 et 50 ans. Un certiﬁ  cat médical délivré à un titulaire de licence
+n’ayant pas 50 ans cesse d’être valable quand celui-ci atteint l’âge de 51 ans ;
+• 12 mois à partir de l’âge de 50 ans.
+Validité du certiﬁ  cat médical pour une licence LAPL : 
+• 60 mois jusqu’à ce que le titulaire de la licence atteigne l’âge de 40 ans. Un certiﬁ  cat médical délivré à un
+titulaire de licence n’ayant pas 40 ans cesse d’être valable quand celui-ci atteint l’âge de 42 ans ;
+• 24 mois après l’âge de 40 ans.
+La validité du certiﬁ  cat médical est dite de date à date.
+Exemple : si vous passez votre visite médicale le 15 juin 2014 et vous avez moins de 40 ans, le certiﬁ  cat médical 
+est valide jusqu’au 15 juin 2019 ou jusqu’à la date anniversaire de vos 42 ans - dans le cas où cette date 
+anniversaire est avant le 15 juin 2019.
+Les qualiﬁ  cations de classes
+Ce sont des compétences supplémentaires que vous pouvez obtenir et qui sont associées à votre licence.
+La toute première qualiﬁ  cation est obtenue en même temps que le LAPL ou le PPL : 
+la qualiﬁ  cation de classe SEP (Single Engine Piston ou Monomoteurs à Pistons).
+Normalement c’est la qualiﬁ  cation de classe d’avion sur lequel vous avez passé le test en vol pour la délivrance 
+du LAPL ou du PPL.
+On peut citer quelques qualiﬁ  cations de classes :
+MEP = qualiﬁ  cation de classe multimoteur à pistons.
+SET = Single Engine Turboprop : mono turbine par exemple le Cessna Caravan ou le TBM 900.
+D’autres compétences appelées variantes ne font pas l’objet d’une qualiﬁ  cation : train rentrant, hélice à calage 
+variable, train classique, EFIS. Ce sont des aptitudes associées à une qualiﬁ  cation de classe et notées sur le 
+carnet de vol, et peuvent nécessiter une formation théorique et des vols complémentaires de formation.
+Les qualiﬁ  cations additionnelles
+Elles complètent une qualiﬁ  cation de classe.
+Qualiﬁ  cation IR = qualiﬁ  cation de vol aux instruments, indispensable pour voler en régime de vol IFR
+Qualiﬁ  cation vol de nuit = qualiﬁ  cation permettant d’effectuer des vols VFR de nuit
+Qualiﬁ  cation voltige = tout est dans le titre 
+Qualiﬁ  cation montagne = permet l’accès sous conditions d’expérience récente à certains aérodromes situés en 
+zone montagneuse, déclinée en version roues ou version skis !
+Qualiﬁ  cation FI = qualiﬁ  cation d’instructeur.
+Qualiﬁ  cation FE = qualiﬁ  cation d’examinateur
+QT = qualiﬁ  cations de types pour certains aéronefs qui ne rentrent pas dans une classe : Airbus A320, Falcon 7X ...
+Elles sont obtenues après avoir suivi un programme de formation théorique et pratique puis effectué un 
+test en vol avec un examinateur.
+www.aerogligli.fr
+  7
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 17 décembre 2014
+SERA
+Les  règles de l’air européennes
+ LAPL / PPL
+SERA est l’acronyme de Standardised European Rules of the Air.
+Ce sont les nouvelles règles de l’air européennes mises en place en France depuis le 4 décembre 2014.
+Elles ont été définies pour harmoniser les règles de l’air appliquées dans les di férents pays européens EASA.
+Cependant les états membres peuvent appliquer s’ils le souhaitent des différences nationales à ces règles 
+européennes. Qui a dit ? « quand on peut faire simple, on préfère compliquer » 
+Les règles européennes SERA n’apportent pas une révolution pour nos vols VFR mais présentent des évolutions 
+à connaître.
+Pour les plus curieux, les règles SERA sont défini s par le règlement européen 923/2012 et remplacent en 
+France les arrêtés du 3 mars 2006 (RDA et SCA).
+Les nouveautés et modifications 
+Voici les principales définitions modifiées ou nouvelles, à retenir pour notre activité VFR
+• Un abordage est un choc entre 2 aéronefs.
+• Une collision est un choc d’un aéronef avec la surface terrestre (eau, sol, obstacles)
+• L’acrobatie / la voltige aérienne : ce sont les manœuvres effectuées intentionnellement par un aéronef,
+comportant un changement brusque d’assiette, une position anormale ou une variation anormale de la
+vitesse, et qui ne sont pas nécessaires pour un vol normal ou pour l’instruction débouchant sur des licences
+ou des qualifications autres que la qualification de vol acrobatiqu
+• La circulation d’aérodrome représente l’ensemble de la circulation sur l’aire de manœuvre d’un aérodrome
+et des aéronefs évoluant aux abords de cet aérodrome. La définition d’un aéronef évoluant aux abords d’un
+aérodrome englobe, sans s’y limiter, les aéronefs qui entrent dans un circuit d’aérodrome ou qui en sortent.
+• La notion de « solution alternative » pour l’emport de carburant se nomme maintenant « plan de diversion ».
+• Tous les plans de vol VFR de jour ou de nuit doivent être déposés avant le départ, sans délai prescrit
+SAUF celui d’un vol avec franchissement de frontières où le plan de vol doit être déposé 60 min avant
+le départ.
+3 nouveaux types de zones sont définis 
+ATZ (Airfield Traffic Zone) : zone de circulation d’aérodrome où le contact radio est  obligatoire. C’est une zone 
+de protection de la circulation d’un aérodrome dont le trafic peut être important et qui n’a pas de CTR associée.
+RMZ (Radio Mandatory Zone) : zone où l’usage de la radio est obligatoire.
+TMZ (Transponder Mandatory Zone) : zone où l’usage du transpondeur est obligatoire.
+Les 2 zones (RMZ et TMZ) s’ajoutent aux zones ou aux espaces où ces équipements sont obligatoires.
+www.aerogligli.fr
+LES RÉSUMÉS
+  8
+© Aérogligli 2014 - document actualisé le 17 décembre 2014
+• Les espaces de classe A sont interdits aux VFR.
+Aucune dérogation n’est accordée, seulement des exceptions pour des missions d’état, de sauvetage, de recherche
+et médicales !
+Les conditions VMC en espace aérien non contrôlé (EANC)
+En dessous du plus haut des 2 niveaux 3 000 ft QNH ou 1 000 ft ASFC en espace aérien non contrôlé (classe G) 
+les conditions météorologiques minimales requises dépendent maintenant de la vitesse indiquée de l’aéronef.
+Conditions du VFR spécial
+Les conditions de ce régime particulier dans les CTR évoluent également.
+Le pilote peut demander à évoluer en VFR  spécial dans la CTR si les conditions MTO ne sont plus celles en 
+EAC sous le niveau 100 (visibilité horizontale minimale requise 5 km, distance par rapport aux nuages de 300 
+m verticalement et 1 500 m horizontalement)
+Il doit néanmoins maintenir :
+• une vitesse indiquée maximale de 140 kt,
+• être hors des nuages, en vue du sol,
+• et disposer d’une visibilité horizontale d’au moins 1500 m (800 m pour les hélicoptères).
+Le service du contrôle peut également annoncer le VFR spécial dans la CTR au vu des conditions météorologiques 
+sur l’aérodrome.
+Le VFR spécial n’est possible :
+• que de jour,
+• si le plafond n’est pas inférieur à 180 m ou 600 ft,
+• et si la visibilité au sol n’est pas inférieure à 1500 m (800 m pour les hélicoptères).
+Des conditions particulières sont définies pour les hélicoptères en complément des valeurs ci-dessus :
+• vitesse maximale 120 kt si la visibilité horizontale est supérieure ou égale à 2 000 m,
+• vitesse maximale 100 kt si si la visibilité horizontale est supérieure ou égale à 1500 m,
+• vitesse maximale 50 kt si la visibilité horizontale est supérieure ou égale à 800 m.
+Les cartes VAC des aérodromes où il existe une CTR peuvent renseigner les conditions météorologiques 
+minimales requises pour le VFR spécial dans la CTR.
+Vitesse indiquée < 140 kt
+Visibilité horizontale minimale requise 1,5 km
+(800 m pour les hélicoptères)
+Hors des nuages et en vue du sol
+Recommandation d’assurer une visibilité horizontale 
+équivalente à 30 sec de vol
+Vitesse indiquée > 140 kt
+Limitée à 250 kt
+Visibilité horizontale minimale requise 5 km
+Hors des nuages et en vue du sol
+Si la visibilité < 5 km
+Obligation d’être à plus de 15 km de tout aérodrome 
+sauf pour l’atterrissage et le décollage
+Obligation d’assurer une visibilité horizontale 
+équivalente à 30 sec de vol
+SERA
+Les  règles de l’air européennes
+ LAPL / PPL
+www.aerogligli.fr
+SERA LES RÉSUMÉS
+  9
+© Aérogligli 2014 - document actualisé le 17 décembre 2014
+Les  règles européennes de l’air
+LAPL / PPL
+Hauteurs de survol
+Hors agglomération, la hauteur minimale de survol est de 150 m ou 500 ft au-dessus de l’obstacle le plus 
+élevé situé dans un rayon de 150 m ou 500 ft de l’aéronef.
+Bien que les 
+règles SERA soient mises en place pour harmoniser les règles de l’air en Europe, la France a 
+décidé de maintenir l’arrêté du 10 octobre 1957 pour les survols des agglomérations, des rassemblements de 
+personnes et d’animaux !
+Voici 1 tableau pour vous rappeler ces hauteurs minimales valables en France uniquement ! 
+Les symboles utilisés sont présents sur les cartes de navigation au 1/500 000 
+ème éditées par le SIA et l’IGN.
+
+www.aerogligli.fr
+SERA LES RÉSUMÉS
+ 10
+© Aérogligli 2014 - document actualisé le 17 décembre 2014
+Les règles de l’air européennes
+LAPL / PPL
+Aérogligli prépare de nouveaux cours destinés aux pilotes brevetés PPL.
+Ils seront disponibles dans une nouvelle classe de cours « PERFECTIONNEMENT »
+Un cours dédié aux EFIS et un cours consacré au vol VFR de nuit seront les premiers proposés.
+Dans l’attente du cours VFR de nuit, voici un résumé des principales modifications concernant ce type de vol avec 
+la mise en place des règles européennes SERA.
+VFR de nuit 
+Il existe 2 types de vols VFR de nuit :
+• vol aux abords d’un aérodrome,
+• vol au-delà des abords d’un aérodrome.
+SERA ne définit pas actuellement la notion « aux abords d’un aérodrome » C’est la définition initiale qui est 
+conservée.
+Un vol aux abords d’un aérodrome est un vol  effectué intégralement : 
+• dans une CTR (et une TMA jointive),
+• ou dans une ATZ (zone de circulation d’aérodrome),
+• ou à 12 km d’un aérodrome.
+Un dépôt de plan de vol est obligatoire avant le départ sauf :
+• si le vol est aux abords d’un aérodrome,
+• si le vol est effectué avec le même organisme de la circulation aérienne.
+Les services rendus aux VFR de nuit sont équivalents à ceux VFR de jour dans les espaces de classes D et E.
+La France conserve la hauteur minimale de survol de 1 500 ft au-dessus de l’obstacle le plus élevé autour de 
+l’aéronef ailleurs qu’en région montagneuse.
+Les itinéraires VFR de nuit sont recommandés. Ils deviennent obligatoires s’ils dérogent aux règles minimales 
+de survol.
+Les mêmes conditions météorologiques minimales requises sont nécessaires que le vol soit aux abords ou au-
+delà d’un aérodrome :
+• visibilité horizontale minimale 5 km jusqu’au FL100 et 8 km au-dessus,
+• en vue du sol en dessous du plus haut des 2 niveaux 3 000 ft QNH ou 1 000 ft ASFC,
+• plafond supérieur ou égal à 1 500 ft,
+• espacement aux nuages de 300 m verticalement et 1 500 m horizontalement.
+La France ajoute une recommandation à ces conditions VMC :
+• la hauteur de la base des nuages doit être supérieure ou égale à 1 500 ft au dessus du FL prévu,
+• et absence de précipitation ou d’orage.
+www.aerogligli.fr
+ 11
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 08 janvier 2015
+LES HAUTEURS DE SURVOL
+010 Réglementation  LAPL / PPL
+Les hauteurs de survol minimales hors agglomérations
+La hauteur minimale de survol est de 150 m ou 500 ft au-dessus de l’obstacle le plus élevé situé dans un 
+rayon de 150 m ou 500 ft de l’aéronef.
+Les hauteurs de survol minimales des agglomérations, rassemblements de personnes ou d’animaux et 
+des zones comportant des marques distinctives au sol.
+Bien que les règles SERA soient mises en place pour harmoniser les règles de l’air en Europe, la France a 
+décidé de maintenir l’arrêté du 10 octobre 1957 pour les survols des agglomérations, des rassemblements de 
+personnes et d’animaux ! 
+
+www.aerogligli.fr
+ 12
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 27 janvier 2015
+LES REGLES DE PRIORITE
+ ET DE PREVENTION DES COLLISIONS
+010 Réglementation
+LAPL / PPL
+7 règles principales à connaître et à... appliquer !
+1
+Un aéronef en vol a toujours priorité sur un aéronef au sol
+2
+2 aéronefs à l’atterrissage : le plus bas est prioritaire
+3
+En cas de routes convergentes, l’aéronef venant de la droite est prioritaire
+4
+Le dépassement s’effectue toujours par la droite
+En tour de piste sur un aérodrome contrôlé, l’autorisation est demandé au service de contrôle.
+Le dépassement peut avoir lieu par la gauche sur accord du contrôle en fonction du sens du tour de piste.
+5
+En cas de rapprochement de face, 
+les 2 aéronefs s’évitent par une manœuvre vers la droite
+6
+Les aéronefs les plus manœuvrants cèdent le passage aux moins manœuvrants,
+aux remorqueurs et aux patrouilles
+Ordre de priorité du moins manœuvrant au plus manœuvrant
+7
+Les aéronefs en situation d’urgence ou de détresse sont prioritaires à l’atterrissage
+Situation particulière en cas de route convergente : 
+• la priorité à droite s'applique entre aéronefs de même catégorie,
+• si la catégorie d’aéronef est différente, c’est la règle 6 qui s’applique .
+www.aerogligli.fr
+ 13
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 03 novembre 2015
+LES SIGNAUX
+010 Réglementation LAPL / PPL
+SIGNAUX POUR LA CIRCULATION D’AÉRODROME
+Accusé de réception des aéronefs
+a) En vol :
+1) de jour : en balançant les ailes ;
+Note : Ce signal n’est pas utilisé sur le parcours de base et sur le parcours final de l’approche.
+2) de nuit : en éteignant et en allumant deux fois les projecteurs d’atterrissage ou, s’il n’en est pas équipé, ses
+feux de position.
+b) Au sol :
+1) de jour : en remuant les ailerons ou la gouverne de direction ;
+2) de nuit : en éteignant et en allumant deux fois les projecteurs d’atterrissage ou, s’il n’en est pas équipé, ses
+feux de position.
+www.aerogligli.fr
+LES SIGNAUX LES RÉSUMÉS
+ 14
+© Aérogligli 2014 - document actualisé le 25 avril 2014
+010 Réglementation  LAPL / PPL
+SIGNAUX VISUELS AU SOL
+Interdiction d’atterrir
+Un panneau carré rouge horizontal à diagonales jaunes indique, lorsqu’il est disposé 
+sur l’aire à signaux, que les atterrissages sont interdits et que l’interdiction peut se  
+prolonger.
+Précautions spéciales à prendre au cours de l’approche ou de l’atterrissage
+Un panneau carré rouge horizontal avec une seule diagonale jaune indique, lorsqu’il 
+est disposé sur l’aire à signaux, qu’en raison du mauvais état de l’aire de manoeuvre 
+ou pour toute autre raison, des précautions spéciales doivent être prises au cours de 
+l’approche ou au cours de l’atterrissage.
+Utilisation des pistes et voies de circulation
+Un panneau horizontal blanc en forme d’haltère indique, lorsqu’il est disposé sur 
+l’aire à signaux, qu’il est prescrit aux aéronefs d’atterrir, de décoller et de circuler 
+exclusivement sur les pistes et voies de circulation.
+Le même signal mais comportant une bande noire perpendiculaire à la barre 
+transversale dans chacune des extrémités circulaires de l’haltère  indique, lorsqu’il est 
+disposé sur l’aire à signaux, qu’il est prescrit aux aéronefs d’atterrir et de décoller sur 
+les pistes seulement, mais que les autres manoeuvres peuvent être effectuées ailleurs 
+que sur les pistes et voies de circulation.
+Pistes ou voies de circulation fermées
+Des croix d’une couleur uniforme contrastante, jaune ou blanche, disposées  
+horizontalement sur des pistes ou des voies de circulation ou sur des parties de 
+piste ou de voie de circulation indiquent des zones impropres aux manoeuvres des  
+aéronefs.
+ Directions d’atterrissage et de décollage
+Un T d’atterrissage horizontal orangé ou blanc indique aux aéronefs la direction à  
+utiliser pour l’atterrissage et le décollage, ceux-ci s’effectuant dans une direction  
+parallèle à la barre verticale du T, vers la barre transversale du T.
+Numéro de piste
+Un groupe de deux chiffres, placés verticalement sur la tour de contrôle d’aérodrome 
+ou près de celle-ci, indique aux aéronefs sur l’aire de manoeuvre la direction du  
+décollage, exprimée en dizaines de degrés du compas magnétique, arrondie à la  
+dizaine la plus proche.
+09
+C
+09
+C
+09
+C
+09
+C
+09
+C
+09
+C
+09
+C
+Voies de 
+circulation
+Pistes
+www.aerogligli.fr
+LES SIGNAUX LES RÉSUMÉS
+ 15
+© Aérogligli 2014 - document actualisé le 25 avril 2014
+010 Réglementation LAPL / PPL
+SIGNAUX VISUELS AU SOL
+Circulation à droite
+Une flèche de couleur voyante, dirigée vers la droite, placée sur l’aire à signaux ou 
+disposée horizontalement à l’extrémité de la piste ou de la bande en service, indique 
+que les virages doivent être exécutés à droite avant l’atterrissage et après le décollage.
+Bureau de piste des services de la circulation aérienne
+La lettre C, noire sur fond jaune, placée verticalement, indique l’emplacement du 
+bureau de piste des services de la circulation aérienne.
+Vols de planeurs en cours
+Une double croix blanche, disposée horizontalement dans l’aire à signaux, indique que 
+l’aérodrome est utilisé par des planeurs et que des vols sont en cours.
+09
+C
+09
+C
+09
+C
+SIGNAUX DE CIRCULATION AU SOL
+SIGNAUX PLACEUR AVION 1
+avancez vers moiplacez vous devant moi dirigez vous
+vers le placeur suivant
+continuez en vous
+conformant aux indications
+virez ou
+tournez à droite
+virez ou
+tournez à gauche
+halte freins démarrez le moteur
+Continuez en vous conformant aux indications du signaleur
+Le signaleur guide le pilote lorsque les conditions de la circulation sur l’aérodrome le 
+nécessitent.
+SIGNAUX PLACEUR AVION 1
+avancez vers moiplacez vous devant moi dirigez vous
+vers le placeur suivant
+continuez en vous
+conformant aux indications
+virez ou
+tournez à droite
+virez ou
+tournez à gauche
+halte freins démarrez le moteur
+Placez-vous devant moi
+Les bras tendus en position verticale au-dessus de la tête, les paumes se faisant face 
+à l’intérieur.
+Dirigez-vous vers le signaleur suivant
+Tendre les bras vers le haut, puis les baisser vers le côté du corps, en pointant les 
+bâtons dans la direction du signaleur suivant. 
+NOUVEAUX SIGNAUX PLACEUR AVION
+démarrez le moteur
+freins
+cales en place cales enlevées
+coupez le moteur
+dirigez vous
+vers le placeur suivant
+
+www.aerogligli.fr
+LES SIGNAUX LES RÉSUMÉS
+ 16
+© Aérogligli 2014 - document actualisé le 25 avril 2014
+010 Réglementation LAPL / PPL
+SIGNAUX DE CIRCULATION AU SOL
+Avancez
+Les bras légèrement écartés, paumes tournées vers l’arrière, se déplacent d’un 
+mouvement répété vers le haut et l’arrière, à partir de la hauteur des épaules.
+SIGNAUX PLACEUR AVION 1
+avancez vers moiplacez vous devant moi dirigez vous
+vers le placeur suivant
+continuez en vous
+conformant aux indications
+virez ou
+tournez à droite
+virez ou
+tournez à gauche
+halte freins démarrez le moteur
+Virez
+a) Virez à gauche : Bras droit et bâton formant un angle de 90° avec le côté du corps,
+faire le signal «tout droit» avec la main gauche. La rapidité du mouvement indique le
+taux de virage.
+b) Virez à droite : Bras gauche et bâton formant un angle de 90° avec le côté du corps,
+faire le signal «tout droit» avec la main droite. La rapidité du mouvement indique le
+taux de virage.
+SIGNAUX PLACEUR AVION 2
+cales enlevées cales misesralentissez
+coupez le moteur tout va bien
+virez à gauche virez à droite
+SIGNAUX PLACEUR AVION 2
+cales enlevées cales misesralentissez
+coupez le moteur tout va bien
+virez à gauche virez à droite
+Halte
+Les bras sont croisés au-dessus de la tête d’un mouvement répété. (La rapidité du 
+mouvement doit être fonction de l’urgence de l’arrêt, autrement dit, plus le mouvement 
+est rapide, plus l’arrêt doit être immédiat).
+SIGNAUX PLACEUR AVION 1
+avancez vers moiplacez vous devant moi dirigez vous
+vers le placeur suivant
+continuez en vous
+conformant aux indications
+virez ou
+tournez à droite
+virez ou
+tournez à gauche
+halte freins démarrez le moteur
+Freins
+a) Serrez les freins : Lever la main, ouverte, paume tournée vers l’avant, un peu plus haut que
+la hauteur de l’épaule. En maintenant le contact visuel avec l’équipage de conduite, fermer
+la main. Ne pas bouger avant d’avoir reçu l’accusé de réception de l’équipage de conduite
+(signal « tout va bien »). 
+b) Desserrez les freins :  Lever la main, poing fermé, un peu plus haut que la
+hauteur de l’épaule. En maintenant le contact visuel avec l’équipage de conduite, ouvrir la
+main. Ne pas bouger avant d’avoir reçu l’accusé de réception de l’équipage de conduite
+(signal «tout va bien»).
+NOUVEAUX SIGNAUX PLACEUR AVION
+démarrez le moteur
+freins
+cales en place cales enlevées
+coupez le moteur
+dirigez vous
+vers le placeur suivant
+Démarrez le(s) moteur(s)
+De la main droite, levée à la hauteur de la tête et bâton pointant vers le haut, faire un 
+mouvement circulaire. Pendant ce temps, le bras gauche, tendu de façon que la main 
+soit à la hauteur de la tête, pointe en direction du moteur à mettre en marche.
+NOUVEAUX SIGNAUX PLACEUR AVION
+démarrez le moteur
+freins
+cales en place cales enlevées
+coupez le moteur
+dirigez vous
+vers le placeur suivant
+Coupez les moteurs
+Tendre le bras et le bâton devant le corps à la hauteur des épaules; placer la main 
+droite et le bâton devant l’épaule gauche, puis, en tenant le bâton à l’horizontale, le 
+déplacer vers l’épaule droite en passant sous le menton. 
+NOUVEAUX SIGNAUX PLACEUR AVION
+démarrez le moteur
+freins
+cales en place cales enlevées
+coupez le moteur
+dirigez vous
+vers le placeur suivant
+
+www.aerogligli.fr
+LES SIGNAUX LES RÉSUMÉS
+ 17
+© Aérogligli 2014 - document actualisé le 25 avril 2014
+010 Réglementation LAPL / PPL
+SIGNAUX DE CIRCULATION AU SOL
+Cales
+a) Cales en place : Bras tendus verticalement au-dessus de la tête et bâtons tournés
+vers l’intérieur, d’un coup sec, joindre les extrémités des bâtons. Veiller à recevoir un
+accusé de réception de l’équipage de conduite
+ 
+b) Cales enlevées : Bras tendus verticalement au-dessus de la tête et bâtons tournés
+vers l’extérieur, d’un coup sec, écarter les bâtons. Ne pas faire enlever les cales avant 
+d’avoir reçu l’autorisation de l’équipage de conduite.
+NOUVEAUX SIGNAUX PLACEUR AVION
+démarrez le moteur
+freins
+cales en place cales enlevées
+coupez le moteur
+dirigez vous
+vers le placeur suivant
+NOUVEAUX SIGNAUX PLACEUR AVION
+démarrez le moteur
+freins
+cales en place cales enlevées
+coupez le moteur
+dirigez vous
+vers le placeur suivant
+Ralentissez
+Les bras vers le bas, les paumes tournées vers le sol, se déplacent à plusieurs reprises 
+vers le haut puis vers le bas.
+SIGNAUX PLACEUR AVION 2
+cales enlevées cales misesralentissez
+coupez le moteur tout va bien
+virez à gauche virez à droite
+Tout va bien
+SIGNAUX PLACEUR AVION 2
+cales enlevées cales misesralentissez
+coupez le moteur tout va bien
+virez à gauche virez à droite
+www.aerogligli.fr
+LES SIGNAUX LES RÉSUMÉS
+ 18
+© Aérogligli 2014 - document actualisé le 25 avril 2014
+010 Réglementation LAPL / PPL
+SIGNAUX DE CIRCULATION AU SOL HÉLICO
+SIGNAUX PLACEUR HELICOPTERE
+restez en stationnaire
+bras tendus à l’horizontale, /f_ixes
+atterrissez
+bras croisés, /f_ixes, placés vers le bas
+et devant le corps
+translatez vers la droite
+bras droit tendu /f_ixe, à l’horizontale,
+mouvement de la gauche vers la droite
+du bras gauche 
+translatez vers la gauche
+bras gauche tendu /f_ixe, à l’horizontale,
+mouvement de la droite vers la gauche
+du bras droit
+descendez
+mouvement synchrone
+des 2 bras tendus
+du dessus de la tête
+vers l’horizontale 
+montez
+mouvement synchrone
+des 2 bras tendus
+de l’horizontale
+vers le bas le long du corps 
+Translatez vers la gauche
+Bras droit tendu fixe, à l’horizontale, mouvement de la gauche vers la droite du bras 
+gauche.
+SIGNAUX PLACEUR HELICOPTERE
+restez en stationnaire
+bras tendus à l’horizontale, /f_ixes
+atterrissez
+bras croisés, /f_ixes, placés vers le bas
+et devant le corps
+translatez vers la droite
+bras droit tendu /f_ixe, à l’horizontale,
+mouvement de la gauche vers la droite
+du bras gauche 
+translatez vers la gauche
+bras gauche tendu /f_ixe, à l’horizontale,
+mouvement de la droite vers la gauche
+du bras droit
+descendez
+mouvement synchrone
+des 2 bras tendus
+du dessus de la tête
+vers l’horizontale 
+montez
+mouvement synchrone
+des 2 bras tendus
+de l’horizontale
+vers le bas le long du corps 
+Translatez vers la droite
+Bras gauche tendu fixe, à l’horizontale, mouvement de la droite vers la gauche du bras 
+droit.
+SIGNAUX PLACEUR HELICOPTERE
+restez en stationnaire
+bras tendus à l’horizontale, /f_ixes
+atterrissez
+bras croisés, /f_ixes, placés vers le bas
+et devant le corps
+translatez vers la droite
+bras droit tendu /f_ixe, à l’horizontale,
+mouvement de la gauche vers la droite
+du bras gauche 
+translatez vers la gauche
+bras gauche tendu /f_ixe, à l’horizontale,
+mouvement de la droite vers la gauche
+du bras droit
+descendez
+mouvement synchrone
+des 2 bras tendus
+du dessus de la tête
+vers l’horizontale 
+montez
+mouvement synchrone
+des 2 bras tendus
+de l’horizontale
+vers le bas le long du corps 
+Montez
+Mouvement synchrone des 2 bras tendus de l’horizontale vers le dessus de la tête
+SIGNAUX PLACEUR HELICOPTERE
+restez en stationnaire
+bras tendus à l’horizontale, /f_ixes
+atterrissez
+bras croisés, /f_ixes, placés vers le bas
+et devant le corps
+translatez vers la droite
+bras droit tendu /f_ixe, à l’horizontale,
+mouvement de la gauche vers la droite
+du bras gauche 
+translatez vers la gauche
+bras gauche tendu /f_ixe, à l’horizontale,
+mouvement de la droite vers la gauche
+du bras droit
+descendez
+mouvement synchrone
+des 2 bras tendus
+du dessus de la tête
+vers l’horizontale 
+montez
+mouvement synchrone
+des 2 bras tendus
+de l’horizontale
+vers le bas le long du corps 
+Descendez
+Mouvement synchrone des 2 bras tendus de l’horizontale vers le bas le long du corps.
+SIGNAUX PLACEUR HELICOPTERE
+restez en stationnaire
+bras tendus à l’horizontale, /f_ixes
+atterrissez
+bras croisés, /f_ixes, placés vers le bas
+et devant le corps
+translatez vers la droite
+bras droit tendu /f_ixe, à l’horizontale,
+mouvement de la gauche vers la droite
+du bras gauche 
+translatez vers la gauche
+bras gauche tendu /f_ixe, à l’horizontale,
+mouvement de la droite vers la gauche
+du bras droit
+descendez
+mouvement synchrone
+des 2 bras tendus
+du dessus de la tête
+vers l’horizontale 
+montez
+mouvement synchrone
+des 2 bras tendus
+de l’horizontale
+vers le bas le long du corps 
+Restez en stationnaire
+Bras tendus à l’horizontale, fixes
+SIGNAUX PLACEUR HELICOPTERE
+restez en stationnaire
+bras tendus à l’horizontale, /f_ixes
+atterrissez
+bras croisés, /f_ixes, placés vers le bas
+et devant le corps
+translatez vers la droite
+bras droit tendu /f_ixe, à l’horizontale,
+mouvement de la gauche vers la droite
+du bras gauche 
+translatez vers la gauche
+bras gauche tendu /f_ixe, à l’horizontale,
+mouvement de la droite vers la gauche
+du bras droit
+descendez
+mouvement synchrone
+des 2 bras tendus
+du dessus de la tête
+vers l’horizontale 
+montez
+mouvement synchrone
+des 2 bras tendus
+de l’horizontale
+vers le bas le long du corps 
+Atterrissez
+Bras croisés, fixes, placés vers le bas et devant le corp
+www.aerogligli.fr
+LES SIGNAUX LES RÉSUMÉS
+ 19
+© Aérogligli 2014 - document actualisé le 25 avril 2014
+010 Réglementation
+LAPL / PPL
+SIGNAUX ADRESSÉS PAR LE PILOTE D’UN AÉRONEF À UN SIGNALEUR
+Ces signaux sont conçus pour être employés par un pilote, dans son poste de pilotage, ses mains bien en vue 
+du signaleur et, au besoin, éclairées.
+Les moteurs sont numérotés de la droite vers la gauche du signaleur qui fait face à l’aéronef (c’est-à-dire que le 
+moteur n°1 est le moteur extérieur gauche).Freins serrés ou desserrés
+cales mise ou enlevées
+Prêt à démarrer le moteur
+Freins serrés ou desserrés
+cales mise ou enlevées
+Prêt à démarrer le moteur
+Freins
+a) Freins serrés :  Lever le bras, les doigts allongés, horizontalement devant le visage,
+puis fermer la main.
+b) Freins desserrés : Lever le bras, la main fermée, horizontalement, devant le visage, puis
+allonger les doigts.
+Note - Le moment où le pilote ferme le poing ou allonge les doigts de la main indique, 
+respectivement, le moment où il serre ou desserre les freins.
+Freins serrés ou desserrés
+cales mise ou enlevées
+Prêt à démarrer le moteur
+Freins serrés ou desserrés
+cales mise ou enlevées
+Prêt à démarrer le moteur
+Cales
+a) Mettez les cales :  Les bras étendus, les paumes vers l’avant, déplacer les mains
+vers l’intérieur de façon  qu’elles se croisent devant le visage.
+b) Enlevez les cales :  Les mains croisées devant le visage, les paumes vers l’avant,
+déplacer les bras vers l’extérieur.
+Freins serrés ou desserrés
+cales mise ou enlevées
+Prêt à démarrer le moteur
+Prêt à démarrer le(s) moteur(s)
+Lever le nombre de doigts d’une main qui correspond au numéro du moteur à démarrer. 
+SIGNAUX VISUELS EMPLOYÉS POUR AVERTIR UN AÉRONEF QU’IL VOLE, SANS AUTORISATION, 
+DANS UNE ZONE RÉGLEMENTÉE, INTERDITE OU DANGEREUSE, OU QU’IL EST SUR LE POINT DE 
+PÉNÉTRER DANS UNE TELLE ZONE.
+De jour ou de nuit, une série de projectiles tirés du sol à des intervalles de dix 
+secondes, et produisant à l’éclatement des étoiles ou des feux rouges et verts, 
+indique à un aéronef qu’il vole sans autorisation dans une zone interdite, réglementée 
+ou dangereuse ou qu’il est sur le point de pénétrer dans une telle zone et qu’il doit 
+prendre les dispositions qui s’imposent.
+www.aerogligli.fr
+LES SIGNAUX LES RÉSUMÉS
+ 20
+© Aérogligli 2014 - document actualisé le 25 avril 2014
+010 Réglementation
+LAPL / PPL
+SIGNAUX SOL/AIR
+Signaux placés au sol réalisés le plus souvent à l’aide de bandes de tissus dans le cadre d’opérations de 
+sauvetage.
+A l’usage des survivants
+Demandons assistance
+V
+Demandons assistance médicale
+VNon ou réponse négative
+V
+Oui ou réponse affirmative
+V
+Nous nous dirigeons dans cette direction
+V
+Opérations terminées
+V
+Avons retrouvé tous les occupants V
+N’avons retrouvé qu’une partie des occupants
+V Impossible de continuer. Retournons à la base
+VSommes divisés en deux groupes.  
+Nous dirigeons chacun dans la direction indiquée
+VAvons appris que l’aéronef est dans cette direction
+VN’avons rien trouvé. Poursuivons les recherches
+V
+A l’usage des équipes de sauvetage
+www.aerogligli.fr
+ 21
+LES SIGNAUX 
+D’INTERCEPTION
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 15 DÉCEMBRE 2016
+Signaux de l’aéronef intercepteur Réponses de l’aéronef intercepté
+« Vous êtes intercepté, suivez-moi. »
+Se place en avant et au-dessus de l’intercepté,  
+balance ses ailes, fait clignoter ses feux de position, 
+virage lent en palier vers la gauche  
+après la réponse.
+« J’ai compris, j’obéis. »
+Balance ses ailes, fait clignoter
+ses feux de position
+et suit l’intercepteur.
+« Vous pouvez continuer. »
+Manoeuvre brusque de dégagement consistant en 
+un virage en montée de 90° ou plus, sans couper la 
+ligne de vol de l’aéronef intercepté.
+« J’ai compris, j’obéis. »
+Balance ses ailes.
+« Atterrissez sur cet aérodrome. »
+Allume ses phares,
+abaisse son train d’atterrisage
+et survole l’aérodrome.
+« J’ai compris, j’obéis. »
+Allume ses phares,
+abaisse son train d’atterrisage
+et suit l’intercepteur.
+DOCUMENT À CONSERVER EN VOL
+Aéronef en panne radio ou en situation irrégulière
+Les intercepteurs sont des avions ou des hélicoptères militaires.
+
+www.aerogligli.fr
+LES SIGNAUX 
+D’INTERCEPTION
+LES RÉSUMÉS
+ 22
+© Aérogligli 2014 - document actualisé le 15 DÉCEMBRE 2016
+Signaux de l’aéronef intercepté Réponses de l’aéronef intercepteur
+« Il m’est impossible d’atterir 
+sur cet aérodrome.  »
+Rentrer le train d’atterrissage  
+(si l’aéronef en est doté)  
+et faire clignoter les phares d’atterrissage 
+en passant au-dessus de la piste  
+d’atterrissage en service.
+« Compris, suivez-moi. »
+Vers un autre aérodrome.
+Se place en avant et au-dessus de l’intercepté,  
+balance ses ailes, fait clignoter ses feux de position.
+« Compris, vous pouvez continuer. »
+Manoeuvre brusque de dégagement consistant en 
+un virage en montée de 90° ou plus, sans couper la 
+ligne de vol de l’aéronef intercepté.
+« Il m’est impossible d’obéir. »
+Allumer et éteindre régulièrement tous les feux 
+disponibles, mais d’une manière qui permette de 
+les distinguer de feux clignotants. 
+« Compris. »
+Manoeuvre brusque de dégagement consistant en 
+un virage en montée de 90° ou plus, sans couper la 
+ligne de vol de l’aéronef intercepté.
+« En détresse. »
+Faire clignoter de façon irrégulière 
+tous les feux diponibles.
+
+www.aerogligli.fr
+ 23
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 22 avril 2015
+LA REGLE SEMI-CIRCULAIRE
+010 Réglementation LAPL / PPL
+Utilisée en France dans le cadre des vols VFR, elle détermine le niveau de vol à adopter à partir d’une 
+altitude ou d’une hauteur réglementaires en fonction du type d’espace où le vol a lieu.
+Elle est appliquée si le vol a lieu :
+• au-dessus de l’altitude de transition dans un espace aérien contrôlé,
+• au-dessus d’une hauteur de 3 000 ft par rapport à la surface terrestre dans un espace aérien non contrôlé.
+Le choix du niveau de vol est fonction de la route magnétique suivie d’où le nom de la règle : 
+• le niveau de vol adopté est impair + 500 ft (FL035, FL055, FL075, FL095, FL115, …)
+si la route magnétique suivie est comprise entre 000° et 179°,
+• le niveau de vol adopté est pair + 500 ft (FL045, FL065, FL085, FL105, FL125, …)
+si la route magnétique suivie est comprise entre 180° et 359°.
+Astuce mnémotechnique
+La route pour rejoindre l’Italie depuis la France correspond à un choix de routes magnétiques comprises entre 
+000° et 179°. Le « I » du mot Italie représente alors le « I » de Impair.
+La route pour rejoindre le Portugal depuis la France correspond à un choix de routes magnétiques comprises 
+entre 180° et 359°. Le « P » du mot Portugal représente alors le « P » de Pair. 
+Les avions en régime IFR évoluent à des niveaux de vol impairs ou pairs entiers sans 
+appliquer cette règle semi-circulaire : FL 50, FL60, FL 70, FL 80, FL 90, FL 100......
+www.aerogligli.fr
+ 24
+LES RÉSUMÉSL’ESPACE AERIEN
+010 Réglementation LAPL / PPL
+© Aérogligli 2014 - document actualisé le25 janvier 2022
+Divisions de l’espace aérien
+Dans le plan vertical il est organisé en 2 parties :
+• l’espace aérien supérieur : à partir du FL 195, appelé UIR (Upper Information Region),
+• l’espace aérien inférieur : du sol au FL 195 et contient les FIR (Flight Information Region ou Régions
+d’Information de Vol).
+Les régions d’information de vol (FIR) sont les parties de l’espace aérien dans lesquelles sont fournis le service 
+d’information de vol et le service d’alerte. Les FIR sont au nombre de 5 en France : Paris LFFF, Brest LFRR, 
+Bordeaux LFBB, Reims LFEE, Marseille LFMM. Les FIR couvrent la totalité du territoire.
+Les vols VFR sont limités au FL 195 sauf autorisation particulière. 
+Les types d’espaces aériens
+Il existe 2 types d’espaces aériens :
+• les Espaces Aériens Contrôlés (EAC)
+• les Espaces Aériens Non Contrôlés (EANC)
+Dans les EAC, les services de la circulation aérienne proposent 2 méthodes pour assurer la sécurité des vols :
+• la séparation de trafic : instructions données aux pilotes afin d’assurer la séparation entre les aéronefs
+(vitesse, altitude ou niveau de vol à respecter...),
+• l’information de trafic : informations fournies aux pilotes sur la position des autres aéronefs.
+Aux pilotes d’assurer la sécurité anti-collision et éviter les autres trafics
+Dans les EAC, tout changement d’altitude ou de route doit faire l’objet d’une autorisation du contrôle.
+Les classes d’espaces aériens
+Les 2 types d’espaces aériens peuvent être classés suivant l’une des 7 classes d’espaces aériens.
+Les trafics IFR sont séparés entre eux dans les classes A à E
+www.aerogligli.fr
+L ’ESPACE AERIEN LES RÉSUMÉS
+ 25
+© Aérogligli 2014 - document actualisé le25 janvier 2022
+010 Réglementation 
+LAPL / PPL
+Les voies aériennes ou airways
+Une voie aérienne est un couloir emprunté par les vols IFR avec un axe défini ar des balises de radionavigation. 
+D’une largeur de 10 NM, les voies aériennes ont un plancher variable et un plafond au FL195. 
+Elles sont représentées par un trait vert sur les cartes SIA de radionavigation 1/1 000 000ème.
+Elles peuvent être empruntées par les vols VFR. 
+Les voies aériennes sont des espaces de :
+• classe D au-dessus du FL115
+• classe E en dessous du FL115
+Les régions de contrôle terminales (TMA) et zones de contrôle régional (CTR) sont les parties de l’espace 
+aérien dans lesquelles est fourni le service du contrôle de la circulation aérienne pour les vols IFR et les vols VFR. 
+Les TMA  ont leur base à une hauteur d’au moins 200 m (700 ft) et s’élèvent jusqu’à une hauteur définie.
+Elles peuvent desservir plusieurs aérodromes et permettent la transition entre la phase de croisière et la phase 
+d’approche.  Les TMA 
+sont gérées par le contrôle d’approche (APP). 
+En France, elles peuvent être de classes A, C, D ou E.
+Les CTR commencent au sol et s’élèvent jusqu’à une hauteur définie. es CTR sont gérées par l
+ e service du 
+contrôle d’aérodrome (TWR). Les CTR sont des espaces de classe D uniquement.
+Les zones à statut particulier
+Les zones Dangereuses (D) : la pénétration n’est pas interdite, mais les activités qui s’y déroulent peuvent 
+présenter un danger pour les aéronefs. 
+Les zones Réglementées (R) : la pénétration est soumise à certaines conditions, voire interdite. Il n’y a pas de 
+règle générale, et le vol dans ces zones est à étudier au cas par cas.
+Les zones interdites (P prohibited) : la pénétration est interdite.
+Les 
+Zones Réglementées Temporaires (ZR
+T) : comme leur nom l’indique, sont des zones où la pénétration est 
+soumise à certaines conditions, voire interdite, pendant une durée limitée. Le vol dans ces zones est à étudier 
+également au cas par cas.
+Les Zones Interdites Temporaires (ZIT) : comme leur nom l’indique, sont des zones où la pénétration est interdite 
+pendant une durée limitée.
+Les zones de ségrégation temporaire  TSA (Temporary Segregation Area), les zones réservées temporaires 
+TRA (Temporary Reserved Area) et les zones de ségrégation temporaire transfrontalières CBA (Cross Boarder 
+Area) sont des parties de l’espace aérien réservées à des usagers spécifiques (vols militaires, vols civils 
+d’essais...). Depuis le 4 décembre 2014 et l’application des règles de l’air européennes SERA, 3 nouveaux 
+types de zones sont définis :
+• ATZ (Airfield Traffic Zone) : zone de circulation d’aérodrome où le contact radio est obligatoire. C’est une zone
+de protection de la circulation d’aérodrome où le trafic peut ê re important et qui ne comporte pas de CTR.
+• RMZ (Radio Mandatory Zone) : zone où l’usage de la radio est obligatoire.
+• TMZ (Transponder Mandatory Zone) : zone où l’usage du transpondeur est obligatoire.
+Les 2 zones (RMZ et TMZ) s’ajoutent aux zones ou aux espaces où ces équipements sont obligatoires.
+www.aerogligli.fr
+ 26
+LES RÉSUMÉS
+© Aérogligli 2021 
+NOTIONS D'ALTIMÉTRIE
+010 Réglementation LAPL / PPL
+
+www.aerogligli.fr
+LES RÉSUMÉS
+© Aérogligli 2021 
+NOTIONS D'ALTIMÉTRIE
+010 Réglementation LAPL / PPL
+ 27
+
+www.aerogligli.fr
+28
+LES RÉSUMÉS
+© Aérogligli 2014 - document actualisé le 13 janvier 2015
+UTILISATION DES ESPACES AERIENS
+010 Réglementation LAPL / PPL
+Pour voler dans les différents types d’espaces aériens, les pilotes doivent connaître le calage altimétrique et 
+les conditions météorologiques minimales VMC à respecter.
+Calage de l’altimètre
+Le calage de l’altimètre dépend de l’altitude et du type d’espace dans lequel le vol est effectué.
+1. Vols en espace aérien non contrôlé (EANC)
+Dans ce type d’espace, une surface de référence est ﬁ  xée à 3 000 ft par rapport à la surface terrestre.
+2. Vols en espace aérien contrôlé (EAC)
+Dans ce type d’espace, deux surfaces de référence sont déﬁnies :
+• l’altitude de transition (TA, Transition Altitude) ﬁxée par défaut à 5 000 ft QNH
+ou sinon elle est indiquée sur les cartes de radionavigation,
+• le niveau de transition (exprimé en niveau de vol) déterminé par le service du contrôle.
+C'est le 1° niveau de vol IFR au moins 1 000 ft au dessus de l'altitude de transition.
+En descente, en franchissant le niveau de transition, le pilote passe du calage 1 013,25 hPa au QNH régional.
+En montée, en franchissant l’altitude de transition, le pilote passe du calage QNH régional au calage 1 013,25 hPa.
+
+www.aerogligli.fr
+UTILISATION DES ESPACES AERIENS LES RÉSUMÉS
+29
+© Aérogligli 2014 - document actualisé le 13 janvier 2015
+010 Réglementation
+LAPL / PPL
+Conditions météorologiques minimales VFR ou conditions VMC
+Lors de vols VFR et quel que soit le type d’espace aérien, les pilotes doivent respecter des conditions 
+météorologiques minimales appelées conditions VMC (Visual Meteorological Conditions) 
+Les conditions VMC dépendent de l’altitude et du type d’espace dans lequel le vol est effectué.
+En dessous du niveau de vol FL 100, la vitesse est limitée à 250kt.
+1. Vols en espaces aériens non contrôlés (EANC)
+Dans ce type d’espace, deux surfaces de référence sont ﬁ  xées :
+• le niveau de vol FL100,
+• la surface de référence déﬁ  nie par le plus haut des deux niveaux 3 000 ft QNH ou 1 000 ft par rapport
+à la surface terrestre.
+Au-dessus du plus haut des 2 niveaux                  
+En dessous du plus haut des 2 niveaux
+
+www.aerogligli.fr
+UTILISATION DES ESPACES AERIENS LES RÉSUMÉS
+ 30
+© Aérogligli 2014 - document actualisé le 13 janvier 2015
+010 Réglementation LAPL / PPL
+2. Vols en espaces aériens contrôlés (EAC)
+Dans ce type d’espace, une surface de référence est déﬁ  nie par le niveau de vol FL100.
+Cas particulier du vol VFR spécial en CTR et de jour uniquement 
+Dans ce type d’espace aérien, il est possible de s’affranchir des conditions VMC si la MTO se dégrade.
+Les pilotes peuvent demander alors au service du contrôle à bénéﬁ  cier du vol VFR spécial.
+Les pilotes doivent respecter les conditions suivantes :
+• en vue du sol et hors des nuages,
+• vitesse maximale de 140 kt,
+• visibilité horizontale minimale de 1 500 m ou 800 m pour les hélicoptères ou celles
+éventuellement indiquées sur les cartes VAC.
+Le service du contrôle peut également décider du vol VFR spécial dans la CTR au vu de l’évolution de 
+la météorologie.
+Plusieurs situations peuvent se présenter :
+
+www.aerogligli.fr
+ 31
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 27 janvier 2015
+LE PLAN DE VOL DEPOSE
+010 Réglementation
+LAPL / PPL
+Le plan de vol déposé est obligatoire dans les cas suivants :
+Survol maritime au-delà de la 
+plus faible des 2 distances
+15 fois la hauteur ou  
+la distance pour rejoindre  
+la côte en vol plané
+Franchissement de frontières
+Ne peut pas être déposé en vol
+Survol de routes
+terrestres désignées
+(zones inhospitalières)
+Vols voyages VFR de nuit 
+hors des tours de piste  
+et/ou vols locaux gérés  
+par le même organisme de la 
+circulation aérienne
+Vols IFR Choix du pilote
+Vitesse Niveau Equipements com. et nav.
+K suivie de 4 chiffres  
+pour une vitesse en km/h 
+ exemple K0180 pour 180 km/h
+N suivie de 4 chiffres  
+pour une vitesse en kt 
+exemple N0120 pour 120 kt
+F suivie de 3 chiffres  
+pour un niveau de vol en FL 
+ exemple F055 pour FL055
+A suivie de 3chiffres  
+pour une altitude en QNH 
+exemple A045 pour 4 500 QNH
+VFR indique  
+une altitude non définie
+2 lettres séparées par un / 
+1ère lettre S
+équipements standards 
+1ème lettre N
+sans équipement
+La 2ème lettre renseigne le 
+mode du transpondeur 
+C mode le plus courant
+Pas délai réglementaire avant l’heure de départ prévue
+pour déposer un plan de vol ne franchissant pas de frontière
+mais une recommandation de 30 min minimum pour traiter le 
+plan de vol par les services de la Navigation Aérienne.
+Délai de 60 minutes avant l’heure de départ prévue
+ pour les vols avec franchissement de frontières.
+L’heure de départ est l’heure prévue 
+à laquelle vous quittez le parking. 
+L’heure d’arrivée est l’heure prévue  
+à la verticale de l’aérodrome de destination. 
+Attention la durée du vol correspond  
+dans le cas du plan de vol déposé 
+à la durée entre le décollage  
+et la verticale de l’aérodrome de destination. 
+Les heures sont exprimées en heures UTC. 
+Clôture à l’arrivée avec l’organisme de la circulation aérienne 
+(TWR, AFIS) ou par téléphone au sol 01 56 301 301.
+Principaux paramètres à renseigner
+www.aerogligli.fr
+ 32
+LES RÉSUMÉS
+© Aérogligli  - Document actualisé le 26 AOÛT 2016
+Assistance respiratoire 
+Système d’inhalation et  
+réserve d’oxygène sufﬁsante pendant 
+la durée du vol aux niveaux suivants
+Depuis le 25 août 2016, l’utilisation et l’exploitation des aéronefs légers sont organisées 
+selon le règlement européen UE 965/2012 modifié par le règlement UE 1199/2016 
+du 22 juillet 2016 et l’annexe VII PART NCO
+(Non Commercial Air Operations with Other-Than Complex Motor-Powered Aircraft) 
+ Nous vous invitons à les étudier 
+dans les cours de réglementation 6, 7 en particulier.
+EQUIPEMENTS REGLEMENTAIRES
+010 Réglementation
+LAPL / PPL
+www.aerogligli.fr
+LES RÉSUMÉS
+ 33
+© Aérogligli 2015 - document actualisé le 30 janvier 2015
+EQUIPEMENTS REGLEMENTAIRES
+010 Réglementation
+LAPL / PPL
+Survol de l’eau
+Canot de sauvetage
+- équipements de survie
+- équipement pour envoyer
+des signaux de détresse
+Pour la plus faible des 2 distances suivantes :
+vol à plus de la 50NM de la côte
+ OU à plus de 30 min de la côte
+Gilet de sauvetage 
+pour chaque occupant
+Si le vol s’effectue à une distance supérieure 
+pour rejoindre la côte en vol plané 
+OU
+si le décollage ou l'atterrissage présentent 
+des risques d'amerrissage
+Quel que soit le type de vol, une fiche indiquant les signaux d'interception 
+et une trousse de secours sont présents à bord
+avec les éléments suivants : bandages de tailles assorties, antiseptique, 
+pansements de différentes tailles et usages, ciseaux, gants jetables.
+
+www.aerogligli.fr
+ 34
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 30 janvier 2015
+EQUIPEMENTS 
+ REGLEMENTAIRES
+010 Réglementation LAPL / PPL
+En fonction de la nature, de l’altitude du vol et du type de zones survolées, 
+il est exigé à bord des équipements réglementaires
+Liste d’équipement minimal pour un vol VFR de jour
+Un anémomètre
+Un indicateur de dérapage (la bille)
+Un compas magnétique compensable
+Un dispositif indiquant
+les heures, minutes et secondes
+(une montre de poignet convient)
+Un altimètre sensible et ajustable
+2 systèmes de radionavigation 
+indépendamment 
+(VOR, ADF ou  GPS homologué)
+si le vol est effectué sans contact visuel du sol
+ou de l’eau (vol VFR on top)
+www.aerogligli.fr
+ 35
+LES ABRÉVIATIONS 
+AÉRONAUTIQUES
+LES RÉSUMÉS
+© Aérogligli 2015 - document actualisé le 08 janvier 2017
+LAPL / PPL
+SIGLE Signification en français Signification en anglais
+A/A Radiocommunications Air/Air Air to Air communications
+AAL Au-dessus du niveau de l’aérodrome Above Aerodrome Level
+ACB Aéro-Club Flying club
+ACC Centre de contrôle régional ou contrôle régional Area Control Center or area control
+ACFT Aéronef Aircraft
+AD Aérodrome Aerodrome
+ADF Radio compas automatique Automatic Direction Finder
+AEM Aéromodélisme Model aircraft flight
+AFIL Plan de vol déposé en vol Flight plan filed in the air
+AFIS Service d’information de vol d’aérodrome Aerodrome Flight Information Service
+AFS Service fixe aéronautique Aeronautical Fixed Service
+AFTN Réseau du service fixe des télécommunications 
+aéronautiques Aeronautical Fixed T elecommunication Network
+A/G Radio communications air/ sol Air to Ground radio communications
+AGL Au dessus du niveau du sol Above Ground Level
+AIC Circulaire d’information aéronautique Aeronautical Information Circular
+AIP Publication d’information aéronautique Aeronautical Information Publication
+AIRAC Régularisation et contrôle de la diffusion des 
+renseignements
+Aeronautical Information 
+Regulation And Control
+AIREP Compte rendu en vol Air Report
+AIS Service(s) d’information aéronautique Aeronautical Information Service(s)
+ALERFA Phase d’alerte Alert Phase
+ALT Altitude Altitude
+ALTN Dégagement (aérodrome de) Alternate (aerodrome)
+AMD Amender ou amendé Amend or amended
+AMSL Au dessus du niveau moyen de la mer Above Mean Sea Level
+AP Aéroport Airport
+APP Centre de contrôle d’approche ou contrôle 
+d’approche
+service Approach control office 
+or approach control
+APRX Approximativement Approximately
+ARP Point de référence d’aérodrome Aerodrome Reference Point
+ASDA Longueur utilisable pour l’accélération arrêt Accelerate Stop Distance Available
+ASFC Au dessus de la surface Above surface
+ASI Aire à signaux Signal area
+ATC Contrôle de la circulation aérienne (en général) Air Traffic Control (in general)
+ATIS Service automatique d’information 
+de région terminale Automatic Terminal Information Service
+ATS Services de la circulation aérienne Air Traffic Services
+AVASIS Indicateur visuel de pente d’approche simplifié Abbreviated Visual Approach Slope Indicator System
+www.aerogligli.fr
+LES ABRÉVIATIONS AÉRONAUTIQUES LES RÉSUMÉS
+  36
+© Aérogligli 2015 - document actualisé le 08 janvier 2017
+LAPL / PPL
+SIGLE Signification en françai Signification en anglai
+AVGAS Carburant d’aviation AViation GASoline
+AVT Avitaillement Refuelling
+AWY Voie aérienne Airway
+BDP Bureau de piste ATS Reporting offic
+BIA Bureau d’Information Aéronautique AIS offic
+BRIA Bureau Régional d’Information et d’Assistance 
+au vol Information and flight support Regional offi
+CAG Circulation Aérienne Générale General air traffi
+CAM Circulation Aérienne Militaire Military air traffi
+CAP Circulation Aérienne Publique Public air traffi
+CAT Catégorie Category
+CAVOK Visibilité, nuages et temps présent meilleurs 
+que valeurs Ceiling And Visibility OK 
+CDN Certificat de navigabilité Certificate of airworthiness
+COM Télécommunications Telecommunications
+CTA Région de contrôle Control Area
+CTL Contrôle Control
+CTR Zone de contrôle régionale Controlled Traffic Regio
+DAC Direction de l’Aviation Civile Directorate of civil aviation
+DCS Direction du Contrôle et de la Sécurité Security and control directorate
+DCT Direct Direct
+DEST Destination Destination
+DETRESFA Phase de détresse Distress phase
+DGAC Direction Générale de l’Aviation Civile General directorate of civil aviation
+DH Hauteur de décision Decision Height
+DIST Distance Distance
+DME Dispositif de mesure de distance Distance Measuring Equipment
+DP Point de rosée Dew Point
+DSAC Direction de la Sécurité de l’Aviation Civile Directorate of civil aviation services
+DSNA Direction des Services de la Navigation 
+Aérienne Air navigation services directorate
+DTHR Seuil décalé Displaced Threshold
+EAT Heure d’approche prévue Expected Approach Time
+ENR En route En route
+EST Estimé ou estimer Estimated or estimate
+ETA Heure d’arrivée prévue ou arrivée prévue Estimated Time of Arrival or Estimating Arrival
+ETE Temps estimé en route Estimated Time Enroute
+FAF Repère d’approche finale Final Approach Fix
+FAP Point d’approche finale Final Approach Point
+FATO Aire d’approche finale et de décollag Final Approach and Take Off area
+FIC Centre d’information de vol Flight Information Center
+FIR Région d’information de vol Flight Information Region
+www.aerogligli.fr
+LES ABRÉVIATIONS AÉRONAUTIQUES LES RÉSUMÉS
+ 37
+© Aérogligli 2015 - document actualisé le 08 janvier 2017
+LAPL / PPL
+SIGLE Signification en françai Signification en anglai
+FIS Service ou secteur d’information Flight Information Service or Sector
+FL Niveau de vol Flight Level
+FPL Plan de vol déposé Filed Flight Plan
+FPM Pieds par minute Feet Per Minute
+G/A Radiocommunications sol-air Ground-to-Air
+GCA Système d’approche contrôlé du sol 
+ou approche Ground Controlled Approach system or ground
+GEN Général ou généralités General
+GNSS Système de navigation global par satellite Global Navigation System by Satellite
+GP Alignement de descente Glide Path
+GS Vitesse sol Ground Speed
+GUND Ondulation du Géoïde Geoid Undulation
+H24 Service permanent de jour et de nuit Continuous day and night service
+HEL Hélicoptère Helicopter
+HF Haute Fréquence (3 000 à 30 000 kHz) High Frequency (3 000 to 30 000 kHz)
+HGT Hauteur Height
+HJ Horaire de Jour Daytime
+HN Horaire de Nuit During night
+HO Service disponible selon les besoins 
+de l’exploitation 
+Service available to meet 
+operational requirements
+HOL Jours fériés Holidays
+HPA HectoPascal HectoPascal
+HR Heures Hours
+HS Service disponible aux heures des 
+vols réguliers 
+Service available during hours of 
+scheduled operations
+HX Pas d’heures précises de fonctionnement No specific working hour
+IAC Carte d’approche et d’atterrissage 
+aux instruments Instrument Approach Chart
+IAF Repère d’approche initiale Initial Approach Fix
+IAS Vitesse indiquée Indicated Air-Speed
+ICAO Organisation de l’Aviation Civile Internationale International Civil Aviation Organization
+IDENT Identificatio Identificatio
+IFR Règles de vol aux instruments Instrument Flight Rules
+ILS Système d’atterrissage aux instruments Instrument Landing System
+IM Radioborne intérieure Inner Marker
+IMC Conditions météorologiques de vol 
+aux instruments Instrument Meteorological Conditions
+INCERFA Phase d’incertitude Uncertainty phase
+INS Système de navigation inertiel Inertial Navigation System
+ISA Atmosphère type internationale International Standard Atmosphere
+JAA Autorités conjointes de l’aviation Joint Aviation Authorities
+JF Jours Fériés Holidays
+www.aerogligli.fr
+LES ABRÉVIATIONS AÉRONAUTIQUES LES RÉSUMÉS
+ 38
+© Aérogligli 2015 - document actualisé le 08 janvier 2017
+LAPL / PPL
+SIGLE Signification en françai Signification en anglai
+Kt Noeud(s) Knot(s)
+LAT Latitude Latitude
+LDA Longueur utilisable à l’atterrissage Landing Distance Available
+LDG Atterrissage Landing
+LLZ Radiophare d’alignement de piste Localizer
+LMT Temps moyen local Local Mean Time
+LOC Localement ou emplacement ou situé Locally or Location or Located
+LONG Longitude Longitude
+LTA Région inférieure de contrôle Lower Traffic Area
+LTT Téléimprimeur par fi Landline Teletypewriter
+LVTO Procédures de décollage par faible visibilité Low Visibility Take-Off
+M Mètre Meter
+M Nombre de Mach Mach number
+MAG Magnétique Magnetic
+MAINT Entretien Maintenance
+MAP Cartes aéronautiques Aeronautical Maps and charts
+MAPT Point d’approche interrompue Missed Appproach Point
+MAR Mars March
+MAX Maximum ou maximal Maximum or maximal
+MAY Mai May
+MDA Altitude minimale de descente Minimum Descent Altitude
+MDH Hauteur minimale de descente Minimum Descent Height
+MEHT Hauteur minimale de l’oeil du pilote 
+au-dessus du seuil Minimum Eye Height over Threshold
+MET Météorologie ou météorologique Meteorological or meteorology
+METAR Message d’observation météorologique 
+régulière pour l’aviation Aviation routine weather report
+MFO Marge minimale de Franchissement 
+d’Obstacle Obstacle clearance limit
+MSA Altitude minimale de secteur Minimum Sector Altitude
+MSL Niveau moyen de la mer Mean Sea Level
+MTOW Masse maximale au décollage Maximum Take-Off Weight
+MVI Manoeuvres à Vue Imposées Visual manoeuvring with prescribed track
+MVL Manoeuvres à Vue Libres Visual manoeuvring whithout prescribed track
+NDB Radiophare non directionnel Non-Directional radio Beacon
+NIL Néant ou je n’ai rien à vous transmettre None or I have nothing to send to you
+NM Milles marins Nautical Miles
+NOSIG Sans changement significati No Significant chang
+NOTAM Avis aux navigateurs aériens Notice To Airmen
+OACI Organisation de l’Aviation Civile Internationale International civil aviation organization
+OBST Obstacle Obstacle
+www.aerogligli.fr
+LES ABRÉVIATIONS AÉRONAUTIQUES LES RÉSUMÉS
+ 39
+© Aérogligli 2015 - document actualisé le 08 janvier 2017
+LAPL / PPL
+SIGLE Signification en françai Signification en anglai
+OPS Exploitation ou opérations Operations
+P... Zone interdite Prohibited area
+PAPI Indicateur de trajectoire 
+d’approche de précision Precision Approach Path Indicator
+PAX Passagers Passengers
+PCL Télécommande de balisage Pilot Controlled Lighting
+PLN Plan de vol Flight plan
+PN Préavis exigé Prior Notice required
+PPR Autorisation préalable nécessaire Prior Permission Required
+PUL Planeur Ultra-Léger Ultra light glider
+QDM Route magnétique Magnetic heading
+QDR Rélèvement magnétique Magnetic bearing
+QFE Pression lue quand l’aiguille  de l’altimètre est 
+à zéro, avion au sol.
+Pressure reading when the altimeter needle
+zero, ground plane
+QFU Direction magnétique de la piste Magnetic orientation of runway
+QNH Pression lue quand l’altimètre indique l’altitude 
+de l’aérodrome, avion au sol.
+Pressure reading when the altimeter 
+indicates the altitude of the airfield,  
+aircraft on the ground.
+RAC Règles de l’air et services 
+de la circulation aérienne Rules of the air and air traffic service
+RBDA Radiobalise de Détresse fonctionnant 
+Automatiquement à l’impact Emergency locator transmitter
+RCA Règlement de la Circulation Aérienne Air traffic regulation
+RCC Centre de coordination de sauvetage Rescue Coordination Centre
+RMI Indicateur radiocompas Radial Magnetic Indicator
+RSFTA Réseau du Service Fixe des  
+Télécommunications Aéronautiques Aeronautical fixed telecommunication networ
+RVR Portée visuelle de piste Runway Visual Range
+RVSM Minimum de séparation verticale réduit Reduced Vertical Separation Minimum
+RWY Piste Runway
+SAR Recherches et sauvetage Search And Rescue
+SDE Seuil d’atterrissage Décalé Landing displaced threshold
+SEFA Service d’Exploitation  
+de la Formation Aéronautique Operation service of aeronautical training
+SFA Service Fixe Aéronautique Aeronautical fixed service
+SFC Surface (sol ou mer) Surface (ground or sea)
+SIA Service de l’Information Aéronautique Aeronautical information service
+SIV Secteur d’Information de Vol Flight information sector
+SNOW-
+TAM
+NOTAM renseignant l’état des pistes 
+d’un aérodrome special series NOTAM
+SSIS Service de Sécurité Incendie et Sauvetage Rescue and fire fighting servi
+SSLIA Service de Sauvetage et de lutte contre 
+l’Incendie des aéronefs sur les Aérodromes Rescue and Fire Fighting Service 
+RFFS
+remplacé par
+www.aerogligli.fr
+LES ABRÉVIATIONS AÉRONAUTIQUES LES RÉSUMÉS
+ 40
+© Aérogligli 2015 - document actualisé le 08 janvier 2017
+LAPL / PPL
+SIGLE Signification en françai Signification en anglai
+SSR Radar secondaire de surveillance Secondary Surveillance Radar
+STAP Système de Transmission Automatique 
+de Paramètres Parameter automatic transmission system
+TA Altitude de transition Transition Altitude
+TACAN Système de navigation aérienne tactique 
+(UHF) TACtical Air Navigation aid (UHF)
+TAF Message de prévision météorologique d’aérodrome Terminal Aerodrome Forecast
+TAS Vitesse vraie ou propre True Airspeed
+TEMPO Temporaire ou temporairement Temporary or temporarily
+THR Seuil Threshold
+TKOF Décollage Take-Off
+TL Niveau de transition Transition Level
+TMA Région terminale de contrôle Terminal control area
+TODA Longueur utilisable au décollage Take-Off Distance Available
+TORA Longueur de roulement utilisable au décollage Take-Off Run Available
+TRSI Tonne par Roue Simple Isolée Single isolated wheel load
+TWR Tour de contrôle d’aérodrome 
+ou contrôle d’aérodrome
+Aerodrome control ToWeR 
+or aerodrome control
+TWY Voie de circulation Taxiway
+UHF Ultra Hautes Fréquences (300 à 3 000 MHz) Ultra High Frequency (300 to 3 000 MHz)
+UIC Centre de région supérieure 
+d’information de vol Upper flight Information Centr
+UIR Région supérieure d’information de vol Upper flight Information Regio
+ULM Ultra Léger Motorisé Ultra Light Motorized
+UTC Temps universel coordonné Coordinated Universal Time
+VAC Carte d’approche et d’atterrissage à vue Visual Approach and landing Chart
+VAR Déclinaison magnétique Magnetic variation
+VASIS Indicateur visuel de pente d’approche Visual Approach Slope Indicator System
+VAV Vol A Voile Gliding
+VDF Station radiogoniométrique VHF VHF Direction Finding station
+VFR Règles de vol à vue Visual Flight Rules
+VH Visibilité Horizontale Horizontal visibility
+VHF Très hautes fréquences (30 à 300 Mhz) Very High Frequency (30 to 300 MHz)
+VI Vitesse Indiquée Indicated air speed
+VMC Conditions météorologiques de vol à vue Visual Meteorological Conditions
+VOLMET Renseignements météorologiques destinés 
+aux aéronefs en vol Meteorological information for aircraft in fligh
+VOR Radiophare omnidirectionnel VHF VHF omnidirectionnel radio range
+VORTAC Combinaison VOR et TACAN VOR AND TACAN combination
+WGS Système géodésique mondial de référence
+(associé à 84 : année de référence) World Geodetic System
+WP Point de cheminement Way-Point
+ZP Altitude pression Pressure altitude
