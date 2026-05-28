@@ -1,0 +1,520 @@
+/* ═══════════════════════════════════════════════════════════
+   PPL Quiz — Mobile (Nothing Phone 2a · ~412×2412 · Android)
+   Safe areas · touch 48px · barre quiz fixe · perf
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  html {
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    overscroll-behavior-y: contain;
+    -webkit-tap-highlight-color: rgba(91, 138, 240, 0.15);
+  }
+
+  /* Safe areas (encoche + barre gestuelle Android) */
+  .wrap {
+    max-width: 100%;
+    padding:
+      max(0.75rem, env(safe-area-inset-top))
+      max(0.85rem, env(safe-area-inset-right))
+      max(1rem, env(safe-area-inset-bottom))
+      max(0.85rem, env(safe-area-inset-left));
+  }
+
+  .app-header {
+    margin:
+      calc(-1 * max(0.75rem, env(safe-area-inset-top)))
+      calc(-1 * max(0.85rem, env(safe-area-inset-right)))
+      1rem
+      calc(-1 * max(0.85rem, env(safe-area-inset-left)));
+    padding:
+      max(0.55rem, env(safe-area-inset-top))
+      max(0.75rem, env(safe-area-inset-right))
+      0.55rem
+      max(0.75rem, env(safe-area-inset-left));
+    gap: 0.5rem;
+  }
+
+  .app-brand-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  .app-brand-text {
+    font-size: 16px;
+  }
+
+  .app-nav {
+    gap: 4px;
+  }
+
+  .app-nav-link {
+    padding: 0.5rem 0.65rem;
+    font-size: 12px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Accueil */
+  h1 {
+    font-size: 28px;
+    line-height: 1.12;
+  }
+
+  .sub {
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: none;
+  }
+
+  .pill {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+  .bank-hero {
+    padding: 1.1rem 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .bank-hero-n {
+    font-size: 36px;
+  }
+
+  .bank-hero-mod {
+    gap: 6px;
+    font-size: 9px;
+  }
+
+  .panel {
+    padding: 0.9rem 0.85rem;
+    border-radius: var(--r2);
+  }
+
+  .panel-stats .kpi,
+  .kpi {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .kpi-v {
+    font-size: 20px;
+  }
+
+  .kpi-l {
+    font-size: 9px;
+  }
+
+  .mode-g,
+  .cfg,
+  .hub-g,
+  .mod-pills,
+  .bkd,
+  .rkpis,
+  .exam-grid,
+  .beh-grid.wide,
+  .proba-stat-grid,
+  .react-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-stats .kpi {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mc {
+    padding: 0.85rem 0.9rem;
+    min-height: 72px;
+  }
+
+  .mc-ico {
+    font-size: 22px;
+  }
+
+  .mc-n {
+    font-size: 14px;
+  }
+
+  /* Inputs — 16px évite le zoom auto Android */
+  select,
+  input[type="number"].cfg-num,
+  input[type="text"],
+  input[type="search"],
+  .fiche-lib-search,
+  .formulas-search,
+  .formulas-select {
+    font-size: 16px !important;
+    min-height: 48px;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .n-presets {
+    gap: 6px;
+  }
+
+  .n-pre {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-go,
+  .btn-sec {
+    min-height: 52px;
+    font-size: 16px;
+    padding: 0.9rem 1rem;
+    touch-action: manipulation;
+  }
+
+  .btn-go:active,
+  .btn-sec:active,
+  .opt:active {
+    transform: scale(0.98);
+  }
+
+  .hc {
+    padding: 1rem 0.9rem;
+    min-height: 88px;
+  }
+
+  /* ── Écran quiz ── */
+  #sq.on {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .qtop {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .qpbar {
+    order: 1;
+    flex: 1 1 100%;
+    height: 4px;
+  }
+
+  .qctr {
+    order: 2;
+    font-size: 12px;
+  }
+
+  .react-live {
+    order: 3;
+    min-width: 52px;
+    padding: 5px 8px;
+  }
+
+  .react-live .rl-lbl {
+    font-size: 7px;
+  }
+
+  .react-live .rl-val {
+    font-size: 12px;
+  }
+
+  .tbox {
+    order: 4;
+    min-width: 48px;
+    min-height: 36px;
+    font-size: 13px;
+    margin-left: auto;
+  }
+
+  .qcard {
+    padding: 1rem 0.9rem;
+    margin-bottom: 0.65rem;
+    border-radius: var(--r2);
+  }
+
+  .qtext {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .opts {
+    gap: 10px;
+  }
+
+  .opt {
+    min-height: 52px;
+    padding: 0.85rem 0.95rem;
+    gap: 12px;
+    border-radius: var(--r2);
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .olet {
+    font-size: 11px;
+    min-width: 26px;
+    padding: 4px 7px;
+  }
+
+  .otxt {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Barre d'actions quiz — fixée en bas (pouce) */
+  #sq.on .qact {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 200;
+    margin: 0;
+    padding:
+      10px max(0.85rem, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom))
+      max(0.85rem, env(safe-area-inset-left));
+    gap: 8px;
+    background: rgba(8, 11, 18, 0.92);
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    border-top: 1px solid var(--glass-border);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  #sq.on .qact button {
+    min-height: 48px;
+    font-size: 14px;
+    touch-action: manipulation;
+    flex: 1;
+  }
+
+  #sq.on .btn-nxt {
+    flex: 2;
+    font-size: 15px;
+    min-height: 50px;
+  }
+
+  #sq.on .btn-sk,
+  #sq.on .btn-pause,
+  #sq.on .btn-end {
+    flex: 1;
+    padding: 0.65rem 0.5rem;
+    white-space: nowrap;
+  }
+
+  .pause-ov {
+    border-radius: 0;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+  }
+
+  .pause-box {
+    max-width: min(320px, 92vw);
+    margin: 1rem;
+  }
+
+  /* Résultats */
+  .rring {
+    width: 130px;
+    height: 130px;
+  }
+
+  .rpct {
+    font-size: 28px;
+  }
+
+  .rbtns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .rbtns .btn-go,
+  .rbtns .btn-sec {
+    width: 100%;
+  }
+
+  /* Fiches & formules */
+  .resource-top {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .resource-top h2 {
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .btn-back {
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+    font-size: 13px;
+  }
+
+  .fiche-stats,
+  .formulas-hero {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fiche-card-hd {
+    padding: 0.9rem 0.85rem;
+    min-height: 56px;
+  }
+
+  .fiche-card-title {
+    font-size: 15px;
+  }
+
+  .fiche-q-list {
+    max-height: none;
+  }
+
+  .fiche-q-item {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .fiche-q-text {
+    font-size: 14px;
+  }
+
+  .fiche-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .fiche-actions,
+  .formula-quiz-row {
+    width: 100%;
+  }
+
+  .fiche-actions .rev-btn-sm,
+  .formula-fiche-link,
+  .rev-btn,
+  .btn-rev {
+    min-height: 44px;
+    padding: 0.6rem 0.85rem;
+    font-size: 13px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .formulas-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formulas-tabs,
+  .fiche-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .formulas-tabs::-webkit-scrollbar,
+  .fiche-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .formula-card-hd {
+    padding: 0.9rem 0.85rem;
+    min-height: 56px;
+  }
+
+  .formula-calc input,
+  .formula-calc select,
+  .formula-calc-row input {
+    font-size: 16px !important;
+    min-height: 48px;
+    width: 100%;
+    min-width: 72px;
+  }
+
+  .formula-calc-row {
+    gap: 10px;
+  }
+
+  .formula-calc-row label {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 130px;
+    font-size: 11px;
+  }
+
+  .react-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .react-phases {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Nothing Phone 2a — écran tall 20:9 */
+@media (max-width: 480px) and (min-height: 800px) {
+  .bank-hero-n {
+    font-size: 40px;
+  }
+
+  .home-top {
+    margin-bottom: 1.25rem;
+  }
+
+  .panel-quiz {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Perf mobile — réduire animations lourdes */
+@media (max-width: 480px) {
+  .mesh-bg {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .glows .g1,
+  .glows .g2,
+  .glows .g3 {
+    opacity: 0.5;
+  }
+
+  .grid-overlay {
+    opacity: 0.02;
+  }
+}
+
+@media (max-width: 480px) and (prefers-reduced-motion: reduce) {
+  .mesh-bg,
+  .glows .g3,
+  .screen.on,
+  .qcard {
+    animation: none !important;
+  }
+}
+
+/* Landscape téléphone */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app-header {
+    position: relative;
+  }
+
+  #sq.on .qact {
+    position: sticky;
+    bottom: 0;
+  }
+
+  #sq.on {
+    padding-bottom: 0;
+  }
+}

@@ -135,11 +135,14 @@ const formulesHtml = `<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b12">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Formules PPL — Quiz PPL</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
 <link rel="stylesheet" href="ppl_resources.css?v=20260528c">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260528h">
 </head>
 <body>
 <div class="mesh-bg"></div>
@@ -176,11 +179,14 @@ const fichesHtml = `<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b12">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Fiches explicatives — Quiz PPL</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
 <link rel="stylesheet" href="ppl_resources.css?v=20260528c">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260528h">
 </head>
 <body>
 <div class="mesh-bg"></div>
