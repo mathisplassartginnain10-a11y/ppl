@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 from collections import Counter
+from formula_enrich import enrich_all
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "formulas_bank.js"
@@ -11,6 +12,7 @@ OUT = ROOT / "formulas_bank.js"
 def F(**kw):
     """Helper formule avec défauts."""
     kw.setdefault("examples", [])
+    kw.setdefault("worked", [])
     kw.setdefault("tags", [])
     kw.setdefault("prio", 2)
     return kw
@@ -602,10 +604,14 @@ def emit_formula(f):
         parts.append(f"vars:[{vars_js}]")
     if f.get("explain"):
         parts.append(f"explain:{js_str(f['explain'])}")
+    if f.get("utility"):
+        parts.append(f"utility:{js_str(f['utility'])}")
     if f.get("mnemonic"):
         parts.append(f"mnemonic:{js_str(f['mnemonic'])}")
     if f.get("examples"):
         parts.append(f"examples:[{','.join(js_str(e) for e in f['examples'])}]")
+    if f.get("worked"):
+        parts.append(f"worked:[{','.join(js_str(w) for w in f['worked'])}]")
     if f.get("quizRef"):
         parts.append(f"quizRef:{js_str(f['quizRef'])}")
     if f.get("calc"):
@@ -618,12 +624,13 @@ def emit_formula(f):
 
 
 def main():
-    counts = Counter(f["m"] for f in FORMULAS)
-    calc_count = sum(1 for f in FORMULAS if f.get("calc"))
-    prio3 = sum(1 for f in FORMULAS if f.get("prio", 2) >= 3)
-    cats = len(set(f["cat"] for f in FORMULAS))
+    bank = enrich_all(FORMULAS)
+    counts = Counter(f["m"] for f in bank)
+    calc_count = sum(1 for f in bank if f.get("calc"))
+    prio3 = sum(1 for f in bank if f.get("prio", 2) >= 3)
+    cats = len(set(f["cat"] for f in bank))
     meta = {
-        "total": len(FORMULAS),
+        "total": len(bank),
         "counts": dict(counts),
         "calcCount": calc_count,
         "examEssential": prio3,
@@ -634,13 +641,17 @@ def main():
         "// Banque de formules PPL / LAPL — généré par build_formulas.py",
         f"const FORMULA_META={json.dumps(meta, ensure_ascii=False)};",
         "const FORMULAS=[",
-        ",\n".join(emit_formula(f) for f in FORMULAS),
+        ",\n".join(emit_formula(f) for f in bank),
         "];",
         f"const FORMULA_KEYWORDS={json.dumps(FORMULA_KEYWORDS, ensure_ascii=False)};",
         f"const MODULE_ESSENTIALS={json.dumps(MODULE_ESSENTIALS, ensure_ascii=False)};",
     ]
     OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Generated {OUT.name}: {len(FORMULAS)} formulas ({calc_count} calculators, {prio3} exam essential, {cats} categories)")
+    with_util = sum(1 for f in bank if f.get("utility"))
+    with_worked = sum(1 for f in bank if f.get("worked"))
+    with_ex = sum(1 for f in bank if len(f.get("examples") or []) >= 2)
+    print(f"Generated {OUT.name}: {len(bank)} formulas ({calc_count} calculators)")
+    print(f"  utility: {with_util}/{len(bank)} · worked: {with_worked}/{len(bank)} · examples>=2: {with_ex}/{len(bank)}")
 
 
 if __name__ == "__main__":

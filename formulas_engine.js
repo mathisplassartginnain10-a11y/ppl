@@ -426,6 +426,14 @@
       .slice(0, compact ? 1 : 2)
       .map((e) => `<div class="fiche-formula-ex">→ ${esc(e)}</div>`)
       .join('');
+    const worked =
+      !compact && f.worked && f.worked.length
+        ? `<ol class="formula-worked formula-worked-sm">${f.worked.map((w) => `<li>${esc(w)}</li>`).join('')}</ol>`
+        : '';
+    const util =
+      f.utility && !compact
+        ? `<div class="fiche-formula-meta formula-util">🎯 ${esc(f.utility)}</div>`
+        : '';
     const calc = !compact && f.calc ? renderFormulaCalc(f) : '';
     const mn =
       f.mnemonic && !compact
@@ -435,7 +443,8 @@
     <div class="fiche-formula-hd">${esc(f.title)} <span style="font-weight:400;color:var(--t3);font-size:10px">· ${esc(f.cat)}</span></div>
     <div class="fiche-formula-eq">${esc(f.formula)}</div>
     ${f.units ? `<div class="fiche-formula-meta">${esc(f.units)}</div>` : ''}
-    <div class="fiche-formula-meta">${esc(f.explain || '')}</div>${mn}${ex}${calc}
+    ${util}
+    <div class="fiche-formula-meta">${esc(f.explain || '')}</div>${mn}${worked}${ex}${calc}
   </div>`;
   }
 

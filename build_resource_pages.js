@@ -156,6 +156,7 @@ const formulesHtml = `<!DOCTYPE html>
     <a href="index.html" class="app-nav-link">Quiz</a>
     <a href="formules.html" class="app-nav-link on">Formules</a>
     <a href="fiches.html" class="app-nav-link">Fiches</a>
+    <a href="stats.html" class="app-nav-link">Stats</a>
   </nav>
 </header>
   <div class="resource-screen">
@@ -200,6 +201,7 @@ const fichesHtml = `<!DOCTYPE html>
     <a href="index.html" class="app-nav-link">Quiz</a>
     <a href="formules.html" class="app-nav-link">Formules</a>
     <a href="fiches.html" class="app-nav-link on">Fiches</a>
+    <a href="stats.html" class="app-nav-link">Stats</a>
   </nav>
 </header>
   <div class="resource-screen">

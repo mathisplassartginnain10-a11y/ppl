@@ -10,7 +10,7 @@
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
+<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528j">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528h">
 </head>
 <body>
@@ -25,6 +25,7 @@
     <a href="index.html" class="app-nav-link on">Quiz</a>
     <a href="formules.html" class="app-nav-link">Formules</a>
     <a href="fiches.html" class="app-nav-link">Fiches</a>
+    <a href="stats.html" class="app-nav-link">Stats</a>
   </nav>
 </header>
 
@@ -1208,7 +1209,42 @@ try{reactLog=JSON.parse(localStorage.getItem('ppl4react')||'{"history":[]}')}cat
 if(!revLog.entries) revLog.entries={};
 if(!reactLog.history) reactLog.history=[];
 
-const PPL_STORAGE_KEYS=['ppl4h','ppl4w','ppl4rev','ppl4react','ppl4proba','ppl4div'];
+const PPL_STORAGE_KEYS=['ppl4h','ppl4w','ppl4rev','ppl4react','ppl4proba','ppl4div','ppl4answers'];
+
+let answerLog={items:[]};
+try{answerLog=JSON.parse(localStorage.getItem('ppl4answers')||'{"items":[]}')}catch(e){answerLog={items:[]}}
+if(!answerLog.items) answerLog.items=[];
+
+function saveAnswerLog(){try{localStorage.setItem('ppl4answers',JSON.stringify(answerLog))}catch(e){}}
+
+function trackAnswerLog(ok,el,beh,reactRes,probaRes,q,idx,qi){
+  const b=beh||{};
+  answerLog.items.push({
+    t:Date.now(),idx,qi,ok,el,diff:q.d,mod:q.m,ref:q.r,
+    question:q.q,explain:q.e,
+    reactScore:reactRes?.score,tier:reactRes?.tier,
+    mastery:probaRes?.p,confIdx:probaRes?.confIdx,examImpact:probaRes?.examImpact,
+    reactSec:b.reactionSec,readSec:b.readSec,decideSec:b.decisionSec,
+    hoverSwitches:b.hoverSwitches,wrongHoverCount:b.wrongHoverCount,vacillations:b.vacillations,
+    dwellChosen:b.dwellChosen,moveDist:b.moveDist,decisiveness:b.decisiveness,blurCount:b.blurCount,
+    wrongDwellRatio:b.wrongDwellRatio,chosenIdx:b.chosenIdx,correctIdx:q.a,
+    tags:[...(reactRes?.tags||[]),...(probaRes?.tags||[])],
+    factors:(probaRes?.factors||[]).map(f=>({label:f.label||f.name,value:f.value,unit:f.unit||''})),
+    beh:{readSec:b.readSec,reactionSec:b.reactionSec,decisionSec:b.decisionSec,hoverSwitches:b.hoverSwitches,
+      wrongHoverCount:b.wrongHoverCount,vacillations:b.vacillations,dwellChosen:b.dwellChosen,
+      moveDist:b.moveDist,decisiveness:b.decisiveness,blurCount:b.blurCount,jitter:b.jitter,velStd:b.velStd}
+  });
+  if(answerLog.items.length>500) answerLog.items=answerLog.items.slice(-500);
+  saveAnswerLog();
+}
+
+function summarizeKey(text){
+  if(!text) return '';
+  const t=text.trim();
+  const m=t.match(/^[^.!?]+[.!?]/);
+  const s=m?m[0]:t;
+  return s.length>200?s.slice(0,197)+'…':s;
+}
 
 function clearAllStorage(){
   PPL_STORAGE_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
@@ -2263,6 +2299,8 @@ function record(ok,el,beh){
   hist[idx]=ok;
   if(!ok) weak.add(idx); else weak.delete(idx);
   const reactRes=reactionEngine(ok,q.d,beh);
+  const probaRes=calcProba(ok,el,q.d,sesHist.slice(0,-1),beh,{q,idx,qi,total:queue.length});
+  trackAnswerLog(ok,el,beh,reactRes,probaRes,q,idx,qi);
   trackReactLog(ok,q.d,beh,reactRes,q,idx);
   trackRevision(ok,el,beh,idx,q);
   save();
@@ -2338,34 +2376,36 @@ function showFb(ok,q,el,beh){
   const tlim={1:12,2:22,3:38,4:55}[q.d];
   const r=el/tlim;
   const tl=r<0.35?'⚡ Très rapide':r<0.7?'✓ Rapide':r<1.1?'◎ Normal':'○ Long';
-  const conf=Math.round(res.confIdx/20);
-  const stars=Array.from({length:5},(_,i)=>`<span class="star ${i<conf?'on':'off'}"></span>`).join('');
-  const tagStr=res.tags.length?` · ${res.tags.join(', ')}`:'';
   const chosenIdx=beh?.chosenIdx??-1;
+  const lastEntry=answerLog.items[answerLog.items.length-1];
+  const statsHref=`stats.html?i=${idx>=0?idx:''}&t=${lastEntry?.t||Date.now()}`;
+
+  if(ok){
+    document.getElementById('fb').innerHTML=`
+      <div class="fb ok fb-brief">
+        <div class="fb-hd">
+          <span class="fb-st">✓ Correct · ${el.toFixed(1)}s · ${tl}</span>
+          <span class="proba-tag ${probaClass(res.reactScore||50)}">Réaction ${res.reactScore||50}%</span>
+          <span class="proba-tag ${pc}">Maîtrise ${p}%</span>
+        </div>
+        <div class="fb-txt fb-key">${summarizeKey(q.e)}</div>
+        <div class="fb-ref">📌 ${q.r}</div>
+        <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées de cette réponse →</a>
+      </div>`;
+    return;
+  }
 
   document.getElementById('fb').innerHTML=`
-    <div class="fb ${ok?'ok':'ko'}">
-      ${fmtReactHero(res.reactRes,beh)}
+    <div class="fb ko">
       <div class="fb-hd">
-        <span class="fb-st">${ok?'✓ Correct':'✗ Incorrect'} · ${el.toFixed(1)}s · ${tl}${tagStr}</span>
-        <span class="proba-tag ${probaClass(res.reactScore||50)}" style="border-color:currentColor">Réaction : ${res.reactScore||50}%</span>
-        <span class="proba-tag ${pc}">Maîtrise : ${p}%</span>
-        ${res.examImpact!=null?`<span class="proba-tag ${res.examImpact>=0?'ph':'pl'}">Examen ${res.examImpact>=0?'+':''}${res.examImpact}%</span>`:''}
+        <span class="fb-st">✗ Incorrect · ${el.toFixed(1)}s · ${tl}</span>
+        <span class="proba-tag ${probaClass(res.reactScore||50)}">Réaction ${res.reactScore||50}%</span>
+        <span class="proba-tag ${pc}">Maîtrise ${p}%</span>
       </div>
       <div class="fb-txt">${q.e}</div>
       <div class="fb-ref">📌 ${q.r}</div>
-      ${fmtBeh(beh)}
-      ${fmtProbaBreakdown(res)}
       ${renderDeepFicheHTML(q,revLog.entries?.[idx],chosenIdx)}
-      <div class="pmeter">
-        <span class="pm-lbl">Maîtrise thème</span>
-        <div class="pm-tr"><div class="pm-fi" style="width:${p}%;background:${probaColor(p)}"></div></div>
-        <span class="pm-v" style="color:${probaColor(p)}">${p}%</span>
-      </div>
-      <div class="conf-ring">
-        <div class="conf-stars">${stars}</div>
-        <span class="conf-label">Fiabilité cognitive : ${['très faible','faible','moyenne','bonne','très bonne','excellente'][conf]} · confiance ${res.confIdx}%</span>
-      </div>
+      <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Voir toutes les stats (comportement, probabilité…) →</a>
     </div>`;
 }
 

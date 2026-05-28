@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b12">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Fiches explicatives — Quiz PPL</title>
+<title>Stats détaillées — Quiz PPL</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
-<link rel="stylesheet" href="ppl_resources.css?v=20260528c">
+<link rel="stylesheet" href="ppl_stats.css?v=20260528j">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528h">
 </head>
 <body>
@@ -22,27 +22,18 @@
   <nav class="app-nav">
     <a href="index.html" class="app-nav-link">Quiz</a>
     <a href="formules.html" class="app-nav-link">Formules</a>
-    <a href="fiches.html" class="app-nav-link on">Fiches</a>
-    <a href="stats.html" class="app-nav-link">Stats</a>
+    <a href="fiches.html" class="app-nav-link">Fiches</a>
+    <a href="stats.html" class="app-nav-link on">Stats</a>
   </nav>
 </header>
-  <div class="resource-screen">
-    <div class="resource-top">
+  <div class="resource-screen stats-screen">
+    <div class="stats-top">
       <a href="index.html" class="btn-back">← Quiz PPL</a>
-      <h2>📚 Fiches explicatives</h2>
+      <h2>📊 Stats détaillées par réponse</h2>
     </div>
-    <div class="resource-body">
-      <div class="resource-actions">
-        <button type="button" class="btn-rev" id="btn-rev-all" hidden>📚 Réviser toutes mes erreurs</button>
-      </div>
-      <div id="rev-panel" class="rev-panel"></div>
-    </div>
+    <div id="stats-root"></div>
   </div>
 </div>
-<script src="questions_bank.js?v=20260528g"></script>
-<script src="formulas_bank.js?v=20260528d"></script>
-<script src="formulas_engine.js?v=20260528d"></script>
-<script src="topics_utils.js?v=20260528e"></script>
-<script src="ppl_fiches_page.js"></script>
+<script src="ppl_stats_page.js?v=20260528j"></script>
 </body>
 </html>

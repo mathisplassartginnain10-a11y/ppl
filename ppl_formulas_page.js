@@ -49,8 +49,10 @@ function filterFormulas() {
       f.title +
       f.formula +
       f.explain +
+      (f.utility || '') +
       f.cat +
       (f.examples || []).join('') +
+      (f.worked || []).join('') +
       (f.tags || []).join('') +
       (f.quizRef || '')
     ).toLowerCase();
@@ -74,6 +76,9 @@ function renderFormulaCard(f) {
     : '';
   const ex = f.examples
     ? f.examples.map((e) => `<div class="formula-ex">→ ${esc(e)}</div>`).join('')
+    : '';
+  const worked = f.worked
+    ? `<ol class="formula-worked">${f.worked.map((w) => `<li>${esc(w)}</li>`).join('')}</ol>`
     : '';
   const qCount = f.quizRef && typeof getTopicQuestionCount === 'function' ? getTopicQuestionCount(f.quizRef) : 0;
   const quiz =
@@ -106,10 +111,12 @@ function renderFormulaCard(f) {
     </button>
     <div class="formula-card-bd">
       ${f.units ? `<div class="formula-sec"><strong>Unités</strong>${esc(f.units)}</div>` : ''}
+      ${f.utility ? `<div class="formula-sec formula-sec-util"><strong>Utilité en vol</strong>${esc(f.utility)}</div>` : ''}
       <div class="formula-sec"><strong>Explication</strong>${esc(f.explain || '')}</div>
       ${vars}
       ${f.mnemonic ? `<div class="formula-mnemo">💡 ${esc(f.mnemonic)}</div>` : ''}
-      ${ex ? `<div class="formula-sec"><strong>Exemples</strong>${ex}</div>` : ''}
+      ${worked ? `<div class="formula-sec"><strong>Exemple de calcul</strong>${worked}</div>` : ''}
+      ${ex ? `<div class="formula-sec"><strong>Autres exemples</strong>${ex}</div>` : ''}
       ${renderFormulaCalc(f)}
       ${quiz}
     </div>
