@@ -253,6 +253,113 @@ function buildTopicFiche(ref,sampleQ,entry,chosenIdx){
   };
 }
 
+function summarizeKey(text){
+  if(!text) return '';
+  const t=text.trim();
+  const m=t.match(/^[^.!?]+[.!?]/);
+  const s=m?m[0]:t;
+  return s.length>200?s.slice(0,197)+'…':s;
+}
+
+function getLastAnswerLogForIdx(idx){
+  if(idx==null||idx<0) return null;
+  for(let i=answerLog.items.length-1;i>=0;i--){
+    if(answerLog.items[i].idx===idx) return answerLog.items[i];
+  }
+  return null;
+}
+
+function buildOptionAnalysis(q,chosenIdx){
+  return q.o.map((text,i)=>{
+    const letter=String.fromCharCode(65+i);
+    const isCorrect=i===q.a;
+    const isChosen=chosenIdx===i;
+    let why=[];
+    if(isCorrect) why.push('Conforme au programme et à l\'explication officielle.');
+    else{
+      const trap=analyzeTraps(q,chosenIdx).find(t=>t.i===i);
+      if(trap) why=trap.traps.filter(t=>!t.startsWith('←'));
+      if(isChosen&&!why.length) why.push('Option validée à tort — relire la règle fondamentale.');
+      if(!why.length) why.push('Distracteur — éliminer par la règle et l\'exclusion.');
+    }
+    return{letter,text,isCorrect,isChosen,why};
+  });
+}
+
+function buildRevisionActionPlan(q,entry,f,beh){
+  const steps=['Relire la règle fondamentale ci-dessous mot pour mot.',
+    'Analyser le tableau option par option — comprendre chaque piège.'];
+  if(f.mnemo) steps.push('Mémoriser : '+f.mnemo);
+  if(f.formulas?.linked?.length) steps.push('Refaire les '+f.formulas.linked.length+' formule(s) liées sur papier.');
+  if(f.worked) steps.push('Refaire le calcul pas à pas de l\'exemple type.');
+  steps.push('Enchaîner 3 questions du thème « '+q.r+' » sans correction.');
+  if(entry?.sm2) steps.push('Prochaine révision SM-2 : dans '+entry.sm2.interval+' jour'+(entry.sm2.interval>1?'s':'')+'.');
+  if(beh?.wrongHoverCount>=2) steps.push('À l\'examen : éliminer 2 options pièges avant de valider.');
+  if(beh?.reactionSec<1.5) steps.push('Ralentir : minimum 5 s de lecture sur les questions difficiles.');
+  return steps;
+}
+
+function renderBehCompact(beh,logEntry){
+  const b=beh||logEntry?.beh||{};
+  const rows=[];
+  if(b.reactionSec!=null) rows.push(['Réaction',b.reactionSec.toFixed(1)+' s']);
+  if(b.decisionSec!=null) rows.push(['Décision',b.decisionSec.toFixed(1)+' s']);
+  if(b.readSec!=null) rows.push(['Lecture',b.readSec.toFixed(1)+' s']);
+  if(b.hoverSwitches!=null) rows.push(['Survols / vacill.',(b.hoverSwitches||0)+' / '+(b.vacillations||0)]);
+  if(b.wrongHoverCount!=null) rows.push(['Temps mauvaises opts',Math.round((b.wrongDwellRatio||0)*100)+'% · '+b.wrongHoverCount+' opts']);
+  if(b.longestWrongIdx>=0) rows.push(['Piège consulté le plus longtemps','Option '+String.fromCharCode(65+b.longestWrongIdx)]);
+  if(logEntry?.reactScore!=null) rows.push(['Score réaction',''+logEntry.reactScore+'%']);
+  if(!rows.length) return '';
+  return `<div class="err-beh-grid">${rows.map(([k,v])=>`<div class="err-beh-it"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('')}</div>`;
+}
+
+function renderErrorUltraHTML(f,opts){
+  const q=f.sampleQ,chosenIdx=f.chosenIdx??-1,entry=f.entry;
+  const beh=opts.beh||entry?.lastBeh;
+  const logEntry=opts.logEntry||getLastAnswerLogForIdx(Q.indexOf(q));
+  const isWrong=chosenIdx>=0&&chosenIdx!==q.a;
+  const repeat=entry?.wrongChoices?.[chosenIdx]||0;
+  const wrongTrap=isWrong?analyzeTraps(q,chosenIdx).find(t=>t.i===chosenIdx):null;
+  const optRows=buildOptionAnalysis(q,chosenIdx).map(o=>`
+    <div class="err-opt-row${o.isCorrect?' err-opt-ok':''}${o.isChosen?' err-opt-chosen':''}">
+      <span class="err-opt-l">${o.letter}</span>
+      <div class="err-opt-body">
+        <div class="err-opt-txt">${esc(o.text)}${o.isCorrect?' ✓':''}${o.isChosen&&!o.isCorrect?' ✗ (ta réponse)':''}</div>
+        <div class="err-opt-why">${o.why.map(w=>esc(w)).join(' · ')}</div>
+      </div>
+    </div>`).join('');
+  const plan=buildRevisionActionPlan(q,entry,f,beh);
+  const behHtml=renderBehCompact(beh,logEntry);
+  return `<div class="fiche-error-ultra">
+    <div class="err-ultra-hd">
+      <span class="err-ultra-badge">🔬 Fiche erreur ultra-détaillée</span>
+      ${repeat>1?`<span class="err-ultra-badge warn">Même piège ${repeat}×</span>`:''}
+      ${(entry?.failCount||0)>1?`<span class="err-ultra-badge warn">${entry.failCount} erreurs cumulées</span>`:''}
+    </div>
+    <div class="err-ultra-q">${esc(q.q)}</div>
+    ${isWrong?`<div class="err-ultra-ans">
+      <div class="err-ultra-wrong">✗ Ta réponse : <strong>${esc(q.o[chosenIdx])}</strong></div>
+      <div class="err-ultra-correct">✓ Bonne réponse : <strong>${esc(q.o[q.a])}</strong></div>
+      ${wrongTrap?`<div class="err-ultra-trap">${wrongTrap.traps.map(t=>esc(t)).join(' · ')}</div>`:''}
+    </div>`:''}
+    <div class="fiche-block err-block">
+      <div class="fiche-block-hd"><span class="fiche-block-ico">🔍</span> Analyse option par option (A–D)</div>
+      <div class="fiche-block-bd"><div class="err-opt-list">${optRows}</div></div>
+    </div>
+    ${behHtml?`<div class="fiche-block err-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📊</span> Comportement lors de l'erreur</div><div class="fiche-block-bd">${behHtml}</div></div>`:''}
+    <div class="fiche-block err-block">
+      <div class="fiche-block-hd"><span class="fiche-block-ico">📝</span> Plan de révision express</div>
+      <div class="fiche-block-bd"><ol class="err-action-plan">${plan.map(s=>`<li>${typeof s==='string'&&s.includes('<strong>')?s:esc(s)}</li>`).join('')}</ol></div>
+    </div>
+  </div>`;
+}
+
+function renderDeepFicheHTML(q,entry,chosenIdx,beh){
+  const idx=Q.indexOf(q);
+  const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
+  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:getLastAnswerLogForIdx(idx>=0?idx:undefined)});
+}
+
 function renderTopicFicheHTML(ref,opts={}){
   const f=opts.f||buildTopicFiche(ref,opts.sampleQ,opts.entry,opts.chosenIdx);
   if(!f) return '';
@@ -262,7 +369,11 @@ function renderTopicFicheHTML(ref,opts={}){
   const formulasHtml=typeof renderFicheFormulasSection==='function'
     ?renderFicheFormulasSection(f.formulas,f.worked,f.essentials,f.module):'';
   const points=(f.allRules.length?f.allRules:f.allPoints.length?f.allPoints:f.keyPoints);
-  const trapsHtml=(f.themeTraps.length?f.themeTraps:f.traps).map(t=>{
+  const isError=opts.mode==='error';
+  const errorUltra=isError?renderErrorUltraHTML(f,opts):'';
+  const qTraps=f.traps.length?f.traps:(f.themeTraps.length?f.themeTraps.slice(0,6):[]);
+  const trapsForDisplay=isError?qTraps:(f.themeTraps.length?f.themeTraps:f.traps);
+  const trapsDisplayHtml=trapsForDisplay.map(t=>{
     const isCorrect=t.i===f.sampleQ.a;
     const isChosen=opts.chosenIdx===t.i;
     return`<div class="fiche-trap-item${isChosen?' chosen':''}${isCorrect?' correct':''}">
@@ -296,9 +407,13 @@ function renderTopicFicheHTML(ref,opts={}){
   const diffHtml=Object.entries(f.byDiff).filter(([,n])=>n>0).map(([d,n])=>
     `<span class="fiche-diff-chip">${diffStr(parseInt(d,10))} · ${n}</span>`).join('');
   const showFoot=opts.showFoot!==false;
-  const compact=opts.compact;
+  const themeExpandBody=isError?`
+      ${points.length?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Synthèse thème (${points.length} points)</div><div class="fiche-block-bd"><ul class="fiche-points">${points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div></div>`:''}
+      <div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❓</span> Toutes les questions (${f.questionCount})</div><div class="fiche-block-bd">${previewsHtml||'—'}</div></div>
+      ${relatedHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔗</span> Thèmes liés</div><div class="fiche-block-bd">${relatedHtml}</div></div>`:''}
+      ${diffHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📊</span> Répartition difficulté</div><div class="fiche-block-bd"><div class="fiche-diff-row">${diffHtml}</div></div></div>`:''}`:'';
 
-  return`<div class="fiche-sheet">
+  return`<div class="fiche-sheet${isError?' fiche-sheet-error':''}">
     <div class="fiche-hero">
       <div class="fiche-hero-top">
         <h3 class="fiche-hero-title">${esc(f.ref)}</h3>
@@ -320,23 +435,35 @@ function renderTopicFicheHTML(ref,opts={}){
       ${f.concept?`<p class="fiche-concept">${esc(f.concept)}</p>`:''}
     </div>
     <div class="fiche-body">
+      ${errorUltra}
       <div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">📌</span> Règle fondamentale</div>
         <div class="fiche-block-bd"><div class="fiche-rule-box">${esc(f.rule)}</div></div>
       </div>
-      <div class="fiche-block">
+      ${!isError?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">🎯</span> Objectifs d'apprentissage</div>
         <div class="fiche-block-bd"><ul class="fiche-objectives">${f.objectives.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>
-      </div>
-      ${points.length?`<div class="fiche-block">
+      </div>`:''}
+      ${!isError&&points.length?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Synthèse complète (${points.length} points)</div>
         <div class="fiche-block-bd"><ul class="fiche-points">${points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
       </div>`:''}
+      <div class="fiche-block">
+        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Pièges & distracteurs (${trapsForDisplay.length} analysés)</div>
+        <div class="fiche-block-bd"><div class="fiche-trap-grid">${trapsDisplayHtml}</div></div>
+      </div>
       ${f.refHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📖</span> Référence programme</div><div class="fiche-block-bd">${f.refHtml}</div></div>`:''}
       ${formulasHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div><div class="fiche-block-bd">${formulasHtml}</div></div>`:''}
       ${workedMulti?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔢</span> Calculs pas à pas (${f.workedExamples.length})</div><div class="fiche-block-bd">${workedMulti}</div></div>`:''}
-      ${topWrongHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❌</span> Erreurs les plus fréquentes</div><div class="fiche-block-bd">${topWrongHtml}</div></div>`:''}
+      ${topWrongHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❌</span> Erreurs les plus fréquentes sur ce thème</div><div class="fiche-block-bd">${topWrongHtml}</div></div>`:''}
       ${revStatsHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📈</span> Ta progression sur ce thème</div><div class="fiche-block-bd">${revStatsHtml}</div></div>`:''}
+      ${f.mnemo?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">💡</span> Mnémotechnique</div><div class="fiche-block-bd"><div class="fiche-mnemo">${esc(f.mnemo)}</div></div></div>`:''}
+      <div class="fiche-block">
+        <div class="fiche-block-hd"><span class="fiche-block-ico">🎓</span> Conseil examen</div>
+        <div class="fiche-block-bd"><div class="fiche-exam-tip">${esc(f.examTip)}</div></div>
+      </div>
+      ${isError&&themeExpandBody?`<details class="fiche-theme-expand"><summary>📚 Synthèse thème complète (${f.questionCount} questions)</summary><div class="fiche-theme-expand-bd">${themeExpandBody}</div></details>`:''}
+      ${!isError?`
       ${f.topKw.length?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">🔤</span> Vocabulaire clé</div>
         <div class="fiche-block-bd"><div class="fiche-kw-row">${f.topKw.map(w=>`<span class="fiche-kw">${esc(w)}</span>`).join('')}</div></div>
@@ -345,20 +472,11 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-block-hd"><span class="fiche-block-ico">❓</span> Toutes les questions (${f.questionCount})</div>
         <div class="fiche-block-bd">${previewsHtml||'<div class="rev-empty">Aucune question liée.</div>'}</div>
       </div>
-      <div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Pièges & distracteurs (${f.themeTraps.length||f.traps.length} analysés)</div>
-        <div class="fiche-block-bd"><div class="fiche-trap-grid">${trapsHtml}</div></div>
-      </div>
       ${relatedHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔗</span> Thèmes liés</div><div class="fiche-block-bd">${relatedHtml}</div></div>`:''}
-      ${f.mnemo?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">💡</span> Mnémotechnique</div><div class="fiche-block-bd"><div class="fiche-mnemo">${esc(f.mnemo)}</div></div></div>`:''}
-      <div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">🎓</span> Conseil examen</div>
-        <div class="fiche-block-bd"><div class="fiche-exam-tip">${esc(f.examTip)}</div></div>
-      </div>
       ${diffHtml?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">📊</span> Répartition difficulté</div>
         <div class="fiche-block-bd"><div class="fiche-diff-row">${diffHtml}</div></div>
-      </div>`:''}
+      </div>`:''}`:''}
     </div>
     ${showFoot?`<div class="fiche-foot">
       <div class="fiche-mastery-block">
@@ -808,6 +926,8 @@ function buildFichesPanel(){
     </div>`;
   }else if(revTab==='fiches'){
     listHtml=renderFichesByModule(allThemes);
+  }else if(revTab==='sessions'){
+    listHtml=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.renderTab():'<div class="rev-empty">Chargement…</div>';
   }else{
     listHtml=themes.map(([ref,data])=>`
       <div class="rev-theme">
@@ -819,11 +939,14 @@ function buildFichesPanel(){
         </div></div>`).join('')||`<div class="rev-empty">Aucun thème en révision — consulte la Bibliothèque.</div>`;
   }
 
+  const sessionCount=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.count():0;
+
   panel.innerHTML=`
     ${renderFichesDashboard(ficheStats,nRev)}
     <div class="fiche-tabs-wrap">
       <div class="rev-tabs fiche-tabs-inner">
         <button type="button" class="rev-tab${revTab==='fiches'?' on':''}" data-rev-tab="fiches"><span class="rev-tab-ico">📂</span> Par matière</button>
+        <button type="button" class="rev-tab${revTab==='sessions'?' on':''}" data-rev-tab="sessions"><span class="rev-tab-ico">📋</span> Fin de session${sessionCount?` <em>${sessionCount}</em>`:''}</button>
         <button type="button" class="rev-tab${revTab==='library'?' on':''}" data-rev-tab="library"><span class="rev-tab-ico">📚</span> Bibliothèque</button>
         <button type="button" class="rev-tab${revTab==='priority'?' on':''}" data-rev-tab="priority"><span class="rev-tab-ico">⚡</span> Priorités</button>
         <button type="button" class="rev-tab${revTab==='plan'?' on':''}" data-rev-tab="plan"><span class="rev-tab-ico">📅</span> SM-2</button>
@@ -893,6 +1016,14 @@ revPanel.addEventListener('click',e=>{
   if(tab){revTab=tab.dataset.revTab;buildFichesPanel();return;}
   const fmod=e.target.closest('[data-fmod]');
   if(fmod){ficheLibMod=fmod.dataset.fmod;buildFichesPanel();return;}
+  const sessionClear=e.target.closest('[data-session-clear]');
+  if(sessionClear){
+    if(confirm('Effacer toutes les fiches de fin de session enregistrées ?')){
+      if(typeof PPLSessionFiches!=='undefined') PPLSessionFiches.clear();
+      buildFichesPanel();
+    }
+    return;
+  }
   const expandBtn=e.target.closest('[data-fiche-expand]');
   if(expandBtn){
     const mode=expandBtn.dataset.ficheExpand;
@@ -947,7 +1078,12 @@ document.addEventListener('input',e=>{if(e.target.closest('[data-calc-type]')) h
 function handleFicheDeepLink(){
   const params=new URLSearchParams(location.search);
   const topic=params.get('topic');
-  if(!topic) return;
+  const session=params.get('session');
+  if(session!=null) revTab='sessions';
+  if(!topic){
+    if(session!=null) buildFichesPanel();
+    return;
+  }
   revTab='fiches';
   ficheLibSearch=topic;
   buildFichesPanel();

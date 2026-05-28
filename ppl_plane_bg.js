@@ -3,8 +3,8 @@
 
   /* Modèle 3D Elixir — docs/Meshy_AI_Elixir_Aircraft_Conce_0528193216_texture.glb */
   var GLB = 'docs/Meshy_AI_Elixir_Aircraft_Conce_0528193216_texture.glb';
-  var THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js';
-  var GLTF_URL = 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/loaders/GLTFLoader.js';
+  var THREE_PATH = 'vendor/three/build/three.module.min.js';
+  var GLTF_PATH = 'vendor/three/examples/jsm/loaders/GLTFLoader.js';
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mobile = window.matchMedia('(max-width: 640px)').matches;
@@ -151,8 +151,8 @@
     insertSky(sky);
 
     try {
-      var THREE = await import(THREE_URL);
-      var GLTF = await import(GLTF_URL);
+      var THREE = await import(assetUrl(THREE_PATH));
+      var GLTF = await import(assetUrl(GLTF_PATH));
       var loader = new GLTF.GLTFLoader();
       var gltf = await loader.loadAsync(assetUrl(GLB));
       var base = prepareModel(gltf.scene, THREE);
@@ -255,7 +255,7 @@
         renderer.dispose();
       };
     } catch (err) {
-      console.warn('[ppl_plane_bg] GLB indisponible, repli SVG.', err);
+      console.warn('[ppl_plane_bg] 3D local indisponible, repli SVG.', err);
       sky.remove();
       mountSvg();
     }

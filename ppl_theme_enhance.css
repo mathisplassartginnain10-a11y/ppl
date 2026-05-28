@@ -1947,6 +1947,25 @@ select:focus, input.cfg-num:focus {
 .session-recap{margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--b1)}
 .session-recap h3{font-size:14px;margin:0 0 .35rem;color:var(--t1)}
 .session-recap-sub{font-size:11px;color:var(--t3);margin:0 0 .85rem}
+.session-recap-link{color:var(--acc);text-decoration:none;font-weight:600}
+.session-recap-link:hover{text-decoration:underline}
+
+/* Fiches fin de session — onglet Fiches */
+.session-fiche-group{margin-bottom:1.35rem;padding:12px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--r3)}
+.session-fiche-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--b1)}
+.session-fiche-hd-left{display:flex;flex-direction:column;gap:2px}
+.session-fiche-date{font-size:13px;font-weight:600;color:var(--t1)}
+.session-fiche-meta{font-size:10px;color:var(--t3);font-family:var(--font-mono,'DM Mono',monospace)}
+.session-fiche-list{display:flex;flex-direction:column;gap:6px}
+.session-fiche-card{border:1px solid var(--b1);border-radius:var(--r2);background:var(--s1);overflow:hidden}
+.session-fiche-card--ko{border-color:rgba(240,96,96,.28)}
+.session-fiche-card--ok{border-color:rgba(52,211,168,.18)}
+.session-fiche-card summary{cursor:pointer;display:flex;align-items:center;gap:.45rem;padding:.6rem .7rem;font-size:12px;list-style:none}
+.session-fiche-card summary::-webkit-details-marker{display:none}
+.session-fiche-body{padding:0 .65rem .75rem;border-top:1px solid var(--b1)}
+.session-fiche-ok{padding-top:.5rem}
+.session-fiche-ok-hd{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:.45rem;font-size:11px}
+
 .recap-list{display:flex;flex-direction:column;gap:6px}
 .recap-item{border:1px solid var(--b1);border-radius:8px;background:var(--s1);overflow:hidden}
 .recap-item.recap-ko{border-color:rgba(240,96,96,.3)}
