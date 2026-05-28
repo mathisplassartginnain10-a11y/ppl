@@ -162,6 +162,10 @@ const formulesHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
 <link rel="stylesheet" href="ppl_resources.css?v=20260528c">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
+<link rel="stylesheet" href="ppl_auth.css?v=20260528n">
+<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528n">
+<script src="ppl_auth.js?v=20260528n"></script>
+<script src="ppl_plane_bg.js?v=20260528n" defer></script>
 </head>
 <body>
 <div class="mesh-bg"></div>
@@ -208,6 +212,10 @@ const fichesHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
 <link rel="stylesheet" href="ppl_resources.css?v=20260528c">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
+<link rel="stylesheet" href="ppl_auth.css?v=20260528n">
+<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528n">
+<script src="ppl_auth.js?v=20260528n"></script>
+<script src="ppl_plane_bg.js?v=20260528n" defer></script>
 </head>
 <body>
 <div class="mesh-bg"></div>

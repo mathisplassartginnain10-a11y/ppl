@@ -1,0 +1,182 @@
+/* Fond — Elixir Aircraft (passage périodique) */
+.ppl-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ppl-sky-plane {
+  position: absolute;
+  top: 22%;
+  left: 0;
+  width: min(28vw, 220px);
+  height: auto;
+  opacity: 0;
+  filter: drop-shadow(0 8px 24px rgba(91, 138, 240, 0.25));
+  will-change: transform, opacity;
+}
+
+.ppl-sky-plane--ltr {
+  animation: pplFlyLtr 7s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.ppl-sky-plane--rtl {
+  top: 38%;
+  width: min(24vw, 190px);
+  animation: pplFlyRtl 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation-delay: 3.5s;
+  opacity: 0;
+}
+
+.ppl-elixir-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ppl-elixir-body {
+  fill: url(#pplElixirGrad);
+  stroke: rgba(147, 184, 251, 0.55);
+  stroke-width: 0.6;
+}
+
+.ppl-elixir-wing {
+  fill: rgba(91, 138, 240, 0.22);
+  stroke: rgba(147, 184, 251, 0.35);
+  stroke-width: 0.5;
+}
+
+.ppl-elixir-canopy {
+  fill: rgba(52, 211, 168, 0.18);
+  stroke: rgba(52, 211, 168, 0.45);
+  stroke-width: 0.4;
+}
+
+.ppl-elixir-tail {
+  fill: rgba(124, 108, 246, 0.2);
+  stroke: rgba(147, 184, 251, 0.4);
+  stroke-width: 0.45;
+}
+
+.ppl-elixir-prop {
+  fill: none;
+  stroke: rgba(147, 184, 251, 0.35);
+  stroke-width: 0.5;
+  transform-origin: 14px 20px;
+  animation: pplPropSpin 0.12s linear infinite;
+}
+
+.ppl-elixir-label {
+  font-family: 'JetBrains Mono', 'DM Mono', monospace;
+  font-size: 4px;
+  fill: rgba(147, 184, 251, 0.45);
+  letter-spacing: 0.08em;
+}
+
+@keyframes pplFlyLtr {
+  0%,
+  72%,
+  100% {
+    transform: translate(-120vw, 0) rotate(-2deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.42;
+  }
+  18% {
+    transform: translate(15vw, -1vh) rotate(-1deg);
+    opacity: 0.5;
+  }
+  32% {
+    transform: translate(55vw, 0.5vh) rotate(0deg);
+    opacity: 0.48;
+  }
+  48% {
+    transform: translate(105vw, -0.5vh) rotate(1deg);
+    opacity: 0.38;
+  }
+  58% {
+    transform: translate(130vw, 0) rotate(2deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pplFlyRtl {
+  0%,
+  70%,
+  100% {
+    transform: translate(120vw, 0) scaleX(-1) rotate(2deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.32;
+  }
+  22% {
+    transform: translate(70vw, 1vh) scaleX(-1) rotate(1deg);
+    opacity: 0.38;
+  }
+  38% {
+    transform: translate(30vw, 0) scaleX(-1) rotate(0deg);
+    opacity: 0.36;
+  }
+  52% {
+    transform: translate(-10vw, -0.5vh) scaleX(-1) rotate(-1deg);
+    opacity: 0.28;
+  }
+  62% {
+    transform: translate(-35vw, 0) scaleX(-1) rotate(-2deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pplPropSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+html.ppl-gated .ppl-sky {
+  z-index: 0;
+}
+
+@media (max-width: 640px) {
+  .ppl-sky-plane {
+    width: min(42vw, 180px);
+    opacity: 0;
+  }
+
+  .ppl-sky-plane--rtl {
+    width: min(36vw, 150px);
+    top: 42%;
+  }
+
+  @keyframes pplFlyLtr {
+    0%,
+    72%,
+    100% {
+      transform: translate(-130vw, 0) rotate(-2deg);
+      opacity: 0;
+    }
+    8% {
+      opacity: 0.32;
+    }
+    32% {
+      transform: translate(55vw, 0.5vh) rotate(0deg);
+      opacity: 0.36;
+    }
+    58% {
+      transform: translate(130vw, 0) rotate(2deg);
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ppl-sky-plane,
+  .ppl-elixir-prop {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
