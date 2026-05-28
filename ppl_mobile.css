@@ -408,6 +408,30 @@
     font-size: 14px;
   }
 
+  .fb-ans {
+    font-size: 13px;
+  }
+
+  .recap-item summary {
+    flex-wrap: wrap;
+    padding: 0.65rem 0.75rem;
+    min-height: 44px;
+  }
+
+  .recap-title {
+    white-space: normal;
+    flex-basis: 100%;
+    padding-left: 2.1rem;
+  }
+
+  .recap-body {
+    padding: 0 0.85rem 0.85rem;
+  }
+
+  .recap-exp {
+    font-size: 13px;
+  }
+
   .fb-stats-link {
     display: flex;
     align-items: center;

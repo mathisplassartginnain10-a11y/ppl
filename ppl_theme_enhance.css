@@ -1261,5 +1261,32 @@ select:focus, input.cfg-num:focus {
 .fiche-formulas-compact .fiche-formula{padding:.45rem .55rem;margin-bottom:4px}
 
 .fb-brief .fb-key{font-weight:500;color:var(--t1)}
+.fb-ans{font-size:12px;line-height:1.45;margin:.35rem 0;padding:.35rem .5rem;border-radius:6px}
+.fb-ans.fb-wrong{background:rgba(240,96,96,.08);border:1px solid rgba(240,96,96,.25);color:#fca5a5}
+.fb-ans.fb-correct{background:rgba(52,211,168,.08);border:1px solid rgba(52,211,168,.25);color:#a7f3d0}
+.fb-end-hint{margin:.45rem 0 0;font-size:10px;color:var(--t3);font-style:italic}
 .fb-stats-link{display:inline-block;margin-top:.65rem;font-size:11px;color:var(--acc);text-decoration:none;border-bottom:1px solid transparent}
 .fb-stats-link:hover{border-bottom-color:var(--acc)}
+
+.session-recap{margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--b1)}
+.session-recap h3{font-size:14px;margin:0 0 .35rem;color:var(--t1)}
+.session-recap-sub{font-size:11px;color:var(--t3);margin:0 0 .85rem}
+.recap-list{display:flex;flex-direction:column;gap:6px}
+.recap-item{border:1px solid var(--b1);border-radius:8px;background:var(--s1);overflow:hidden}
+.recap-item.recap-ko{border-color:rgba(240,96,96,.3)}
+.recap-item.recap-ok{border-color:rgba(52,211,168,.2)}
+.recap-item summary{cursor:pointer;display:flex;align-items:center;gap:.45rem;padding:.55rem .65rem;font-size:12px;list-style:none}
+.recap-item summary::-webkit-details-marker{display:none}
+.recap-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);min-width:1.6rem}
+.recap-icon{font-weight:700;min-width:1rem}
+.recap-ko .recap-icon{color:var(--red)}
+.recap-ok .recap-icon{color:var(--green)}
+.recap-mod{font-size:10px;color:var(--t3);white-space:nowrap}
+.recap-title{flex:1;color:var(--t2);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recap-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3)}
+.recap-body{padding:0 .75rem .75rem;border-top:1px solid var(--b1)}
+.recap-question{font-size:12px;color:var(--t1);line-height:1.5;margin:.55rem 0}
+.recap-wrong{font-size:12px;color:#fca5a5;margin:.35rem 0}
+.recap-correct{font-size:12px;color:#a7f3d0;margin:.35rem 0}
+.recap-exp{font-size:12px;color:var(--t2);line-height:1.55;margin:.5rem 0;white-space:pre-wrap}
+.recap-ref{font-size:11px;color:var(--t3);margin:.35rem 0 .5rem}

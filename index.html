@@ -12,8 +12,8 @@
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528j">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
+<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528o">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260528o">
 <link rel="stylesheet" href="ppl_auth.css?v=20260528n">
 <link rel="stylesheet" href="ppl_plane_bg.css?v=20260528n">
 <script src="ppl_auth.js?v=20260528n"></script>
@@ -2486,34 +2486,59 @@ function showFb(ok,q,el,beh){
   const chosenIdx=beh?.chosenIdx??-1;
   const lastEntry=answerLog.items[answerLog.items.length-1];
   const statsHref=`stats.html?i=${idx>=0?idx:''}&t=${lastEntry?.t||Date.now()}`;
-
-  if(ok){
-    document.getElementById('fb').innerHTML=`
-      <div class="fb ok fb-brief">
-        <div class="fb-hd">
-          <span class="fb-st">✓ Correct · ${el.toFixed(1)}s · ${tl}</span>
-          <span class="proba-tag ${probaClass(res.reactScore||50)}">Réaction ${res.reactScore||50}%</span>
-          <span class="proba-tag ${pc}">Maîtrise ${p}%</span>
-        </div>
-        <div class="fb-txt fb-key">${summarizeKey(q.e)}</div>
-        <div class="fb-ref">📌 ${q.r}</div>
-        <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées de cette réponse →</a>
-      </div>`;
-    return;
-  }
+  const ansBlock=!ok&&chosenIdx>=0
+    ?`<div class="fb-ans fb-wrong">✗ Ta réponse : ${esc(q.o[chosenIdx])}</div>
+       <div class="fb-ans fb-correct">✓ Bonne réponse : ${esc(q.o[q.a])}</div>`
+    :'';
 
   document.getElementById('fb').innerHTML=`
-    <div class="fb ko">
+    <div class="fb ${ok?'ok':'ko'} fb-brief">
       <div class="fb-hd">
-        <span class="fb-st">✗ Incorrect · ${el.toFixed(1)}s · ${tl}</span>
+        <span class="fb-st">${ok?'✓ Correct':'✗ Incorrect'} · ${el.toFixed(1)}s · ${tl}</span>
         <span class="proba-tag ${probaClass(res.reactScore||50)}">Réaction ${res.reactScore||50}%</span>
         <span class="proba-tag ${pc}">Maîtrise ${p}%</span>
       </div>
-      <div class="fb-txt">${q.e}</div>
+      ${ansBlock}
+      <div class="fb-txt fb-key">${summarizeKey(q.e)}</div>
       <div class="fb-ref">📌 ${q.r}</div>
-      ${renderDeepFicheHTML(q,revLog.entries?.[idx],chosenIdx)}
-      <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Voir toutes les stats (comportement, probabilité…) →</a>
+      <p class="fb-end-hint">Résumé complet à la fin de la session →</p>
+      <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées de cette réponse →</a>
     </div>`;
+}
+
+function renderSessionRecapHTML(sData){
+  if(!sData.length) return '';
+  const errCount=sData.filter(d=>!d.ok).length;
+  const items=sData.map((d,i)=>{
+    const q=d.q;
+    const idx=d.idx??Q.indexOf(q);
+    const chosenIdx=d.beh?.chosenIdx??-1;
+    const open=!d.ok?' open':'';
+    const statsHref=`stats.html?i=${idx>=0?idx:''}`;
+    return`<details class="recap-item ${d.ok?'recap-ok':'recap-ko'}"${open}>
+      <summary>
+        <span class="recap-num">Q${i+1}</span>
+        <span class="recap-icon">${d.ok?'✓':'✗'}</span>
+        <span class="recap-mod">${modStr(q.m)}</span>
+        <span class="recap-title">${esc(summarizeKey(q.q))}</span>
+        <span class="recap-meta">${d.el.toFixed(1)}s</span>
+      </summary>
+      <div class="recap-body">
+        <p class="recap-question">${esc(q.q)}</p>
+        ${!d.ok&&chosenIdx>=0?`<p class="recap-wrong">✗ Ta réponse : <strong>${esc(q.o[chosenIdx])}</strong></p>`:''}
+        <p class="recap-correct">✓ Bonne réponse : <strong>${esc(q.o[q.a])}</strong></p>
+        <div class="recap-exp">${esc(q.e)}</div>
+        <div class="recap-ref">📌 ${esc(q.r)}</div>
+        ${!d.ok?renderDeepFicheHTML(q,revLog.entries?.[idx],chosenIdx):''}
+        <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées →</a>
+      </div>
+    </details>`;
+  }).join('');
+  return`<div class="session-recap">
+    <h3>📋 Résumé détaillé de la session</h3>
+    <p class="session-recap-sub">${errCount} erreur${errCount>1?'s':''} · ${sData.length-errCount} correcte${sData.length-errCount>1?'s':''} — explications complètes ci-dessous</p>
+    <div class="recap-list">${items}</div>
+  </div>`;
 }
 
 function next(){qi++;if(qi>=queue.length){finish();return;}renderQ();}
@@ -2638,7 +2663,8 @@ function buildResult(){
       <div class="algo-row"><span class="algo-key">Vacillations totales</span><span class="algo-val">${sData.reduce((s,d)=>s+(d.beh?.vacillations||0),0)}</span></div>
       <div class="algo-row"><span class="algo-key">Tps correctes / incorrectes</span><span class="algo-val" style="color:var(--green)">${avgTok.toFixed(1)}s</span> / <span style="color:var(--red)">${avgTko.toFixed(1)}s</span></div>
     </div>
-    ${total>3?`<div class="ph-section"><h3>Maîtrise par question (session)</h3><div class="ph-bars">${phBars}</div></div>`:''}`;
+    ${total>3?`<div class="ph-section"><h3>Maîtrise par question (session)</h3><div class="ph-bars">${phBars}</div></div>`:''}
+    ${renderSessionRecapHTML(sData)}`;
 }
 
 function resetAll(){
