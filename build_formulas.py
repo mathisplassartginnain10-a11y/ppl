@@ -643,6 +643,7 @@ def main():
         "const FORMULAS=[",
         ",\n".join(emit_formula(f) for f in bank),
         "];",
+        "if(typeof window!=='undefined'){window.FORMULAS=FORMULAS;window.FORMULA_META=FORMULA_META;}",
         f"const FORMULA_KEYWORDS={json.dumps(FORMULA_KEYWORDS, ensure_ascii=False)};",
         f"const MODULE_ESSENTIALS={json.dumps(MODULE_ESSENTIALS, ensure_ascii=False)};",
     ]

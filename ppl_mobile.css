@@ -432,6 +432,20 @@
     font-size: 13px;
   }
 
+  .err-opt-txt {
+    font-size: 13px;
+  }
+
+  .err-beh-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fiche-theme-expand summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
   .fb-stats-link {
     display: flex;
     align-items: center;

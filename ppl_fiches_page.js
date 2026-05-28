@@ -1,5 +1,9 @@
 const MOD_ORDER=['C','A','M','R'];
+const MOD_ICON={C:'📡',A:'✈',M:'🌤',R:'📋'};
+const MOD_ACCENT={C:'#5b8af0',A:'#34d3a8',M:'#f0b040',R:'#c084fc'};
 let TOPIC_KB=null;
+let _answerLogByRef=null;
+let _ficheSearchTimer=null;
 const STOP_WORDS=new Set('le la les un une des du de et en est sont pour par sur avec dans que qui dont cette ce ces leur leurs aux au ou si ne pas plus très tout tous toute'.split(' '));
 
 
@@ -48,11 +52,13 @@ function diffClass(d){ return['','bd-f','bd-m','bd-d','bd-e'][d]; }
 
 
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-let hist={}, weak=new Set(), revLog={entries:{}};
+let hist={}, weak=new Set(), revLog={entries:{}}, answerLog={items:[]};
 try{hist=JSON.parse(localStorage.getItem('ppl4h')||'{}')}catch(e){}
 try{const w=JSON.parse(localStorage.getItem('ppl4w')||'[]');weak=new Set(w)}catch(e){}
 try{revLog=JSON.parse(localStorage.getItem('ppl4rev')||'{"entries":{}}')}catch(e){revLog={entries:{}}}
+try{answerLog=JSON.parse(localStorage.getItem('ppl4answers')||'{"items":[]}')}catch(e){answerLog={items:[]}}
 if(!revLog.entries) revLog.entries={};
+if(!answerLog.items) answerLog.items=[];
 
 /* Formules : formulas_engine.js (externe) */
 function analyzeTraps(q,chosenIdx){
@@ -248,7 +254,7 @@ function buildTopicFiche(ref,sampleQ,entry,chosenIdx){
 }
 
 function renderTopicFicheHTML(ref,opts={}){
-  const f=buildTopicFiche(ref,opts.sampleQ,opts.entry,opts.chosenIdx);
+  const f=opts.f||buildTopicFiche(ref,opts.sampleQ,opts.entry,opts.chosenIdx);
   if(!f) return '';
   const mCol=f.mastery.pct>=65?'var(--green)':f.mastery.pct>=40?'var(--amber)':'var(--red)';
   const acc=f.topicStats.n?Math.round(f.topicStats.accuracy*100):'—';
@@ -367,20 +373,200 @@ function renderTopicFicheHTML(ref,opts={}){
   </div>`;
 }
 
-function renderTopicFicheCard(ref,data){
-  const f=buildTopicFiche(ref,Q[data.idxs[0]],revLog.entries?.[data.idxs[0]],-1);
-  if(!f) return '';
-  const acc=f.topicStats.n?Math.round(f.topicStats.accuracy*100)+'%':'—';
-  return`<div class="fiche-card" data-fiche-ref="${esc(ref)}">
-    <button type="button" class="fiche-card-hd" data-fiche-toggle="${esc(ref)}">
-      <div class="fiche-card-hd-left">
-        <div class="fiche-card-title">${esc(ref)}</div>
-        <div class="fiche-card-meta">${modStr(data.module)} · ${data.idxs.length} q · réussite ${acc}${f.weakCount?` · ${f.weakCount} faible${f.weakCount>1?'s':''}`:''}</div>
-      </div>
-      <span class="fiche-card-chevron">▾</span>
-    </button>
-    <div class="fiche-card-bd">${renderTopicFicheHTML(ref,{sampleQ:Q[data.idxs[0]],entry:revLog.entries?.[data.idxs[0]],showFoot:true})}</div>
+function indexAnswerLog(){
+  if(_answerLogByRef) return _answerLogByRef;
+  _answerLogByRef={};
+  (answerLog.items||[]).forEach(it=>{
+    if(!it.ref) return;
+    _answerLogByRef[it.ref]=Math.max(_answerLogByRef[it.ref]||0,it.t||0);
+  });
+  return _answerLogByRef;
+}
+
+function getTopicFailTotal(data){
+  return (data.idxs||[]).reduce((s,i)=>s+(revLog.entries?.[i]?.failCount||0),0);
+}
+
+function getTopicLastActivity(ref,data){
+  let last=indexAnswerLog()[ref]||0;
+  (data.idxs||[]).forEach(idx=>{
+    const e=revLog.entries?.[idx];
+    if(!e) return;
+    last=Math.max(last,e.lastFail||0,e.lastStruggle||0,e.sm2?.last||0);
+  });
+  return last;
+}
+
+function computeFicheStats(allThemes){
+  _answerLogByRef=null;
+  indexAnswerLog();
+  const modCounts={C:0,A:0,M:0,R:0},modStudied={C:0,A:0,M:0,R:0};
+  let studied=0,totalErr=0;
+  allThemes.forEach(([ref,data])=>{
+    const m=data.module||'R';
+    modCounts[m]=(modCounts[m]||0)+1;
+    const la=getTopicLastActivity(ref,data);
+    const ft=getTopicFailTotal(data);
+    if(la){studied++;modStudied[m]=(modStudied[m]||0)+1;}
+    totalErr+=ft;
+  });
+  return{total:allThemes.length,studied,totalErr,modCounts,modStudied};
+}
+
+function renderFichesDashboard(stats,nRev){
+  return`<div class="fiches-dashboard">
+    <div class="fiches-hero">
+      <div class="fiches-hero-stat"><span class="fiches-hero-n">${stats.total}</span><span class="fiches-hero-l">Thèmes</span></div>
+      <div class="fiches-hero-stat accent-green"><span class="fiches-hero-n">${stats.studied}</span><span class="fiches-hero-l">Étudiés</span></div>
+      <div class="fiches-hero-stat accent-red"><span class="fiches-hero-n">${stats.totalErr}</span><span class="fiches-hero-l">Erreurs</span></div>
+      <div class="fiches-hero-stat accent-amber"><span class="fiches-hero-n">${nRev||0}</span><span class="fiches-hero-l">À réviser</span></div>
+    </div>
+    <div class="fiches-mod-grid">
+      ${MOD_ORDER.map(m=>{
+        const tot=stats.modCounts[m]||0,st=stats.modStudied[m]||0;
+        const pct=tot?Math.round(st/tot*100):0;
+        return`<button type="button" class="fiches-mod-chip${ficheLibMod===m?' on':''}" data-fmod="${m}" style="--mod-accent:${MOD_ACCENT[m]}">
+          <span class="fiches-mod-chip-ico">${MOD_ICON[m]}</span>
+          <span class="fiches-mod-chip-body">
+            <span class="fiches-mod-chip-name">${modStr(m)}</span>
+            <span class="fiches-mod-chip-meta">${st}/${tot} étudiés</span>
+          </span>
+          <span class="fiches-mod-chip-bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
+        </button>`;
+      }).join('')}
+      <button type="button" class="fiches-mod-chip all${ficheLibMod==='all'?' on':''}" data-fmod="all">
+        <span class="fiches-mod-chip-ico">📚</span>
+        <span class="fiches-mod-chip-body">
+          <span class="fiches-mod-chip-name">Toutes matières</span>
+          <span class="fiches-mod-chip-meta">${stats.total} fiches</span>
+        </span>
+      </button>
+    </div>
   </div>`;
+}
+
+function hydrateFicheCard(card){
+  if(!card||card.dataset.lazy!=='1') return;
+  const ref=card.dataset.ficheRef;
+  const idx=parseInt(card.dataset.ficheIdx,10);
+  const bd=card.querySelector('.fiche-card-bd');
+  if(!bd||!ref||!Q[idx]) return;
+  bd.innerHTML='<div class="fiche-lazy-load"><span class="fiche-lazy-spin"></span> Chargement…</div>';
+  requestAnimationFrame(()=>{
+    bd.innerHTML=renderTopicFicheHTML(ref,{sampleQ:Q[idx],entry:revLog.entries?.[idx],showFoot:true});
+    card.dataset.lazy='0';
+  });
+}
+
+function fmtFicheDate(ts){
+  if(!ts) return 'Jamais étudié';
+  const diff=Date.now()-ts;
+  if(diff<86400000) return "Aujourd'hui";
+  if(diff<172800000) return 'Hier';
+  return new Date(ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+}
+
+function sortFicheThemeEntries(entries){
+  if(ficheDateSort==='alpha') return entries.sort((a,b)=>a.ref.localeCompare(b.ref,'fr'));
+  if(ficheDateSort==='errors') return entries.sort((a,b)=>b.failTotal-a.failTotal||b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr'));
+  return entries.sort((a,b)=>b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr'));
+}
+
+function renderFichesByModule(allThemes){
+  const qSearch=ficheLibSearch.toLowerCase();
+  const byMod={};
+  MOD_ORDER.forEach(m=>{byMod[m]=[]});
+  allThemes.forEach(([ref,data])=>{
+    if(ficheLibMod!=='all'&&data.module!==ficheLibMod) return;
+    if(qSearch&&!ref.toLowerCase().includes(qSearch)&&!modStr(data.module).toLowerCase().includes(qSearch)) return;
+    const lastAct=getTopicLastActivity(ref,data);
+    const failTotal=getTopicFailTotal(data);
+    const m=data.module;
+    if(!byMod[m]) byMod[m]=[];
+    byMod[m].push({ref,data,lastAct,failTotal});
+  });
+  const studiedCount=MOD_ORDER.reduce((n,m)=>n+byMod[m].filter(t=>t.lastAct>0).length,0);
+  const visibleCount=MOD_ORDER.reduce((n,m)=>n+byMod[m].length,0);
+  let html=`<div class="fiche-sticky-bar">
+    <div class="fiche-search-wrap">
+      <span class="fiche-search-ico" aria-hidden="true">🔍</span>
+      <input type="search" class="fiche-lib-search" id="fiche-lib-search" placeholder="Rechercher un thème (VHF, ISA, METAR…)" value="${esc(ficheLibSearch)}" autocomplete="off">
+    </div>
+    <div class="fiche-bar-actions">
+      <label class="fiche-sort-label">Trier
+        <select id="fiche-date-sort" class="fiche-sort-select">
+          <option value="recent"${ficheDateSort==='recent'?' selected':''}>Plus récent</option>
+          <option value="errors"${ficheDateSort==='errors'?' selected':''}>Erreurs</option>
+          <option value="alpha"${ficheDateSort==='alpha'?' selected':''}>A → Z</option>
+        </select>
+      </label>
+      <button type="button" class="fiche-bar-btn" data-fiche-expand="all">Tout ouvrir</button>
+      <button type="button" class="fiche-bar-btn" data-fiche-expand="none">Tout fermer</button>
+    </div>
+  </div>
+  <div class="fiche-results-bar">
+    <span>${visibleCount} fiche${visibleCount>1?'s':''} affichée${visibleCount>1?'s':''}</span>
+    <span class="fiche-results-dot">·</span>
+    <span>${studiedCount} avec activité</span>
+  </div>`;
+  let any=false;
+  MOD_ORDER.forEach(m=>{
+    const themes=sortFicheThemeEntries([...byMod[m]]);
+    if(!themes.length) return;
+    any=true;
+    const studied=themes.filter(t=>t.lastAct>0).length;
+    html+=`<section class="fiche-mod-group fiche-mod-group--${m.toLowerCase()}" data-module="${m}" style="--mod-accent:${MOD_ACCENT[m]}">
+      <div class="fiche-mod-hd">
+        <div class="fiche-mod-hd-left">
+          <span class="fiche-mod-ico">${MOD_ICON[m]}</span>
+          <div>
+            <span class="fiche-mod-title">${modStr(m)}</span>
+            <span class="fiche-mod-count">${themes.length} fiche${themes.length>1?'s':''}${studied?` · ${studied} étudiée${studied>1?'s':''}`:''}</span>
+          </div>
+        </div>
+        <span class="bd ${modClass(m)}">${Math.round(studied/themes.length*100)||0}%</span>
+      </div>
+      <div class="fiche-mod-list">
+        ${themes.map(t=>renderTopicFicheCard(t.ref,t.data,{lastAct:t.lastAct,failTotal:t.failTotal,openByDefault:t.lastAct>0||t.failTotal>0})).join('')}
+      </div>
+    </section>`;
+  });
+  return html+(any?'':'<div class="rev-empty fiche-empty"><span class="fiche-empty-ico">📂</span><p>Aucune fiche ne correspond à ta recherche.</p></div>');
+}
+
+function renderTopicFicheCard(ref,data,opts={}){
+  const sampleIdx=data.idxs[0];
+  const entry=revLog.entries?.[sampleIdx];
+  const f=opts.f||buildTopicFiche(ref,Q[sampleIdx],entry,-1);
+  if(!f) return '';
+  const acc=f.topicStats.n?Math.round(f.topicStats.accuracy*100):0;
+  const lastAct=opts.lastAct??getTopicLastActivity(ref,data);
+  const failTotal=opts.failTotal??getTopicFailTotal(data);
+  const isOpen=!!(opts.openByDefault||lastAct>0||failTotal>0);
+  const openCls=isOpen?' open':'';
+  const mCol=f.mastery.pct>=65?'var(--green)':f.mastery.pct>=40?'var(--amber)':'var(--red)';
+  const mod=data.module||'R';
+  const bodyHtml=isOpen?renderTopicFicheHTML(ref,{sampleQ:Q[sampleIdx],entry,showFoot:true,f}):'';
+  return`<article class="fiche-card fiche-card--${mod.toLowerCase()}${openCls}${failTotal?' has-errors':''}" data-fiche-ref="${esc(ref)}" data-fiche-idx="${sampleIdx}" data-last-act="${lastAct}" data-lazy="${isOpen?'0':'1'}">
+    <button type="button" class="fiche-card-hd" data-fiche-toggle="${esc(ref)}" aria-expanded="${isOpen?'true':'false'}">
+      <div class="fiche-card-ring" style="--pct:${f.mastery.pct};--ring-col:${mCol}" title="Maîtrise ${f.mastery.pct}%"><span>${f.mastery.pct}%</span></div>
+      <div class="fiche-card-hd-left">
+        <div class="fiche-card-title-row">
+          <h3 class="fiche-card-title">${esc(ref)}</h3>
+          ${failTotal?`<span class="fiche-pill err">${failTotal} err.</span>`:''}
+        </div>
+        <div class="fiche-card-meta">
+          <span class="fiche-date-badge${lastAct?'':' none'}">${fmtFicheDate(lastAct)}</span>
+          <span class="fiche-meta-sep">·</span>
+          <span>${data.idxs.length} q</span>
+          <span class="fiche-meta-sep">·</span>
+          <span class="fiche-acc${acc>=65?' good':acc>0&&acc<50?' bad':''}">${acc?acc+'% réussite':'Non testé'}</span>
+        </div>
+      </div>
+      <span class="fiche-card-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="fiche-card-bd">${bodyHtml}</div>
+  </article>`;
 }
 
 function buildDeepFiche(q,entry,chosenIdx){
@@ -562,6 +748,9 @@ function renderRevCard(item,priority,expanded){
 function buildFichesPanel(){
   initTopicKB();
   const panel=document.getElementById('rev-panel');
+  const searchEl=document.getElementById('fiche-lib-search');
+  const hadFocus=document.activeElement===searchEl;
+  const selStart=searchEl?.selectionStart;
   const btnAll=document.getElementById('btn-rev-all');
   const items=revItems();
   const errItems=items.filter(i=>(i.e.failCount||0)>0);
@@ -570,6 +759,7 @@ function buildFichesPanel(){
   const plan=getStudyPlan();
   const kb=initTopicKB();
   const allThemes=Object.entries(kb).sort((a,b)=>a[0].localeCompare(b[0],'fr'));
+  const ficheStats=computeFicheStats(allThemes);
 
   if(btnAll){btnAll.hidden=nRev===0;btnAll.textContent=nRev?`📚 Réviser mes ${nRev} points faibles`:'';}
 
@@ -581,13 +771,6 @@ function buildFichesPanel(){
   });
   const themes=Object.entries(byTheme).sort((a,b)=>(b[1].fails*10+b[1].hes)-(a[1].fails*10+a[1].hes));
 
-  const modStats={};
-  items.forEach(i=>{if(!modStats[i.q.m]) modStats[i.q.m]={n:0,f:0};modStats[i.q.m].n++;modStats[i.q.m].f+=(i.e.failCount||0);});
-  const modBars=nRev?MOD_ORDER.filter(m=>modStats[m]).map(m=>{
-    const s=modStats[m],pct=Math.min(100,s.f*8+s.n*5);
-    return`<div class="rev-bar-row"><div class="rev-bar-lbl"><span>${modStr(m)}</span><span>${s.n} pt · ${s.f} err.</span></div><div class="rev-bar-tr"><div class="rev-bar-fi" style="width:${pct}%;background:${barColor(100-pct)}"></div></div></div>`;
-  }).join(''):'';
-
   let listHtml='';
   if(revTab==='library'){
     const qSearch=ficheLibSearch.toLowerCase();
@@ -597,13 +780,19 @@ function buildFichesPanel(){
       return ref.toLowerCase().includes(qSearch)||modStr(data.module).toLowerCase().includes(qSearch);
     });
     listHtml=`
-      <div class="fiche-lib-toolbar">
-        <input type="search" class="fiche-lib-search" id="fiche-lib-search" placeholder="Rechercher un thème (VHF, ISA, VFR…)" value="${esc(ficheLibSearch)}">
-        <button type="button" class="fiche-lib-mod${ficheLibMod==='all'?' on':''}" data-fmod="all">Tous</button>
-        ${MOD_ORDER.map(m=>`<button type="button" class="fiche-lib-mod${ficheLibMod===m?' on':''}" data-fmod="${m}">${modStr(m).split(' ')[0]}</button>`).join('')}
+      <div class="fiche-sticky-bar">
+        <div class="fiche-search-wrap">
+          <span class="fiche-search-ico" aria-hidden="true">🔍</span>
+          <input type="search" class="fiche-lib-search" id="fiche-lib-search" placeholder="Rechercher dans la bibliothèque…" value="${esc(ficheLibSearch)}" autocomplete="off">
+        </div>
+        <div class="fiche-bar-actions">
+          <button type="button" class="fiche-bar-btn" data-fiche-expand="all">Tout ouvrir</button>
+          <button type="button" class="fiche-bar-btn" data-fiche-expand="none">Tout fermer</button>
+        </div>
       </div>
+      <div class="fiche-results-bar"><span>${filteredThemes.length} thème${filteredThemes.length>1?'s':''}</span></div>
       ${filteredThemes.length?filteredThemes.map(([ref,data])=>renderTopicFicheCard(ref,data)).join('')
-        :`<div class="rev-empty">Aucun thème trouvé.</div>`}`;
+        :`<div class="rev-empty fiche-empty"><span class="fiche-empty-ico">🔎</span><p>Aucun thème trouvé.</p></div>`}`;
   }else if(revTab==='priority'){
     listHtml=nRev?items.slice(0,15).map((it,i)=>renderRevCard(it,i<5,false)).join(''):`<div class="rev-empty">Aucune priorité — consulte la <strong>Bibliothèque</strong> ou lance un quiz.</div>`;
   }else if(revTab==='errors'){
@@ -618,9 +807,7 @@ function buildFichesPanel(){
       ${plan.topThemes.map(t=>`<div class="study-plan-item"><span class="study-plan-dot" style="background:var(--red)"></span><div class="study-plan-txt"><strong>${esc(t.ref)}</strong> (${modStr(t.module)}) — ${t.count} question${t.count>1?'s':''} · ${t.fails} erreur${t.fails>1?'s':''}<br><button type="button" class="rev-btn-sm primary" style="margin-top:4px" data-rev-action="topic" data-ref="${esc(t.ref)}">Plan de révision ciblé</button></div></div>`).join('')}
     </div>`;
   }else if(revTab==='fiches'){
-    listHtml=themes.slice(0,20).map(([ref,data])=>
-      renderTopicFicheHTML(ref,{sampleQ:Q[data.items[0].idx],entry:data.items[0].e,showFoot:true})
-    ).join('')||`<div class="rev-empty">Aucune fiche liée à tes erreurs — voir la Bibliothèque.</div>`;
+    listHtml=renderFichesByModule(allThemes);
   }else{
     listHtml=themes.map(([ref,data])=>`
       <div class="rev-theme">
@@ -633,24 +820,27 @@ function buildFichesPanel(){
   }
 
   panel.innerHTML=`
-    <div class="rev-summary">
-      <span class="rev-pill">${allThemes.length} thème${allThemes.length>1?'s':''}</span>
-      ${nRev?`<span class="rev-pill bad">${errItems.length} erreur${errItems.length>1?'s':''}</span>
-      <span class="rev-pill warn">${hesItems.length} hésitation${hesItems.length>1?'s':''}</span>
-      <span class="rev-pill ok">${nRev} à réviser</span>
-      <span class="rev-pill">${plan.due.length} due${plan.due.length>1?'s':''} SM-2</span>`:''}
-    </div>
-    ${modBars?`<div style="margin-bottom:.75rem">${modBars}</div>`:''}
-    <div class="rev-tabs">
-      <button type="button" class="rev-tab${revTab==='library'?' on':''}" data-rev-tab="library">Bibliothèque</button>
-      <button type="button" class="rev-tab${revTab==='priority'?' on':''}" data-rev-tab="priority">Priorités</button>
-      <button type="button" class="rev-tab${revTab==='plan'?' on':''}" data-rev-tab="plan">Plan SM-2</button>
-      <button type="button" class="rev-tab${revTab==='fiches'?' on':''}" data-rev-tab="fiches">Mes fiches</button>
-      <button type="button" class="rev-tab${revTab==='errors'?' on':''}" data-rev-tab="errors">Erreurs</button>
-      <button type="button" class="rev-tab${revTab==='hesitations'?' on':''}" data-rev-tab="hesitations">Hésitations</button>
-      <button type="button" class="rev-tab${revTab==='themes'?' on':''}" data-rev-tab="themes">Par thème</button>
+    ${renderFichesDashboard(ficheStats,nRev)}
+    <div class="fiche-tabs-wrap">
+      <div class="rev-tabs fiche-tabs-inner">
+        <button type="button" class="rev-tab${revTab==='fiches'?' on':''}" data-rev-tab="fiches"><span class="rev-tab-ico">📂</span> Par matière</button>
+        <button type="button" class="rev-tab${revTab==='library'?' on':''}" data-rev-tab="library"><span class="rev-tab-ico">📚</span> Bibliothèque</button>
+        <button type="button" class="rev-tab${revTab==='priority'?' on':''}" data-rev-tab="priority"><span class="rev-tab-ico">⚡</span> Priorités</button>
+        <button type="button" class="rev-tab${revTab==='plan'?' on':''}" data-rev-tab="plan"><span class="rev-tab-ico">📅</span> SM-2</button>
+        <button type="button" class="rev-tab${revTab==='errors'?' on':''}" data-rev-tab="errors"><span class="rev-tab-ico">✕</span> Erreurs${errItems.length?` <em>${errItems.length}</em>`:''}</button>
+        <button type="button" class="rev-tab${revTab==='hesitations'?' on':''}" data-rev-tab="hesitations"><span class="rev-tab-ico">?</span> Hésitations</button>
+        <button type="button" class="rev-tab${revTab==='themes'?' on':''}" data-rev-tab="themes"><span class="rev-tab-ico">🏷</span> Par thème</button>
+      </div>
     </div>
     <div class="rev-list tall">${listHtml}</div>`;
+
+  if(hadFocus){
+    const newSearch=document.getElementById('fiche-lib-search');
+    if(newSearch){
+      newSearch.focus();
+      if(selStart!=null) newSearch.setSelectionRange(selStart,selStart);
+    }
+  }
 }
 
 
@@ -686,7 +876,7 @@ function renderFicheFormulasSection(formulas,worked,essentials,m){
 
 
 
-let revTab='library', ficheLibSearch='', ficheLibMod='all';
+let revTab='fiches', ficheLibSearch='', ficheLibMod='all', ficheDateSort='recent';
 
 function goQuizTopic(ref){window.location.href='index.html?topic='+encodeURIComponent(ref);}
 function launchTopicReview(ref){ goQuizTopic(ref); }
@@ -703,8 +893,31 @@ revPanel.addEventListener('click',e=>{
   if(tab){revTab=tab.dataset.revTab;buildFichesPanel();return;}
   const fmod=e.target.closest('[data-fmod]');
   if(fmod){ficheLibMod=fmod.dataset.fmod;buildFichesPanel();return;}
+  const expandBtn=e.target.closest('[data-fiche-expand]');
+  if(expandBtn){
+    const mode=expandBtn.dataset.ficheExpand;
+    revPanel.querySelectorAll('.fiche-card').forEach(card=>{
+      const hd=card.querySelector('.fiche-card-hd');
+      if(mode==='all'){
+        card.classList.add('open');
+        if(hd) hd.setAttribute('aria-expanded','true');
+        hydrateFicheCard(card);
+      }else{
+        card.classList.remove('open');
+        if(hd) hd.setAttribute('aria-expanded','false');
+      }
+    });
+    return;
+  }
   const ficheToggle=e.target.closest('[data-fiche-toggle]');
-  if(ficheToggle){ficheToggle.closest('.fiche-card')?.classList.toggle('open');return;}
+  if(ficheToggle){
+    const card=ficheToggle.closest('.fiche-card');
+    if(!card) return;
+    const open=card.classList.toggle('open');
+    ficheToggle.setAttribute('aria-expanded',open?'true':'false');
+    if(open) hydrateFicheCard(card);
+    return;
+  }
   const toggle=e.target.closest('[data-rev-toggle]');
   if(toggle){
     const card=toggle.closest('.rev-card');
@@ -719,21 +932,32 @@ revPanel.addEventListener('click',e=>{
   else if(btn.dataset.revAction==='all') launchRevision();
 });
 revPanel.addEventListener('input',e=>{
-  if(e.target.id==='fiche-lib-search'){ficheLibSearch=e.target.value;buildFichesPanel();}
+  if(e.target.id==='fiche-lib-search'){
+    ficheLibSearch=e.target.value;
+    clearTimeout(_ficheSearchTimer);
+    _ficheSearchTimer=setTimeout(()=>buildFichesPanel(),260);
+    return;
+  }
   handleFormulaCalcInput(e);
+});
+revPanel.addEventListener('change',e=>{
+  if(e.target.id==='fiche-date-sort'){ficheDateSort=e.target.value;buildFichesPanel();}
 });
 document.addEventListener('input',e=>{if(e.target.closest('[data-calc-type]')) handleFormulaCalcInput(e);});
 function handleFicheDeepLink(){
   const params=new URLSearchParams(location.search);
   const topic=params.get('topic');
   if(!topic) return;
-  revTab='library';
+  revTab='fiches';
   ficheLibSearch=topic;
   buildFichesPanel();
   setTimeout(()=>{
     const card=document.querySelector('[data-fiche-ref="'+CSS.escape(topic)+'"]')||document.querySelector('.fiche-card');
     if(card){
       card.classList.add('open');
+      const hd=card.querySelector('.fiche-card-hd');
+      if(hd) hd.setAttribute('aria-expanded','true');
+      hydrateFicheCard(card);
       card.scrollIntoView({behavior:'smooth',block:'start'});
     }
   },120);

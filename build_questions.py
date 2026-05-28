@@ -872,6 +872,232 @@ def gen_meteo_symbols_advanced():
     return qs
 
 
+def gen_meteo_metar_taf_decode():
+    """Questions METAR/TAF variées : décodage, analyse VFR, structure, comparaison."""
+    qs = []
+
+    def add(d, question, correct, wrongs, expl, ref):
+        opts, a = shuffle_opts(correct, wrongs)
+        qs.append(q("M", d, question, opts, a, expl, ref))
+
+    # ── Décodage METAR contextualisé (messages réalistes) ──
+    METAR_DECODE = [
+        ("METAR LFPG 191600Z 32010KT 6000 FEW030 12/08 Q1010 NOSIG=",
+         "Visibilité dominante dans ce METAR ?",
+         "6000 m", ["9999 m", "3200 m", "10 km exactement"],
+         "Groupe 5 : 6000 = visibilité dominante 6000 m (< 10 km).", "METAR - décodage", 2),
+        ("METAR LFPG 191600Z 32010KT 6000 FEW030 12/08 Q1010 NOSIG=",
+         "Vent dans ce METAR ?",
+         "320° · 10 kt", ["320° · 100 kt", "032° · 10 kt", "Vent variable 10 kt"],
+         "32010KT = direction 320° (Nord vrai) · intensité 10 kt.", "METAR - vent", 2),
+        ("METAR LFOP 181730Z 01010KT 5000 BR NSC 11/05 Q1028=",
+         "Nuages dans ce METAR AUTO ?",
+         "NSC — pas de nuage significatif", ["CAVOK", "FEW005", "OVC100"],
+         "NSC = No Significant Cloud ; différent de CAVOK (4 critères cumulés).", "METAR - nuages", 2),
+        ("METAR LFOP 181730Z 01010KT 5000 BR NSC 11/05 Q1028=",
+         "Temps présent et visibilité ?",
+         "BR (brume) · 5000 m", ["FG · 9999 m", "HZ · 1500 m", "RA · 10 km"],
+         "BR = brume sèche · visibilité 5000 m.", "METAR - temps présent", 2),
+        ("METAR LFLL 041200Z 24006KT 0800 FG BKN002 OVC005 03/03 Q1020 BECMG 1400 FG=",
+         "Plafond opérationnel ?",
+         "200 ft (BKN002)", ["500 ft", "800 ft", "Pas de plafond (FEW)"],
+         "BKN002 = 5–7 octats à 200 ft — plafond opérationnel le plus bas.", "METAR - analyse", 3),
+        ("METAR LFLL 041200Z 24006KT 0800 FG BKN002 OVC005 03/03 Q1020 BECMG 1400 FG=",
+         "Conditions VFR jour en espace E avec ce METAR ?",
+         "Non — visibilité 800 m et plafond 200 ft", ["Oui — VFR possible", "Oui si IFR", "Oui de nuit seulement"],
+         "VFR E : min 5 km visi + 1500 m/1000 ft des nuages — non respecté.", "METAR - analyse", 3),
+        ("METAR LFBO 151430Z 22010G25KT 9999 SCT040 BKN080 22/12 Q1015 NOSIG=",
+         "Rafales dans ce METAR ?",
+         "25 kt", ["10 kt", "220 kt", "Pas de rafales"],
+         "22010G25KT : moyenne 10 kt · rafales 25 kt (G car écart ≥ 10 kt).", "METAR - vent", 2),
+        ("METAR LFBO 151430Z 22010G25KT 9999 SCT040 BKN080 22/12 Q1015 NOSIG=",
+         "Écart T − Td et implication ?",
+         "10°C — air sec, peu de risque brouillard immédiat", ["10°C — brouillard certain", "2°C — air très sec", "Pas d'info T/Td"],
+         "22/12 → écart 10°C : rosée éloignée vs 03/03 (écart 0 = brouillard probable).", "METAR - température", 3),
+        ("METAR LFMN 281100Z 18008KT 4000 -RA BKN015 OVC025 14/13 Q1008 RERA=",
+         "Signification de RERA ?",
+         "Pluie récente (RE + RA)", ["Pluie forte", "Pluie verglaçante", "Orage récent"],
+         "RE = Recent · RERA = pluie récente (groupe compléments).", "METAR - temps présent", 2),
+        ("METAR LFMN 281100Z 18008KT 4000 -RA BKN015 OVC025 14/13 Q1008 RERA=",
+         "Intensité pluie actuelle ?",
+         "Faible à modérée (−RA)", ["Forte (+RA)", "Averse (SHRA)", "Verglaçante (FZRA)"],
+         "Préfixe − = faible/modérée · + = forte.", "METAR - intensité", 2),
+        ("METAR LFBD 061800Z 30015KT 1200 +TSRA BKN008CB OVC015 18/17 Q1005=",
+         "Phénomène le plus critique pour le vol ?",
+         "Orage avec pluie forte (+TSRA) et CB", ["Vent 15 kt seul", "Plafond 1500 ft acceptable", "QNH bas sans impact"],
+         "TSRA + CB = danger immédiat · éviter décollage/approche.", "METAR - analyse", 3),
+        ("METAR EIDW 121200Z 26020G35KT 3000 SN BLSN OVC010 M02/M04 Q0998=",
+         "Décodage BLSN ?",
+         "Neige soufflée (blowing snow)", ["Neige forte", "Grésil", "Brouillard givrant"],
+         "BL = blowing · SN = neige — visibilité réduite par neige soufflée.", "METAR - temps présent", 3),
+        ("METAR LFMT 091045Z 00000KT CAVOK 25/08 Q1022=",
+         "Vent dans ce CAVOK ?",
+         "Calme (00000KT)", ["Variable 3 kt", "Indéterminé", "Pas de groupe vent"],
+         "00000KT = vent nul · CAVOK confirme vis≥10 km + pas nuage sig. + pas CB/TCU.", "METAR - CAVOK", 2),
+        ("METAR LFRB 031530Z 31012KT 7000 VCFG SCT020 16/15 Q1018=",
+         "VCFG signifie :",
+         "Orage en voisinage (VC) + brouillard (FG)", ["Brouillard dense à l'aérodrome", "Brume en vallée", "Brouillard givrant au sol"],
+         "VC = Vicinity (proximité 8–16 km) · FG = fog.", "METAR - temps présent", 3),
+        ("METAR LFSB 221800Z 09005KT 9999 FEW120 SCT250 08/M02 Q1025 NOSIG=",
+         "Nuages bas dans ce METAR ?",
+         "Aucun nuage bas significatif (FEW120 haute)", ["Plafond 1200 ft", "OVC bas", "BKN012"],
+         "FEW120 = 1–2 octats à 12 000 ft — pas de plafond bas.", "METAR - nuages", 2),
+    ]
+    for msg, question, correct, wrongs, expl, ref, diff in METAR_DECODE:
+        add(diff, f"« {msg[:55]}… » — {question}" if len(msg) > 55 else f"« {msg} » — {question}",
+            correct, wrongs, expl, ref)
+
+    # ── Structure METAR ──
+    METAR_STRUCT = [
+        ("Quel groupe METAR indique le QNH local ?",
+         "Groupe 9", ["Groupe 8", "Groupe 10", "Groupe 5"],
+         "Groupe 9 = QNH · Groupe 8 = T/Td.", "METAR - structure", 2),
+        ("Quel groupe METAR indique la visibilité dominante ?",
+         "Groupe 5", ["Groupe 4", "Groupe 6", "Groupe 7"],
+         "Groupe 5 = visibilité horizontale dominante.", "METAR - structure", 2),
+        ("Fréquence METAR sur aérodrome à trafic important ?",
+         "Toutes les 30 minutes", ["Toutes les 3 heures", "Une fois par jour", "Toutes les 6 heures"],
+         "METAR /30 min ou /1 h selon importance trafic.", "METAR - structure", 2),
+        ("Visibilité directionnelle indiquée si :",
+         "< 1500 m ou < 50 % dominante et < 5000 m",
+         ["Toujours", "Uniquement si < 9999", "Jamais en AUTO"],
+         "Règle doc 050 : seuils 1500 m et 50 %/5000 m.", "METAR - visibilité", 3),
+        ("NSC dans un METAR signifie :",
+         "Pas de nuage significatif", ["Nuages stratocumulus", "CAVOK", "Nuages en voisinage"],
+         "NSC ≠ CAVOK : pas de nuage sig. mais autres groupes peuvent indiquer visi/temps.", "METAR - nuages", 2),
+        ("Code RE (Recent) dans METAR :",
+         "Phénomène récent terminé (RERA, RESN…)", ["Phénomène en cours", "Prévision 2 h", "Message corrigé"],
+         "RE = phénomène récent dans groupe compléments.", "METAR - compléments", 2),
+    ]
+    for question, correct, wrongs, expl, ref, diff in METAR_STRUCT:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    # ── Analyse opérationnelle METAR ──
+    METAR_ANALYSIS = [
+        ("METAR indique OVC002 et visi 3000 m — vol VFR local possible ?",
+         "Non — plafond 200 ft insuffisant VFR", ["Oui sans restriction", "Oui de nuit", "Oui si QNH correct"],
+         "OVC002 = plafond 200 ft — bien sous minima VFR typiques.", "METAR - analyse", 3),
+        ("METAR : 11/05 Q1028 — risque brouillard ?",
+         "Élevé — écart T−Td = 6°C", ["Nul — air sec", "Faible — QNH haut", "Impossible à dire"],
+         "Écart faible T/Td → saturation proche → brume/brouillard possible.", "METAR - analyse", 3),
+        ("METAR SPECI vs METAR régulier :",
+         "SPECI = changement significatif entre deux METAR", ["SPECI remplace le TAF", "SPECI = correction AUTO", "Identiques"],
+         "SPECI complète le METAR si dégradation/amélioration importante.", "METAR - SPECI", 2),
+        ("Croiser METAR et TAF avant vol : pourquoi ?",
+         "Vérifier cohérence observation vs prévision", ["Le TAF remplace le METAR", "Uniquement pour IFR", "Obligatoire seulement nuit"],
+         "METAR = état actuel · TAF = évolution prévue — divergences = vigilance.", "METAR/TAF - comparaison", 2),
+        ("METAR AUTO vs observation manuelle :",
+         "AUTO peut sous-estimer nuages fins/hauts", ["AUTO plus fiable toujours", "AUTO inclut SPECI", "Aucune différence"],
+         "Capteurs auto : vigilance nuages non détectés.", "METAR - AUTO", 2),
+        ("BKN008 vs OVC008 — plafond opérationnel ?",
+         "Les deux : plafond 800 ft", ["BKN seulement", "OVC seulement", "Aucun plafond"],
+         "Plafond = base BKN ou OVC la plus basse.", "METAR - analyse", 2),
+        ("METAR avec TCU signalé — implication ?",
+         "Cumulus congestus — risque évolution CB", ["Orage confirmé", "Nuage haute altitude", "Pas de développement vertical"],
+         "TCU = développement vertical marqué — surveiller évolution orageuse.", "METAR - nuages", 2),
+        ("Décision go/no-go : METAR 9999 FEW040 CAVOK manquant mais visi/nuages OK ?",
+         "Vérifier les 4 critères CAVOK avant d'utiliser le terme", ["CAVOK implicite", "Toujours CAVOK si 9999", "Ignorer nuages"],
+         "CAVOK = 4 conditions cumulatives — ne pas confondre avec bonne visi seule.", "METAR - CAVOK", 3),
+    ]
+    for question, correct, wrongs, expl, ref, diff in METAR_ANALYSIS:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    # ── TAF décodage scénarios ──
+    TAF_DECODE = [
+        ("TAF LFSL 291400Z 291500/292400 24006KT CAVOK",
+         "Période de validité ?",
+         "29 15h UTC → 29 24h UTC", ["29 14h → 30 24h", "9 h à partir émission", "29 15h → 30 15h"],
+         "291500/292400 : début 29 à 15 UTC · fin 29 à 24 UTC (minuit).", "TAF - validité", 3),
+        ("TAF LFSL 291400Z 291500/292400 24006KT CAVOK PROB40 TEMPO 2921/2924 3000 TSRA BKN015CB",
+         "PROB40 TEMPO 2921/2924 indique :",
+         "40% prob. fluctuations temporaires 21h–24h UTC", ["Certitude 40% permanente", "Vent 40 kt", "Amendement"],
+         "PROB40 = probabilité modérée · TEMPO = fluctuations < 1 h.", "TAF - décodage", 3),
+        ("TAF LFRN 031100Z 031200/041200 22010KT 9999 SCT030 TEMPO 0312/0318 23015G25KT",
+         "TEMPO 0312/0318 prévoit :",
+         "Vent temporairement 230°/15G25 kt", ["Changement permanent FM", "Annulation TAF", "Brouillard certain"],
+         "TEMPO = fluctuation temporaire — pas changement définitif.", "TAF - décodage", 3),
+        ("TAF LFRN 031100Z 031200/041200 22010KT 9999 SCT030 TEMPO 0401/0407 5000 RA",
+         "Évolution TEMPO 0401/0407 :",
+         "Visi 5000 m avec pluie temporaire", ["CAVOK permanent", "Orage certain", "Vent nul"],
+         "Scénario type doc Rennes : dégradation temporaire visi + RA.", "TAF - décodage", 3),
+        ("TAF LFBD 121200Z 121200/122100 30008KT 8000 BKN020 BECMG 1218/1220 9999 NSW",
+         "BECMG 1218/1220 indique :",
+         "Amélioration progressive vers CAVOK-like (9999 NSW)", ["Fluctuation 30 min", "Orage imminent", "Fin validité"],
+         "BECMG = becoming — transition permanente sur ~2 h.", "TAF - BECMG", 2),
+        ("TAF LFBD 121200Z 121200/122100 30008KT 8000 BKN020 FM121800 27012G22KT",
+         "FM121800 signifie :",
+         "Changement permanent à 18h UTC le 12", ["Fin message", "Probabilité 30%", "Temporaire 1 h"],
+         "FM = From — conditions nouvelles dès l'heure indiquée.", "TAF - FM", 3),
+        ("TAF LFPG 041200Z 041200/051200 TX21/0415Z TN12/0406Z 24010KT 9999 SCT040",
+         "TX21/0415Z signifie :",
+         "Température max +21°C le 4 à 15 UTC", ["Température min 21°C", "Température à FL210", "Indice chaleur"],
+         "TX = max · TN = min · jour/heure UTC.", "TAF - températures extrêmes", 3),
+        ("TAF AMD LFMY 151800Z 151800/160300 18012KT 4000 BR BKN008",
+         "TAF AMD indique :",
+         "Amendement — prévision modifiée (phénomène non prévu ou erroné)", ["TAF annulé", "TAF long 30 h", "Observation METAR"],
+         "AMD = amendement entre émission et fin validité.", "TAF - codes", 2),
+        ("TAF CNL LFBZ 101200Z 101200/102100",
+         "TAF CNL signifie :",
+         "TAF annulé", ["TAF corrigé", "TAF prolongé", "Conditions CAVOK"],
+         "CNL = cancellation du message TAF.", "TAF - codes", 2),
+        ("TAF LFQQ 061200Z 061200/070300 26008KT 9999 FEW030 PROB30 TEMPO 0614/0618 3000 -RA BKN010",
+         "Probabilité et phénomène PROB30 TEMPO ?",
+         "30% prob. averses temporaires visi 3000 m", ["30 kt vent", "Certitude pluie", "Probabilité 70%"],
+         "PROB30 = faible probabilité · TEMPO = durée courte.", "TAF - PROB", 3),
+    ]
+    for snippet, question, correct, wrongs, expl, ref, diff in TAF_DECODE:
+        add(diff, f"Dans « {snippet} », {question}", correct, wrongs, expl, ref)
+
+    # ── Structure TAF ──
+    TAF_STRUCT = [
+        ("Dans un TAF, le vent est le groupe :",
+         "Groupe 5", ["Groupe 4", "Groupe 6", "Groupe 9"],
+         "TAF : 1 type · 2 OACI · 3 émission · 4 validité · 5 vent · 6 visi…", "TAF - structure", 2),
+        ("TAF disponible pour briefing :",
+         "1 heure avant début validité", ["30 min après validité", "À l'émission seulement", "24 h avant"],
+         "Disponibilité doc 050 : 1 h avant début période validité.", "TAF - validité", 2),
+        ("Validité TAF long grands aéroports :",
+         "24 h ou 30 h", ["9 h", "12 h", "48 h"],
+         "TAF long 24–30 h · émis /6 h.", "TAF - validité", 2),
+        ("Groupes 1 à 8 d'un TAF décrivent :",
+         "Conditions au début de validité", ["Chaque heure de validité", "Uniquement les évolutions", "Le METAR correspondant"],
+         "Base TAF = état initial · groupe 9 = évolutions/probabilités.", "TAF - structure", 2),
+        ("NSW dans un TAF signifie :",
+         "No Significant Weather — pas de temps sig.", ["Nuages stratiformes", "Vent Nord", "Message annulé"],
+         "NSW = pas de phénomène significatif prévu.", "TAF - codes", 2),
+        ("Différence clé BECMG vs TEMPO :",
+         "BECMG = changement permanent · TEMPO = fluctuation temporaire",
+         ["Identiques", "TEMPO = permanent", "BECMG = < 30 min"],
+         "BECMG transition progressive permanente · TEMPO < 50% période.", "TAF - codes", 2),
+    ]
+    for question, correct, wrongs, expl, ref, diff in TAF_STRUCT:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    # ── Comparaison METAR/TAF ──
+    COMPARE = [
+        ("METAR indique 4000 m −RA · TAF TEMPO prévoit 9999 — interprétation ?",
+         "Observation actuelle dégradée · amélioration temporaire prévue", ["TAF obsolète", "METAR erroné", "Identiques"],
+         "METAR = maintenant · TEMPO TAF = fluctuation future possible.", "METAR/TAF - comparaison", 3),
+        ("TAF émis 06h validité 06–15h · METAR 08h CAVOK · TAF TEMPO 10–12h 3000 RA :",
+         "Surveiller fenêtre 10h–12h malgré METAR actuel bon", ["Ignorer TAF", "METAR remplace TAF", "Annuler vol systématiquement"],
+         "Briefing dynamique : TEMPO future peut dégrader conditions.", "METAR/TAF - comparaison", 3),
+        ("SPECI dégradation non prévue au TAF — action pilote ?",
+         "Reconsidérer plan vol · TAF AMD possible", ["Continuer — TAF prioritaire", "Ignorer SPECI", "Attendre 24 h"],
+         "SPECI = changement sig. · peut entraîner TAF AMD.", "METAR/TAF - comparaison", 2),
+        ("FM dans TAF vs NOSIG dans METAR :",
+         "FM = changement futur prévu · NOSIG = pas de changement sig. 2 h observé",
+         ["Identiques", "NOSIG annule TAF", "FM = observation passée"],
+         "Prévision (FM) vs tendance observation (NOSIG).", "METAR/TAF - comparaison", 3),
+        ("Utiliser METAR pour prévision 6 h avant vol :",
+         "Insuffisant — compléter avec TAF/TEMSI", ["Suffisant seul", "Interdit", "Remplace NOTAM"],
+         "METAR = instant T · TAF = prévision aérodrome sur validité.", "METAR/TAF - comparaison", 2),
+    ]
+    for question, correct, wrongs, expl, ref, diff in COMPARE:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    return qs
+
+
 # ─── RÉGLEMENTATION ─────────────────────────────────────────────
 def gen_reg():
     qs = []
@@ -1416,6 +1642,7 @@ def main():
     bank.extend(gen_aero())
     bank.extend(gen_meteo())
     bank.extend(gen_meteo_symbols_advanced())
+    bank.extend(gen_meteo_metar_taf_decode())
     bank.extend(gen_reg())
     bank.extend(gen_bulk_meteo())
     bank.extend(gen_bulk_reg())

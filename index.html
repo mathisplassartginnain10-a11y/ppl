@@ -12,12 +12,12 @@
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528o">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528o">
+<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528p">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260528p">
 <link rel="stylesheet" href="ppl_auth.css?v=20260528n">
-<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528n">
+<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528t">
 <script src="ppl_auth.js?v=20260528n"></script>
-<script src="ppl_plane_bg.js?v=20260528n" defer></script>
+<script src="ppl_plane_bg.js?v=20260528t" defer></script>
 </head>
 <body>
 <div class="mesh-bg"></div>
@@ -177,7 +177,7 @@
 </div>
 
 </div>
-<script src="questions_bank.js?v=20260528m"></script>
+<script src="questions_bank.js?v=20260528p"></script>
 <script>
 (function(){
   const meta=typeof Q_BANK_META!=='undefined'?Q_BANK_META:null;
@@ -196,7 +196,7 @@
 <script src="formulas_bank.js?v=20260528d"></script>
 <script src="formulas_engine.js?v=20260528d"></script>
 <script src="topics_utils.js?v=20260528e"></script>
-<script src="fiche_enrich.js?v=20260528l"></script>
+<script src="fiche_enrich.js?v=20260528p"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // MOTEUR PROBABILITÉ AVANCÉ + TRACKING COMPORTEMENTAL
@@ -932,6 +932,8 @@ function genMnemonic(q,topic){
   }
   if(r.includes('phraséologie')||r.includes('phras')) return 'ROGER ≠ WILCO : Roger = reçu · Wilco = reçu ET exécuté';
   if(r.includes('portée')||r.includes('vhf')) return 'D = 1,23 × √h — h en pieds, D en NM';
+  if(r.includes('metar')||r.includes('taf')||r.includes('temsi'))
+    return 'METAR = observation · TAF = prévision · croise les deux. Groupes vent/visi/nuages/T/QNH dans l\'ordre.';
   if(r.includes('lisibilité')) return '1=illisible → 5=parfait (mnémotechnique : plus le chiffre est grand, mieux c\'est)';
   const topKw=Object.entries(t.kw||{}).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
   if(topKw.length>=2) return 'Mots-clés du thème : '+topKw.join(' · ');
@@ -1035,6 +1037,8 @@ function genExamTip(ref,mod){
     return 'Astuce examen : récite la phraséologie à voix haute. Roger ≠ Wilco : Roger = reçu · Wilco = reçu ET exécuté.';
   if(r.includes('vfr')||r.includes('visibilit'))
     return 'Astuce examen : crée un tableau récap des minima VFR par espace aérien (A, C, D, E).';
+  if(r.includes('metar')||r.includes('taf'))
+    return 'Astuce examen : décode METAR/TAF groupe par groupe (vent → visi → temps → nuages → T/Td → QNH). Croise observation, prévision et SPECI/AMD.';
   return ({C:'Module comm : mémorise fréquences + procédures mot pour mot.',
     A:'Module aéronef : vérifie unités (kt, ft, hPa) avant chaque réponse.',
     M:'Module météo : relie toujours phénomène → cause → conséquence pour pilote.',
@@ -1101,6 +1105,99 @@ function buildTopicFiche(ref,sampleQ,entry,chosenIdx){
   };
 }
 
+function getLastAnswerLogForIdx(idx){
+  if(idx==null||idx<0) return null;
+  for(let i=answerLog.items.length-1;i>=0;i--){
+    if(answerLog.items[i].idx===idx) return answerLog.items[i];
+  }
+  return null;
+}
+
+function buildOptionAnalysis(q,chosenIdx){
+  return q.o.map((text,i)=>{
+    const letter=String.fromCharCode(65+i);
+    const isCorrect=i===q.a;
+    const isChosen=chosenIdx===i;
+    let why=[];
+    if(isCorrect) why.push('Conforme au programme et à l\'explication officielle.');
+    else{
+      const trap=analyzeTraps(q,chosenIdx).find(t=>t.i===i);
+      if(trap) why=trap.traps.filter(t=>!t.startsWith('←'));
+      if(isChosen&&!why.length) why.push('Option validée à tort — relire la règle fondamentale.');
+      if(!why.length) why.push('Distracteur — éliminer par la règle et l\'exclusion.');
+    }
+    return{letter,text,isCorrect,isChosen,why};
+  });
+}
+
+function buildRevisionActionPlan(q,entry,f,beh){
+  const steps=['Relire la règle fondamentale ci-dessous mot pour mot.',
+    'Analyser le tableau option par option — comprendre chaque piège.'];
+  if(f.mnemo) steps.push('Mémoriser : '+f.mnemo);
+  if(f.formulas?.linked?.length) steps.push('Refaire les '+f.formulas.linked.length+' formule(s) liées sur papier.');
+  if(f.worked) steps.push('Refaire le calcul pas à pas de l\'exemple type.');
+  steps.push('Enchaîner 3 questions du thème « '+q.r+' » sans correction.');
+  if(entry?.sm2) steps.push('Prochaine révision SM-2 : dans '+entry.sm2.interval+' jour'+(entry.sm2.interval>1?'s':'')+'.');
+  if(beh?.wrongHoverCount>=2) steps.push('À l\'examen : éliminer 2 options pièges avant de valider.');
+  if(beh?.reactionSec<1.5) steps.push('Ralentir : minimum 5 s de lecture sur les questions difficiles.');
+  return steps;
+}
+
+function renderBehCompact(beh,logEntry){
+  const b=beh||logEntry?.beh||{};
+  const rows=[];
+  if(b.reactionSec!=null) rows.push(['Réaction',b.reactionSec.toFixed(1)+' s']);
+  if(b.decisionSec!=null) rows.push(['Décision',b.decisionSec.toFixed(1)+' s']);
+  if(b.readSec!=null) rows.push(['Lecture',b.readSec.toFixed(1)+' s']);
+  if(b.hoverSwitches!=null) rows.push(['Survols / vacill.',(b.hoverSwitches||0)+' / '+(b.vacillations||0)]);
+  if(b.wrongHoverCount!=null) rows.push(['Temps mauvaises opts',Math.round((b.wrongDwellRatio||0)*100)+'% · '+b.wrongHoverCount+' opts']);
+  if(b.longestWrongIdx>=0) rows.push(['Piège consulté le plus longtemps','Option '+String.fromCharCode(65+b.longestWrongIdx)]);
+  if(logEntry?.reactScore!=null) rows.push(['Score réaction',''+logEntry.reactScore+'%']);
+  if(!rows.length) return '';
+  return `<div class="err-beh-grid">${rows.map(([k,v])=>`<div class="err-beh-it"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('')}</div>`;
+}
+
+function renderErrorUltraHTML(f,opts){
+  const q=f.sampleQ,chosenIdx=f.chosenIdx??-1,entry=f.entry;
+  const beh=opts.beh||entry?.lastBeh;
+  const logEntry=opts.logEntry||getLastAnswerLogForIdx(Q.indexOf(q));
+  const isWrong=chosenIdx>=0&&chosenIdx!==q.a;
+  const repeat=entry?.wrongChoices?.[chosenIdx]||0;
+  const wrongTrap=isWrong?analyzeTraps(q,chosenIdx).find(t=>t.i===chosenIdx):null;
+  const optRows=buildOptionAnalysis(q,chosenIdx).map(o=>`
+    <div class="err-opt-row${o.isCorrect?' err-opt-ok':''}${o.isChosen?' err-opt-chosen':''}">
+      <span class="err-opt-l">${o.letter}</span>
+      <div class="err-opt-body">
+        <div class="err-opt-txt">${esc(o.text)}${o.isCorrect?' ✓':''}${o.isChosen&&!o.isCorrect?' ✗ (ta réponse)':''}</div>
+        <div class="err-opt-why">${o.why.map(w=>esc(w)).join(' · ')}</div>
+      </div>
+    </div>`).join('');
+  const plan=buildRevisionActionPlan(q,entry,f,beh);
+  const behHtml=renderBehCompact(beh,logEntry);
+  return `<div class="fiche-error-ultra">
+    <div class="err-ultra-hd">
+      <span class="err-ultra-badge">🔬 Fiche erreur ultra-détaillée</span>
+      ${repeat>1?`<span class="err-ultra-badge warn">Même piège ${repeat}×</span>`:''}
+      ${(entry?.failCount||0)>1?`<span class="err-ultra-badge warn">${entry.failCount} erreurs cumulées</span>`:''}
+    </div>
+    <div class="err-ultra-q">${esc(q.q)}</div>
+    ${isWrong?`<div class="err-ultra-ans">
+      <div class="err-ultra-wrong">✗ Ta réponse : <strong>${esc(q.o[chosenIdx])}</strong></div>
+      <div class="err-ultra-correct">✓ Bonne réponse : <strong>${esc(q.o[q.a])}</strong></div>
+      ${wrongTrap?`<div class="err-ultra-trap">${wrongTrap.traps.map(t=>esc(t)).join(' · ')}</div>`:''}
+    </div>`:''}
+    <div class="fiche-block err-block">
+      <div class="fiche-block-hd"><span class="fiche-block-ico">🔍</span> Analyse option par option (A–D)</div>
+      <div class="fiche-block-bd"><div class="err-opt-list">${optRows}</div></div>
+    </div>
+    ${behHtml?`<div class="fiche-block err-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📊</span> Comportement lors de l'erreur</div><div class="fiche-block-bd">${behHtml}</div></div>`:''}
+    <div class="fiche-block err-block">
+      <div class="fiche-block-hd"><span class="fiche-block-ico">📝</span> Plan de révision express</div>
+      <div class="fiche-block-bd"><ol class="err-action-plan">${plan.map(s=>`<li>${typeof s==='string'&&s.includes('<strong>')?s:esc(s)}</li>`).join('')}</ol></div>
+    </div>
+  </div>`;
+}
+
 function renderTopicFicheHTML(ref,opts={}){
   const f=buildTopicFiche(ref,opts.sampleQ,opts.entry,opts.chosenIdx);
   if(!f) return '';
@@ -1110,14 +1207,6 @@ function renderTopicFicheHTML(ref,opts={}){
   const formulasHtml=typeof renderFicheFormulasSection==='function'
     ?renderFicheFormulasSection(f.formulas,f.worked,f.essentials,f.module):'';
   const points=(f.allRules.length?f.allRules:f.allPoints.length?f.allPoints:f.keyPoints);
-  const trapsHtml=(f.themeTraps.length?f.themeTraps:f.traps).map(t=>{
-    const isCorrect=t.i===f.sampleQ.a;
-    const isChosen=opts.chosenIdx===t.i;
-    return`<div class="fiche-trap-item${isChosen?' chosen':''}${isCorrect?' correct':''}">
-      <span class="fiche-trap-letter">${String.fromCharCode(65+t.i)}</span>
-      <div><div class="fiche-trap-text">${esc(t.text)}${isCorrect?' ✓':''}${t.count>1?` <span class="fiche-trap-cnt">×${t.count}</span>`:''}</div>
-        <div class="fiche-trap-why">${esc(t.traps.join(' · '))}</div></div></div>`;
-  }).join('');
   const topWrongHtml=f.topWrongDetailed.length?`<ul class="fiche-wrong-list">${f.topWrongDetailed.map(([text,c])=>
     `<li class="fiche-wrong-item"><span class="fiche-wrong-txt">${esc(text)}</span><span class="fiche-wrong-cnt">${c}×</span></li>`).join('')}</ul>`:'';
   const revStatsHtml=f.revStats?`<div class="fiche-rev-grid">
@@ -1144,9 +1233,25 @@ function renderTopicFicheHTML(ref,opts={}){
   const diffHtml=Object.entries(f.byDiff).filter(([,n])=>n>0).map(([d,n])=>
     `<span class="fiche-diff-chip">${diffStr(parseInt(d,10))} · ${n}</span>`).join('');
   const showFoot=opts.showFoot!==false;
-  const compact=opts.compact;
+  const isError=opts.mode==='error';
+  const errorUltra=isError?renderErrorUltraHTML(f,opts):'';
+  const qTraps=f.traps.length?f.traps:(f.themeTraps.length?f.themeTraps.slice(0,6):[]);
+  const trapsForDisplay=isError?qTraps:(f.themeTraps.length?f.themeTraps:f.traps);
+  const trapsDisplayHtml=trapsForDisplay.map(t=>{
+    const isCorrect=t.i===f.sampleQ.a;
+    const isChosen=opts.chosenIdx===t.i;
+    return`<div class="fiche-trap-item${isChosen?' chosen':''}${isCorrect?' correct':''}">
+      <span class="fiche-trap-letter">${String.fromCharCode(65+t.i)}</span>
+      <div><div class="fiche-trap-text">${esc(t.text)}${isCorrect?' ✓':''}${t.count>1?` <span class="fiche-trap-cnt">×${t.count}</span>`:''}</div>
+        <div class="fiche-trap-why">${esc(t.traps.join(' · '))}</div></div></div>`;
+  }).join('');
+  const themeExpandBody=isError?`
+      ${points.length?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Synthèse thème (${points.length} points)</div><div class="fiche-block-bd"><ul class="fiche-points">${points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div></div>`:''}
+      <div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❓</span> Toutes les questions (${f.questionCount})</div><div class="fiche-block-bd">${previewsHtml||'—'}</div></div>
+      ${relatedHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔗</span> Thèmes liés</div><div class="fiche-block-bd">${relatedHtml}</div></div>`:''}
+      ${diffHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📊</span> Répartition difficulté</div><div class="fiche-block-bd"><div class="fiche-diff-row">${diffHtml}</div></div></div>`:''}`:'';
 
-  return`<div class="fiche-sheet">
+  return`<div class="fiche-sheet${isError?' fiche-sheet-error':''}">
     <div class="fiche-hero">
       <div class="fiche-hero-top">
         <h3 class="fiche-hero-title">${esc(f.ref)}</h3>
@@ -1168,23 +1273,35 @@ function renderTopicFicheHTML(ref,opts={}){
       ${f.concept?`<p class="fiche-concept">${esc(f.concept)}</p>`:''}
     </div>
     <div class="fiche-body">
+      ${errorUltra}
       <div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">📌</span> Règle fondamentale</div>
         <div class="fiche-block-bd"><div class="fiche-rule-box">${esc(f.rule)}</div></div>
       </div>
-      <div class="fiche-block">
+      ${!isError?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">🎯</span> Objectifs d'apprentissage</div>
         <div class="fiche-block-bd"><ul class="fiche-objectives">${f.objectives.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>
-      </div>
-      ${points.length?`<div class="fiche-block">
+      </div>`:''}
+      ${!isError&&points.length?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Synthèse complète (${points.length} points)</div>
         <div class="fiche-block-bd"><ul class="fiche-points">${points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
       </div>`:''}
+      <div class="fiche-block">
+        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Pièges & distracteurs (${trapsForDisplay.length} analysés)</div>
+        <div class="fiche-block-bd"><div class="fiche-trap-grid">${trapsDisplayHtml}</div></div>
+      </div>
       ${f.refHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📖</span> Référence programme</div><div class="fiche-block-bd">${f.refHtml}</div></div>`:''}
       ${formulasHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div><div class="fiche-block-bd">${formulasHtml}</div></div>`:''}
       ${workedMulti?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔢</span> Calculs pas à pas (${f.workedExamples.length})</div><div class="fiche-block-bd">${workedMulti}</div></div>`:''}
-      ${topWrongHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❌</span> Erreurs les plus fréquentes</div><div class="fiche-block-bd">${topWrongHtml}</div></div>`:''}
+      ${topWrongHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❌</span> Erreurs les plus fréquentes sur ce thème</div><div class="fiche-block-bd">${topWrongHtml}</div></div>`:''}
       ${revStatsHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📈</span> Ta progression sur ce thème</div><div class="fiche-block-bd">${revStatsHtml}</div></div>`:''}
+      ${f.mnemo?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">💡</span> Mnémotechnique</div><div class="fiche-block-bd"><div class="fiche-mnemo">${esc(f.mnemo)}</div></div></div>`:''}
+      <div class="fiche-block">
+        <div class="fiche-block-hd"><span class="fiche-block-ico">🎓</span> Conseil examen</div>
+        <div class="fiche-block-bd"><div class="fiche-exam-tip">${esc(f.examTip)}</div></div>
+      </div>
+      ${isError&&themeExpandBody?`<details class="fiche-theme-expand"><summary>📚 Synthèse thème complète (${f.questionCount} questions)</summary><div class="fiche-theme-expand-bd">${themeExpandBody}</div></details>`:''}
+      ${!isError?`
       ${f.topKw.length?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">🔤</span> Vocabulaire clé</div>
         <div class="fiche-block-bd"><div class="fiche-kw-row">${f.topKw.map(w=>`<span class="fiche-kw">${esc(w)}</span>`).join('')}</div></div>
@@ -1193,20 +1310,11 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-block-hd"><span class="fiche-block-ico">❓</span> Toutes les questions (${f.questionCount})</div>
         <div class="fiche-block-bd">${previewsHtml||'<div class="rev-empty">Aucune question liée.</div>'}</div>
       </div>
-      <div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Pièges & distracteurs (${f.themeTraps.length||f.traps.length} analysés)</div>
-        <div class="fiche-block-bd"><div class="fiche-trap-grid">${trapsHtml}</div></div>
-      </div>
       ${relatedHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔗</span> Thèmes liés</div><div class="fiche-block-bd">${relatedHtml}</div></div>`:''}
-      ${f.mnemo?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">💡</span> Mnémotechnique</div><div class="fiche-block-bd"><div class="fiche-mnemo">${esc(f.mnemo)}</div></div></div>`:''}
-      <div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">🎓</span> Conseil examen</div>
-        <div class="fiche-block-bd"><div class="fiche-exam-tip">${esc(f.examTip)}</div></div>
-      </div>
       ${diffHtml?`<div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">📊</span> Répartition difficulté</div>
         <div class="fiche-block-bd"><div class="fiche-diff-row">${diffHtml}</div></div>
-      </div>`:''}
+      </div>`:''}`:''}
     </div>
     ${showFoot?`<div class="fiche-foot">
       <div class="fiche-mastery-block">
@@ -1221,15 +1329,104 @@ function renderTopicFicheHTML(ref,opts={}){
   </div>`;
 }
 
-function renderTopicFicheCard(ref,data){
+function getTopicFailTotal(data){
+  return (data.idxs||[]).reduce((s,i)=>s+(revLog.entries?.[i]?.failCount||0),0);
+}
+
+function getTopicLastActivity(ref,data){
+  let last=0;
+  (data.idxs||[]).forEach(idx=>{
+    const e=revLog.entries?.[idx];
+    if(!e) return;
+    last=Math.max(last,e.lastFail||0,e.lastStruggle||0,e.sm2?.last||0);
+  });
+  (answerLog.items||[]).forEach(it=>{
+    if(it.ref===ref) last=Math.max(last,it.t||0);
+  });
+  return last;
+}
+
+function fmtFicheDate(ts){
+  if(!ts) return 'Jamais étudié';
+  const diff=Date.now()-ts;
+  if(diff<86400000) return "Aujourd'hui";
+  if(diff<172800000) return 'Hier';
+  return new Date(ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+}
+
+function sortFicheThemeEntries(entries){
+  if(ficheDateSort==='alpha') return entries.sort((a,b)=>a.ref.localeCompare(b.ref,'fr'));
+  if(ficheDateSort==='errors') return entries.sort((a,b)=>b.failTotal-a.failTotal||b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr'));
+  return entries.sort((a,b)=>b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr'));
+}
+
+function renderFichesByModule(allThemes){
+  const qSearch=ficheLibSearch.toLowerCase();
+  const byMod={};
+  MOD_ORDER.forEach(m=>{byMod[m]=[]});
+  allThemes.forEach(([ref,data])=>{
+    if(ficheLibMod!=='all'&&data.module!==ficheLibMod) return;
+    if(qSearch&&!ref.toLowerCase().includes(qSearch)&&!modStr(data.module).toLowerCase().includes(qSearch)) return;
+    const lastAct=getTopicLastActivity(ref,data);
+    const failTotal=getTopicFailTotal(data);
+    const m=data.module;
+    if(!byMod[m]) byMod[m]=[];
+    byMod[m].push({ref,data,lastAct,failTotal});
+  });
+  const studiedCount=MOD_ORDER.reduce((n,m)=>n+byMod[m].filter(t=>t.lastAct>0).length,0);
+  let html=`
+    <div class="fiche-lib-toolbar">
+      <input type="search" class="fiche-lib-search" id="fiche-lib-search" placeholder="Rechercher un thème (VHF, ISA, VFR…)" value="${esc(ficheLibSearch)}">
+      <button type="button" class="fiche-lib-mod${ficheLibMod==='all'?' on':''}" data-fmod="all">Tous</button>
+      ${MOD_ORDER.map(m=>`<button type="button" class="fiche-lib-mod${ficheLibMod===m?' on':''}" data-fmod="${m}">${modStr(m).split(' ')[0]}</button>`).join('')}
+    </div>
+    <div class="fiche-sort-bar">
+      <span class="fiche-sort-lbl">${studiedCount} fiche${studiedCount>1?'s':''} avec activité · ${allThemes.length} au total</span>
+      <label class="fiche-sort-label">Trier par
+        <select id="fiche-date-sort" class="fiche-sort-select">
+          <option value="recent"${ficheDateSort==='recent'?' selected':''}>Date (récent d'abord)</option>
+          <option value="errors"${ficheDateSort==='errors'?' selected':''}>Erreurs</option>
+          <option value="alpha"${ficheDateSort==='alpha'?' selected':''}>A → Z</option>
+        </select>
+      </label>
+    </div>`;
+  let any=false;
+  MOD_ORDER.forEach(m=>{
+    const themes=sortFicheThemeEntries([...byMod[m]]);
+    if(!themes.length) return;
+    any=true;
+    const studied=themes.filter(t=>t.lastAct>0).length;
+    html+=`<section class="fiche-mod-group" data-module="${m}">
+      <div class="fiche-mod-hd">
+        <span class="bd ${modClass(m)}">${modStr(m)}</span>
+        <span class="fiche-mod-count">${themes.length} fiche${themes.length>1?'s':''}${studied?` · ${studied} étudiée${studied>1?'s':''}`:''}</span>
+      </div>
+      <div class="fiche-mod-list">
+        ${themes.map(t=>renderTopicFicheCard(t.ref,t.data,{lastAct:t.lastAct,failTotal:t.failTotal,openByDefault:t.lastAct>0||t.failTotal>0})).join('')}
+      </div>
+    </section>`;
+  });
+  return html+(any?'':'<div class="rev-empty">Aucune fiche trouvée.</div>');
+}
+
+function renderTopicFicheCard(ref,data,opts={}){
   const f=buildTopicFiche(ref,Q[data.idxs[0]],revLog.entries?.[data.idxs[0]],-1);
   if(!f) return '';
   const acc=f.topicStats.n?Math.round(f.topicStats.accuracy*100)+'%':'—';
-  return`<div class="fiche-card" data-fiche-ref="${esc(ref)}">
+  const lastAct=opts.lastAct??getTopicLastActivity(ref,data);
+  const failTotal=opts.failTotal??getTopicFailTotal(data);
+  const openCls=(opts.openByDefault||lastAct>0||failTotal>0)?' open':'';
+  const errBadge=failTotal?`<span class="fiche-date-badge err">${failTotal} err.</span>`:'';
+  return`<div class="fiche-card${openCls}" data-fiche-ref="${esc(ref)}" data-last-act="${lastAct}">
     <button type="button" class="fiche-card-hd" data-fiche-toggle="${esc(ref)}">
       <div class="fiche-card-hd-left">
         <div class="fiche-card-title">${esc(ref)}</div>
-        <div class="fiche-card-meta">${modStr(data.module)} · ${data.idxs.length} q · réussite ${acc}${f.weakCount?` · ${f.weakCount} faible${f.weakCount>1?'s':''}`:''}</div>
+        <div class="fiche-card-meta">
+          <span class="fiche-date-badge${lastAct?'':' none'}">${fmtFicheDate(lastAct)}</span>
+          ${errBadge}
+          <span class="bd ${modClass(data.module)}">${modStr(data.module)}</span>
+          · ${data.idxs.length} q · réussite ${acc}${f.weakCount?` · ${f.weakCount} faible${f.weakCount>1?'s':''}`:''}
+        </div>
       </div>
       <span class="fiche-card-chevron">▾</span>
     </button>
@@ -1300,8 +1497,8 @@ function diffClass(d){ return['','bd-f','bd-m','bd-d','bd-e'][d]; }
 let mode='exam', queue=[], qi=0, answered=false, t0=0, tInt=null;
 let paused=false, pauseAt=0, timerRem=null;
 let sData=[], hist={}, weak=new Set(), sesHist=[], sessionPlan=null;
-let revLog={entries:{}}, revTab='library', revisionTopicFilter=null, revisionSingleIdx=null;
-let ficheLibSearch='', ficheLibMod='all';
+let revLog={entries:{}}, revTab='fiches', revisionTopicFilter=null, revisionSingleIdx=null;
+let ficheLibSearch='', ficheLibMod='all', ficheDateSort='recent';
 let reactLog={history:[]};
 try{hist=JSON.parse(localStorage.getItem('ppl4h')||'{}')}catch(e){}
 window.hist=hist;
@@ -1398,8 +1595,10 @@ function isStruggle(ok,beh){
     (ok&&beh.wrongHoverCount>=2);
 }
 
-function renderDeepFicheHTML(q,entry,chosenIdx){
-  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx,compact:true,showFoot:true});
+function renderDeepFicheHTML(q,entry,chosenIdx,beh){
+  const idx=Q.indexOf(q);
+  const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
+  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:getLastAnswerLogForIdx(idx>=0?idx:undefined)});
 }
 
 function learnObjectives(q,beh,ok,entry,chosenIdx){
@@ -1441,7 +1640,10 @@ function trackRevision(ok,el,beh,idx,q){
     const reactRes=reactionEngine(ok,q.d,beh);
     const {tags}=behaviorFactor(ok,q.d,beh);
     [...(reactRes.tags||[]),...(tags||[])].forEach(t=>{if(!e.tags.includes(t))e.tags.push(t);});
-    e.lastBeh={hoverSwitches:beh.hoverSwitches,wrongHoverCount:beh.wrongHoverCount,reactionSec:beh.reactionSec,vacillations:beh.vacillations,chosenIdx:beh.chosenIdx,longestWrongIdx:beh.longestWrongIdx};
+    e.lastBeh={hoverSwitches:beh.hoverSwitches,wrongHoverCount:beh.wrongHoverCount,reactionSec:beh.reactionSec,
+      readSec:beh.readSec,decisionSec:beh.decisionSec,vacillations:beh.vacillations,chosenIdx:beh.chosenIdx,
+      longestWrongIdx:beh.longestWrongIdx,hoveredWrongMs:beh.hoveredWrongMs,wrongDwellRatio:beh.wrongDwellRatio,
+      dwellPerOpt:beh.dwellPerOpt,dwellChosen:beh.dwellChosen,moveDist:beh.moveDist,decisiveness:beh.decisiveness};
   }
   e.lastOk=ok;e.lastEl=el;
   updateSM2(e,ok,struggle);
@@ -1496,7 +1698,7 @@ function getStudyPlan(){
 function renderRevCard(item,priority,expanded){
   const {idx,q,e}=item;
   const chosenIdx=e.lastWrongChoice??e.lastBeh?.chosenIdx??-1;
-  const learn=learnObjectives(q,e.lastBeh?{...e.lastBeh,hoveredWrongMs:0,wrongDwellRatio:0}:null,e.lastOk===false,e,chosenIdx);
+  const learn=learnObjectives(q,e.lastBeh,e.lastOk===false,e,chosenIdx);
   const errN=e.failCount||0,hesN=e.struggleCount||0;
   const mastery=computeMastery(e,initTopicKB()[q.r]);
   const mCol=mastery.pct>=65?'var(--green)':mastery.pct>=40?'var(--amber)':'var(--red)';
@@ -1517,7 +1719,7 @@ function renderRevCard(item,priority,expanded){
       <ul>${learn.map(li=>`<li>${li}</li>`).join('')}</ul>
       <div class="rev-ans">✓ ${esc(q.o[q.a])}</div>
     </div>
-    ${renderTopicFicheHTML(q.r,{sampleQ:q,entry:e,chosenIdx,compact:true,showFoot:false})}
+    ${renderTopicFicheHTML(q.r,{sampleQ:q,entry:e,chosenIdx,mode:'error',compact:true,showFoot:false,beh:e.lastBeh,logEntry:getLastAnswerLogForIdx(idx)})}
     <div class="rev-actions">
       <button type="button" class="rev-btn-sm primary" data-rev-action="one" data-idx="${idx}">Refaire</button>
       <button type="button" class="rev-btn-sm" data-rev-action="topic" data-ref="${esc(q.r)}">Thème (${initTopicKB()[q.r]?.idxs.length||'?'}q)</button>
@@ -1680,9 +1882,7 @@ function buildFichesPanel(){
       ${plan.topThemes.map(t=>`<div class="study-plan-item"><span class="study-plan-dot" style="background:var(--red)"></span><div class="study-plan-txt"><strong>${esc(t.ref)}</strong> (${modStr(t.module)}) — ${t.count} question${t.count>1?'s':''} · ${t.fails} erreur${t.fails>1?'s':''}<br><button type="button" class="rev-btn-sm primary" style="margin-top:4px" data-rev-action="topic" data-ref="${esc(t.ref)}">Plan de révision ciblé</button></div></div>`).join('')}
     </div>`;
   }else if(revTab==='fiches'){
-    listHtml=themes.slice(0,20).map(([ref,data])=>
-      renderTopicFicheHTML(ref,{sampleQ:Q[data.items[0].idx],entry:data.items[0].e,showFoot:true})
-    ).join('')||`<div class="rev-empty">Aucune fiche liée à tes erreurs — voir la Bibliothèque.</div>`;
+    listHtml=renderFichesByModule(allThemes);
   }else{
     listHtml=themes.map(([ref,data])=>`
       <div class="rev-theme">
@@ -1704,10 +1904,10 @@ function buildFichesPanel(){
     </div>
     ${modBars?`<div style="margin-bottom:.75rem">${modBars}</div>`:''}
     <div class="rev-tabs">
+      <button type="button" class="rev-tab${revTab==='fiches'?' on':''}" data-rev-tab="fiches">Par matière</button>
       <button type="button" class="rev-tab${revTab==='library'?' on':''}" data-rev-tab="library">Bibliothèque</button>
       <button type="button" class="rev-tab${revTab==='priority'?' on':''}" data-rev-tab="priority">Priorités</button>
       <button type="button" class="rev-tab${revTab==='plan'?' on':''}" data-rev-tab="plan">Plan SM-2</button>
-      <button type="button" class="rev-tab${revTab==='fiches'?' on':''}" data-rev-tab="fiches">Mes fiches</button>
       <button type="button" class="rev-tab${revTab==='errors'?' on':''}" data-rev-tab="errors">Erreurs</button>
       <button type="button" class="rev-tab${revTab==='hesitations'?' on':''}" data-rev-tab="hesitations">Hésitations</button>
       <button type="button" class="rev-tab${revTab==='themes'?' on':''}" data-rev-tab="themes">Par thème</button>
@@ -1743,6 +1943,9 @@ document.getElementById('rev-panel')?.addEventListener('click',e=>{
   else if(btn.dataset.revAction==='all') launchRevision();
 });
 
+document.getElementById('rev-panel')?.addEventListener('change',e=>{
+  if(e.target.id==='fiche-date-sort'){ficheDateSort=e.target.value;buildFichesPanel();}
+});
 document.getElementById('rev-panel')?.addEventListener('input',e=>{
   if(e.target.id==='fiche-lib-search'){ficheLibSearch=e.target.value;buildFichesPanel();}
 });
@@ -2529,7 +2732,7 @@ function renderSessionRecapHTML(sData){
         <p class="recap-correct">✓ Bonne réponse : <strong>${esc(q.o[q.a])}</strong></p>
         <div class="recap-exp">${esc(q.e)}</div>
         <div class="recap-ref">📌 ${esc(q.r)}</div>
-        ${!d.ok?renderDeepFicheHTML(q,revLog.entries?.[idx],chosenIdx):''}
+        ${!d.ok?renderDeepFicheHTML(q,revLog.entries?.[idx],chosenIdx,d.beh):''}
         <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées →</a>
       </div>
     </details>`;

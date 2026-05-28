@@ -1,4 +1,4 @@
-/* Fond — Elixir Aircraft (passage périodique) */
+/* Fond — Elixir 3D (GLB) + repli SVG */
 .ppl-sky {
   position: fixed;
   inset: 0;
@@ -7,6 +7,33 @@
   overflow: hidden;
 }
 
+/* ── Canvas Three.js ── */
+.ppl-sky--3d {
+  opacity: 1;
+}
+
+.ppl-sky--3d.ppl-sky--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 40%, rgba(91, 138, 240, 0.06), transparent);
+  animation: pplSkyPulse 2s ease-in-out infinite;
+}
+
+@keyframes pplSkyPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+.ppl-sky-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: drop-shadow(0 12px 40px rgba(91, 138, 240, 0.12));
+}
+
+/* ── Repli SVG animé ── */
 .ppl-sky-plane {
   position: absolute;
   top: 22%;
@@ -76,65 +103,31 @@
 }
 
 @keyframes pplFlyLtr {
-  0%,
-  72%,
-  100% {
+  0%, 72%, 100% {
     transform: translate(-120vw, 0) rotate(-2deg);
     opacity: 0;
   }
-  8% {
-    opacity: 0.42;
-  }
-  18% {
-    transform: translate(15vw, -1vh) rotate(-1deg);
-    opacity: 0.5;
-  }
-  32% {
-    transform: translate(55vw, 0.5vh) rotate(0deg);
-    opacity: 0.48;
-  }
-  48% {
-    transform: translate(105vw, -0.5vh) rotate(1deg);
-    opacity: 0.38;
-  }
-  58% {
-    transform: translate(130vw, 0) rotate(2deg);
-    opacity: 0;
-  }
+  8% { opacity: 0.42; }
+  18% { transform: translate(15vw, -1vh) rotate(-1deg); opacity: 0.5; }
+  32% { transform: translate(55vw, 0.5vh) rotate(0deg); opacity: 0.48; }
+  48% { transform: translate(105vw, -0.5vh) rotate(1deg); opacity: 0.38; }
+  58% { transform: translate(130vw, 0) rotate(2deg); opacity: 0; }
 }
 
 @keyframes pplFlyRtl {
-  0%,
-  70%,
-  100% {
+  0%, 70%, 100% {
     transform: translate(120vw, 0) scaleX(-1) rotate(2deg);
     opacity: 0;
   }
-  10% {
-    opacity: 0.32;
-  }
-  22% {
-    transform: translate(70vw, 1vh) scaleX(-1) rotate(1deg);
-    opacity: 0.38;
-  }
-  38% {
-    transform: translate(30vw, 0) scaleX(-1) rotate(0deg);
-    opacity: 0.36;
-  }
-  52% {
-    transform: translate(-10vw, -0.5vh) scaleX(-1) rotate(-1deg);
-    opacity: 0.28;
-  }
-  62% {
-    transform: translate(-35vw, 0) scaleX(-1) rotate(-2deg);
-    opacity: 0;
-  }
+  10% { opacity: 0.32; }
+  22% { transform: translate(70vw, 1vh) scaleX(-1) rotate(1deg); opacity: 0.38; }
+  38% { transform: translate(30vw, 0) scaleX(-1) rotate(0deg); opacity: 0.36; }
+  52% { transform: translate(-10vw, -0.5vh) scaleX(-1) rotate(-1deg); opacity: 0.28; }
+  62% { transform: translate(-35vw, 0) scaleX(-1) rotate(-2deg); opacity: 0; }
 }
 
 @keyframes pplPropSpin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 html.ppl-gated .ppl-sky {
@@ -152,28 +145,23 @@ html.ppl-gated .ppl-sky {
     top: 42%;
   }
 
+  .ppl-sky--3d {
+    opacity: 0.92;
+  }
+
   @keyframes pplFlyLtr {
-    0%,
-    72%,
-    100% {
-      transform: translate(-130vw, 0) rotate(-2deg);
-      opacity: 0;
-    }
-    8% {
-      opacity: 0.32;
-    }
-    32% {
-      transform: translate(55vw, 0.5vh) rotate(0deg);
-      opacity: 0.36;
-    }
-    58% {
-      transform: translate(130vw, 0) rotate(2deg);
-      opacity: 0;
-    }
+    0%, 72%, 100% { transform: translate(-130vw, 0) rotate(-2deg); opacity: 0; }
+    8% { opacity: 0.32; }
+    32% { transform: translate(55vw, 0.5vh) rotate(0deg); opacity: 0.36; }
+    58% { transform: translate(130vw, 0) rotate(2deg); opacity: 0; }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ppl-sky--3d {
+    display: none !important;
+  }
+
   .ppl-sky-plane,
   .ppl-elixir-prop {
     animation: none !important;

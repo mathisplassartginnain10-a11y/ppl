@@ -122,6 +122,56 @@
       </ul>`,
     },
     {
+      keys: ['metar', 'speci', 'cavok', 'nosig', 'auto', 'qnh'],
+      title: 'METAR — structure & décodage (10 groupes)',
+      body: `<p class="fiche-ref-p"><strong>Ordre des groupes</strong></p>
+      <ol class="fiche-ref-ol">
+        <li>Type (METAR/SPECI) · 2 OACI · 3 date/heure · 4 vent · 5 visibilité</li>
+        <li>6 temps présent · 7 nuages · 8 T/Td · 9 QNH · 10 compléments/tendance</li>
+      </ol>
+      <ul class="fiche-ref-list">
+        <li><strong>9999</strong> = visibilité ≥ 10 km · <strong>CAVOK</strong> = 4 critères cumulés</li>
+        <li><strong>26015G30KT</strong> = 260° · 15 kt · rafales 30 kt (G si écart ≥ 10 kt)</li>
+        <li><strong>VRB03KT</strong> = vent variable faible · <strong>12/M08</strong> = +12°C / −8°C rosée</li>
+        <li><strong>Q1013</strong> = QNH 1013 hPa · <strong>NOSIG</strong> = pas de changement sig. 2 h</li>
+        <li>Nuages : FEW/SCT/BKN/OVC + hauteur × 100 ft · CB/TCU signalés</li>
+        <li>Intensité : <strong>−</strong> faible/modérée · <strong>+</strong> forte · RE = récent (RERA, RESN…)</li>
+        <li>Publication : /1 h ou /30 min selon trafic · AUTO = automatisé · COR = corrigé</li>
+      </ul>
+      <p class="fiche-ref-note">Ex. CDG : METAR LFPG 191600Z 32010KT 6000 FEW030 12/08 Q1010 NOSIG=</p>`,
+    },
+    {
+      keys: ['taf', 'becmg', 'tempo', 'prob', 'fm ', 'amd'],
+      title: 'TAF — prévision aérodrome (10 groupes)',
+      body: `<p class="fiche-ref-p"><strong>Types & validité</strong></p>
+      <ul class="fiche-ref-list">
+        <li><strong>TAF court</strong> : 9 h · émis /3 h · <strong>TAF long</strong> : 24–30 h · /6 h</li>
+        <li>Disponible <strong>1 h avant</strong> début validité · amendement = <strong>TAF AMD</strong></li>
+        <li>Période : <strong>291500/292400</strong> = du 29 15 UTC au 29 24 UTC</li>
+      </ul>
+      <p class="fiche-ref-p"><strong>Évolutions (groupe 9)</strong></p>
+      <ul class="fiche-ref-list">
+        <li><strong>BECMG</strong> — transition progressive (&lt; 4 h, permanente)</li>
+        <li><strong>TEMPO</strong> — fluctuations &lt; 1 h (&lt; 50 % période)</li>
+        <li><strong>FM121800</strong> — changement brutal et permanent à l'heure indiquée</li>
+        <li><strong>PROB30/40 TEMPO</strong> — probabilité faible/modérée de fluctuations</li>
+        <li><strong>TX21/0415Z TN12/0406Z</strong> — températures extrêmes (facultatif)</li>
+      </ul>
+      <p class="fiche-ref-note">TAF : vent = groupe 5 (≠ METAR groupe 4). Croiser TAF + METAR + SPECI.</p>`,
+    },
+    {
+      keys: ['metar - analyse', 'metar/taf', 'plafond', 'décodage'],
+      title: 'Analyse METAR/TAF pour le pilote VFR',
+      body: `<ul class="fiche-ref-list">
+        <li><strong>Plafond opérationnel</strong> = base du BKN ou OVC le plus bas (× 100 ft)</li>
+        <li>Visibilité &lt; 1500 m ou &lt; 50 % dominante et &lt; 5000 m → visibilité directionnelle possible</li>
+        <li>VFR espace E : 5 km visi · 1500 m horiz. / 1000 ft vert. des nuages</li>
+        <li>Écart T − Td faible → risque brouillard/brume (ex. 11/05 → 6°C d'écart)</li>
+        <li>CB/TSRA/FG → éviter ou reporter · TAF TEMPO ≠ observation actuelle METAR</li>
+        <li>SPECI/AMD = changement significatif non prévu → re-briefing obligatoire</li>
+      </ul>`,
+    },
+    {
       keys: ['1:60', 'navigation', 'cap', 'dérive', 'déviation'],
       title: 'Navigation — règle du 1:60',
       body: `<ul class="fiche-ref-list">

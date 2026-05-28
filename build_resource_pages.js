@@ -29,11 +29,13 @@ const cssParts = [
 fs.writeFileSync(path.join(dir, 'ppl_resources.css'), '/* PPL Quiz — formules & fiches */\n' + cssParts.join('\n') + '\na.btn-back{text-decoration:none;display:inline-block}\n');
 
 const storageInit = `
-let hist={}, weak=new Set(), revLog={entries:{}};
+let hist={}, weak=new Set(), revLog={entries:{}}, answerLog={items:[]};
 try{hist=JSON.parse(localStorage.getItem('ppl4h')||'{}')}catch(e){}
 try{const w=JSON.parse(localStorage.getItem('ppl4w')||'[]');weak=new Set(w)}catch(e){}
 try{revLog=JSON.parse(localStorage.getItem('ppl4rev')||'{"entries":{}}')}catch(e){revLog={entries:{}}}
+try{answerLog=JSON.parse(localStorage.getItem('ppl4answers')||'{"items":[]}')}catch(e){answerLog={items:[]}}
 if(!revLog.entries) revLog.entries={};
+if(!answerLog.items) answerLog.items=[];
 `;
 
 const sharedUtils = [
@@ -43,6 +45,12 @@ const sharedUtils = [
 ].join('\n');
 
 const formulaBlock = '/* Formules : formulas_engine.js (externe) */';
+
+const formulasPath = path.join(dir, 'ppl_formulas_page.js');
+const formulasPageJs = fs.readFileSync(formulasPath, 'utf8');
+if (!formulasPageJs.includes('function buildFormulasPanel')) {
+  throw new Error('ppl_formulas_page.js must define buildFormulasPanel()');
+}
 
 const ficheBlock = [
   slice('function analyzeTraps', 'function probaPct'),
@@ -68,28 +76,8 @@ const fichesShared = [
   'function esc(s){return String(s??\'\').replace(/&/g,\'&amp;\').replace(/</g,\'&lt;\').replace(/>/g,\'&gt;\').replace(/"/g,\'&quot;\');}',
 ].join('\n');
 
-const formulasPageJs = sharedUtils + '\n' + formulaBlock + `
-function goQuizTopic(ref){window.location.href='index.html?topic='+encodeURIComponent(ref);}
-function launchTopicReview(ref){ goQuizTopic(ref); }
-
-document.getElementById('formulas-panel').addEventListener('click',e=>{
-  const tab=e.target.closest('[data-ftab]');
-  if(tab){formulaTab=tab.dataset.ftab;buildFormulasPanel();return;}
-  const toggle=e.target.closest('[data-formula-toggle]');
-  if(toggle){toggle.closest('.formula-card')?.classList.toggle('open');return;}
-  const quiz=e.target.closest('[data-formula-quiz]');
-  if(quiz&&quiz.dataset.formulaQuiz){launchTopicReview(quiz.dataset.formulaQuiz);return;}
-});
-document.getElementById('formulas-panel').addEventListener('input',e=>{
-  if(e.target.id==='formula-search'){formulaSearch=e.target.value;buildFormulasPanel();return;}
-  handleFormulaCalcInput(e);
-});
-document.addEventListener('input',e=>{if(e.target.closest('[data-calc-type]')) handleFormulaCalcInput(e);});
-buildFormulasPanel();
-`;
-
 const fichesPageJs = fichesShared + storageInit + '\n' + formulaBlock + '\n' + ficheBlock + `
-let revTab='library', ficheLibSearch='', ficheLibMod='all';
+let revTab='fiches', ficheLibSearch='', ficheLibMod='all', ficheDateSort='recent';
 
 function goQuizTopic(ref){window.location.href='index.html?topic='+encodeURIComponent(ref);}
 function launchTopicReview(ref){ goQuizTopic(ref); }
@@ -125,12 +113,15 @@ revPanel.addEventListener('input',e=>{
   if(e.target.id==='fiche-lib-search'){ficheLibSearch=e.target.value;buildFichesPanel();}
   handleFormulaCalcInput(e);
 });
+revPanel.addEventListener('change',e=>{
+  if(e.target.id==='fiche-date-sort'){ficheDateSort=e.target.value;buildFichesPanel();}
+});
 document.addEventListener('input',e=>{if(e.target.closest('[data-calc-type]')) handleFormulaCalcInput(e);});
 function handleFicheDeepLink(){
   const params=new URLSearchParams(location.search);
   const topic=params.get('topic');
   if(!topic) return;
-  revTab='library';
+  revTab='fiches';
   ficheLibSearch=topic;
   buildFichesPanel();
   setTimeout(()=>{
@@ -147,58 +138,10 @@ buildFichesPanel();
 handleFicheDeepLink();
 `;
 
-fs.writeFileSync(path.join(dir, 'ppl_formulas_page.js'), formulasPageJs);
+// ppl_formulas_page.js — maintenu manuellement (buildFormulasPanel)
 fs.writeFileSync(path.join(dir, 'ppl_fiches_page.js'), fichesPageJs);
 
-const formulesHtml = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080b12">
-<meta name="mobile-web-app-capable" content="yes">
-<title>Formules PPL — Quiz PPL</title>
-<link rel="stylesheet" href="ppl_theme.css?v=20260528c">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
-<link rel="stylesheet" href="ppl_resources.css?v=20260528c">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
-<link rel="stylesheet" href="ppl_auth.css?v=20260528n">
-<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528n">
-<script src="ppl_auth.js?v=20260528n"></script>
-<script src="ppl_plane_bg.js?v=20260528n" defer></script>
-</head>
-<body>
-<div class="mesh-bg"></div>
-<div class="grid-overlay"></div>
-<div class="noise"></div>
-<div class="glows"><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
-<div class="wrap app-shell">
-<header class="app-header">
-  <a href="index.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
-  <nav class="app-nav">
-    <a href="index.html" class="app-nav-link">Quiz</a>
-    <a href="formules.html" class="app-nav-link on">Formules</a>
-    <a href="fiches.html" class="app-nav-link">Fiches</a>
-    <a href="stats.html" class="app-nav-link">Stats</a>
-  </nav>
-</header>
-  <div class="resource-screen">
-    <div class="resource-top">
-      <a href="index.html" class="btn-back">← Quiz PPL</a>
-      <h2>📐 Formules PPL</h2>
-    </div>
-    <div class="resource-body formulas-panel" id="formulas-panel"></div>
-  </div>
-</div>
-<script src="formulas_bank.js?v=20260528d"></script>
-<script src="formulas_engine.js?v=20260528d"></script>
-<script src="questions_bank.js?v=20260528m"></script>
-<script src="topics_utils.js?v=20260528e"></script>
-<script src="fiche_enrich.js?v=20260528l"></script>
-<script src="ppl_formulas_page.js"></script>
-</body>
-</html>
-`;
+const formulesHtml = fs.readFileSync(path.join(dir, 'formules.html'), 'utf8');
 
 const fichesHtml = `<!DOCTYPE html>
 <html lang="fr">
@@ -209,15 +152,15 @@ const fichesHtml = `<!DOCTYPE html>
 <meta name="mobile-web-app-capable" content="yes">
 <title>Fiches explicatives — Quiz PPL</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
-<link rel="stylesheet" href="ppl_resources.css?v=20260528c">
+<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528s">
+<link rel="stylesheet" href="ppl_resources.css?v=20260528s">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
 <link rel="stylesheet" href="ppl_auth.css?v=20260528n">
-<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528n">
+<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528t">
 <script src="ppl_auth.js?v=20260528n"></script>
-<script src="ppl_plane_bg.js?v=20260528n" defer></script>
+<script src="ppl_plane_bg.js?v=20260528t" defer></script>
 </head>
-<body>
+<body class="fiches-page">
 <div class="mesh-bg"></div>
 <div class="grid-overlay"></div>
 <div class="noise"></div>
@@ -232,10 +175,13 @@ const fichesHtml = `<!DOCTYPE html>
     <a href="stats.html" class="app-nav-link">Stats</a>
   </nav>
 </header>
-  <div class="resource-screen">
-    <div class="resource-top">
+  <div class="resource-screen fiches-screen">
+    <div class="resource-top fiches-top">
       <a href="index.html" class="btn-back">← Quiz PPL</a>
-      <h2>📚 Fiches explicatives</h2>
+      <div class="fiches-top-text">
+        <h2>Fiches explicatives</h2>
+        <p class="fiches-subtitle">Révisions par matière · triées par activité récente</p>
+      </div>
     </div>
     <div class="resource-body">
       <div class="resource-actions">
@@ -250,7 +196,7 @@ const fichesHtml = `<!DOCTYPE html>
 <script src="formulas_engine.js?v=20260528d"></script>
 <script src="topics_utils.js?v=20260528e"></script>
 <script src="fiche_enrich.js?v=20260528l"></script>
-<script src="ppl_fiches_page.js"></script>
+<script src="ppl_fiches_page.js?v=20260528s"></script>
 </body>
 </html>
 `;
