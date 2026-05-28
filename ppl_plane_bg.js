@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  /* Modèle 3D Elixir — docs/Meshy_AI_Elixir_Aircraft_Conce_0528193216_texture.glb */
   var GLB = 'docs/Meshy_AI_Elixir_Aircraft_Conce_0528193216_texture.glb';
   var THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js';
   var GLTF_URL = 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/loaders/GLTFLoader.js';
@@ -25,12 +26,27 @@
     '<text class="ppl-elixir-label" x="78" y="25">ELIXIR</text></svg>';
 
   function assetUrl(rel) {
-    var script = document.querySelector('script[src*="ppl_plane_bg"]');
-    if (script && script.src) {
-      try { return new URL(rel, script.src).href; }
-      catch (e) { /* ignore */ }
+    var path = location.pathname || '/';
+    var base = location.origin + path.replace(/[^/]*$/, '');
+    try { return new URL(rel, base).href; }
+    catch (e) {
+      try {
+        var script = document.querySelector('script[src*="ppl_plane_bg"]');
+        if (script && script.src) return new URL(rel, script.src).href;
+      } catch (e2) { /* ignore */ }
     }
     return rel;
+  }
+
+  function preloadGlb() {
+    if (document.querySelector('link[data-ppl-glb-preload]')) return;
+    var link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'fetch';
+    link.href = assetUrl(GLB);
+    link.crossOrigin = 'anonymous';
+    link.setAttribute('data-ppl-glb-preload', '1');
+    document.head.appendChild(link);
   }
 
   function insertSky(el) {
@@ -66,7 +82,7 @@
     var size = box.getSize(new THREE.Vector3());
     root.position.sub(center);
     var maxDim = Math.max(size.x, size.y, size.z) || 1;
-    root.scale.setScalar(1.35 / maxDim);
+    root.scale.setScalar(1.55 / maxDim);
     root.rotation.set(0, Math.PI / 2, 0);
     return root;
   }
@@ -111,7 +127,7 @@
   }
 
   function setPlaneOpacity(root, alpha) {
-    var o = Math.max(0, Math.min(0.62, alpha * 0.62));
+    var o = Math.max(0, Math.min(0.82, alpha * 0.82));
     root.traverse(function (child) {
       if (!child.isMesh || !child.material) return;
       var mats = Array.isArray(child.material) ? child.material : [child.material];
@@ -153,7 +169,7 @@
       renderer.setClearColor(0x000000, 0);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 0.85;
+      renderer.toneMappingExposure = 1.05;
 
       var scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2(0x080b12, 0.04);
@@ -246,6 +262,7 @@
   }
 
   function boot() {
+    preloadGlb();
     init3d();
   }
 
