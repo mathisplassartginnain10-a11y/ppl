@@ -50,313 +50,11 @@ function diffClass(d){ return['','bd-f','bd-m','bd-d','bd-e'][d]; }
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 let hist={}, weak=new Set(), revLog={entries:{}};
 try{hist=JSON.parse(localStorage.getItem('ppl4h')||'{}')}catch(e){}
-window.hist=hist;
 try{const w=JSON.parse(localStorage.getItem('ppl4w')||'[]');weak=new Set(w)}catch(e){}
 try{revLog=JSON.parse(localStorage.getItem('ppl4rev')||'{"entries":{}}')}catch(e){revLog={entries:{}}}
 if(!revLog.entries) revLog.entries={};
 
-// FORMULES PPL — RÉFÉRENTIEL + CALCULATEURS
-// ═══════════════════════════════════════════════════════
-let formulaTab='all', formulaSearch='';
-
-function isaTempAt(hFt){return 15-2*(hFt/1000);}
-
-const FORMULA_KEYWORDS=[
-  {keys:['vhf','portée','1,23','propagation','radio','118','136 mhz'],ids:['vhf-range','vhf-range-2','vhf-wavelength']},
-  {keys:['isa','atmosphère type','tropopause','1013'],ids:['isa-temp','isa-delta','isa-pressure','lapse-isa','press-gradient']},
-  {keys:['température','point de rosée','rosée','humidité','brume'],ids:['dew-spread','humidity-rate','visibility-cloud']},
-  {keys:['adiabat','stabilité','instable'],ids:['adiabat-sec','adiabat-sat']},
-  {keys:['vent','buys','coriolis','géostrophique'],ids:['buys-ballot','coriolis','wind-triangle']},
-  {keys:['vp','vitesse propre','vi=','tas'],ids:['vp-calc','vspeeds']},
-  {keys:['altimètre','qnh','qfe','calage','altitude réelle','altitude pression'],ids:['alt-temp-corr','alt-gradient','qnh-qfe','pressure-alt']},
-  {keys:['kt','nœud','km/h','conversion'],ids:['kt-kmh','kt-kmh-exact','kmh-kt']},
-  {keys:['variomètre','ft/min','m/s','descente','montée'],ids:['ms-ftmin','descent-vz']},
-  {keys:['carburant','autonomie','réserve','plan de vol'],ids:['autonomy','fuel-flow','time-fuel','fuel-reserve-vfr']},
-  {keys:['centrage','moment','masse'],ids:['load-moment']},
-  {keys:['virage','facteur de charge','inclinaison'],ids:['load-factor']},
-  {keys:['1:60','dérive','navigation'],ids:['rule-60','distance-time','nm-km','wind-triangle']},
-  {keys:['semi-circulaire','niveau de vol','fl3','fl4'],ids:['semi-circular']},
-  {keys:['vfr','visibilité','espace a','espace e'],ids:['visibility-min']},
-  {keys:['examen','75 %','64 question'],ids:['exam-threshold']}
-];
-
-const MODULE_ESSENTIALS={
-  C:[{k:'Portée VHF',v:'D = 1,23 × √h (NM)'},{k:'Bande VHF',v:'118 – 136 MHz'},{k:'Propagation',v:'Ligne de vue (optique)'},{k:'Portée 2 appareils',v:'1,23×(√h₁+√h₂)'}],
-  M:[{k:'ISA sol',v:'+15°C · 1013,25 hPa'},{k:'Décroissance',v:'−2°C / 1000 ft'},{k:'Tropopause',v:'≈ 36 000 ft · −56,5°C'},{k:'Adiabatique sec',v:'3°C / 1000 ft'},{k:'Adiabatique sat.',v:'≈ 1,5°C / 1000 ft'},{k:'Gradient pression',v:'≈ 28–37 ft/hPa (selon alt.)'}],
-  A:[{k:'Vp (examen)',v:'Vi×(1+FL×10÷6%)×(1+|ΔT|÷4%)'},{k:'Correction T° alti',v:'4×(h/1000)×|ΔT| ft'},{k:'Gradient alti',v:'≈ 27 ft/hPa (standard)'},{k:'QNH / QFE / PA',v:'Alt · Hauteur · FL'},{k:'kt → km/h',v:'×1,852 · astuce ×2−10%'},{k:'Facteur charge',v:'n = 1/cos(bank)'}],
-  R:[{k:'1 NM',v:'1,852 km'},{k:'Règle 1:60',v:'1° ≈ 1 NM à 60 NM'},{k:'Semi-circulaire',v:'Impairs 000–179° · Pairs 180–359°'},{k:'Examen PPL',v:'75 %/épreuve · 64 Q'},{k:'Réserve VFR',v:'30 min (jour, France)'}]
-};
-
-function getFormulasForQuestion(q){
-  if(typeof FORMULAS==='undefined') return {linked:[],module:[]};
-  const hay=(q.q+' '+q.e+' '+q.r).toLowerCase();
-  const linked=[], seen=new Set();
-  const add=f=>{if(f&&!seen.has(f.id)){seen.add(f.id);linked.push(f);}};
-  FORMULAS.forEach(f=>{
-    if(!f.quizRef||!q.r) return;
-    const ref=f.quizRef.toLowerCase(), topic=q.r.toLowerCase();
-    if(topic===ref||topic.includes(ref)||ref.includes(topic)) add(f);
-  });
-  FORMULA_KEYWORDS.forEach(({keys,ids})=>{
-    if(keys.some(k=>hay.includes(k)))
-      ids.forEach(id=>add(FORMULAS.find(x=>x.id===id)));
-  });
-  if(q.m) FORMULAS.filter(f=>f.m===q.m).forEach(f=>{if(!seen.has(f.id)&&keysMatchModule(hay,f)) add(f);});
-  return {linked:linked.slice(0,8),module:FORMULAS.filter(f=>f.m===q.m)};
-}
-
-function keysMatchModule(hay,f){
-  const t=(f.title+f.formula+(f.explain||'')).toLowerCase();
-  return t.split(/\W+/).filter(w=>w.length>3).some(w=>hay.includes(w));
-}
-
-function parseNum(s){return parseFloat(String(s).replace(',','.'));}
-
-function buildWorkedExample(q){
-  const text=q.q+' '+q.e;
-  const hay=text.toLowerCase();
-  const steps=[];
-  let title='',result='';
-
-  const vhfH=text.match(/(\d+(?:[.,]\d+)?)\s*ft/i);
-  if((hay.includes('vhf')||hay.includes('1,23')||q.r.includes('VHF'))&&vhfH){
-    const h=parseNum(vhfH[1]),sq=Math.sqrt(h),d=1.23*sq;
-    title='Portée VHF';
-    steps.push('Formule : D = 1,23 × √h (h en ft, D en NM)');
-    steps.push(`D = 1,23 × √${h} = 1,23 × ${sq.toFixed(2)} = ${d.toFixed(1)} NM`);
-    result=`${d.toFixed(1)} NM`;
-  }
-
-  const viM=text.match(/Vi\s*=\s*(\d+)\s*kt/i);
-  const flM=text.match(/FL(\d+)/i);
-  const tRealM=text.match(/T°\s*=?\s*([+\-−]?\d+)/i);
-  const tStdM=text.match(/std\s*([+\-−]?\d+)/i);
-  if((hay.includes('vp')||q.r.includes('Vp'))&&viM){
-    const vi=parseInt(viM[1],10);
-    const flNum=flM?parseInt(flM[1],10):0;
-    const tr=tRealM?parseNum(tRealM[1].replace('−','-')):0;
-    const ts=tStdM?parseNum(tStdM[1].replace('−','-')):isaTempAt(flNum*100);
-    const corrAlt=Math.floor(flNum*10/6);
-    const corrT=Math.floor(Math.abs(tr-ts)/4);
-    const vp=Math.round(vi*(1+corrAlt/100)*(1+corrT/100));
-    title='Vitesse propre (Vp)';
-    steps.push(`Vi = ${vi} kt · FL${flM?flM[1]:'?'} (${flNum*100} ft)`);
-    steps.push(`Correction altitude : +${corrAlt}% (règle examen : FL×10÷6)`);
-    steps.push(`Écart température : |${tr} − ${ts}| = ${Math.abs(tr-ts)}°C → ${corrT} tranche(s) de 4°C → +${corrT}%`);
-    steps.push(`Vp = ${vi} × ${(1+corrAlt/100).toFixed(2)} × ${(1+corrT/100).toFixed(2)} = ${vp} kt`);
-    result=`${vp} kt`;
-  }
-
-  const altM=text.match(/Altimètre\s+(\d+)\s*ft/i);
-  if((hay.includes('altitude réelle')||q.r.includes('altimétrique'))&&altM&&tRealM&&tStdM){
-    const h=parseInt(altM[1],10);
-    const tr=parseNum(tRealM[1].replace('−','-')),ts=parseNum(tStdM[1].replace('−','-'));
-    const ecart=Math.abs(tr-ts),corr=Math.round(4*(h/1000)*ecart);
-    const real=tr<ts?h-corr:h+corr;
-    title='Correction altimétrique (température)';
-    steps.push(`Alt. lue = ${h} ft · T° réelle = ${tr}°C · T° standard = ${ts}°C`);
-    steps.push(`Écart = |${tr} − ${ts}| = ${ecart}°C · Correction = 4 × (${h}/1000) × ${ecart} = ${corr} ft`);
-    steps.push(`Air ${tr<ts?'plus froid':'plus chaud'} que standard → alt. réelle = ${h} ${tr<ts?'−':'+'} ${corr} = ${real} ft`);
-    result=`${real} ft`;
-  }
-
-  const altIsaM=text.match(/(\d+)\s*ft/i);
-  if((hay.includes('isa')||q.r.toLowerCase().includes('isa'))&&altIsaM&&!viM&&!altM){
-    const h=parseInt(altIsaM[1],10),t=isaTempAt(h);
-    title='Température ISA';
-    steps.push(`T_ISA = 15 − 2 × (${h}/1000) = 15 − ${(2*h/1000).toFixed(0)} = ${t.toFixed(0)}°C`);
-    if(tRealM){
-      const tr=parseNum(tRealM[1].replace('−','-')),d=Math.round(tr-t);
-      steps.push(`T° réelle = ${tr}°C → ISA ${d>=0?'+':''}${d}`);
-      result=`ISA ${d>=0?'+':''}${d}`;
-    }else result=`${t.toFixed(0)}°C`;
-  }
-
-  const bankM=text.match(/(\d+)\s*°/);
-  if((hay.includes('facteur de charge')||hay.includes('virage'))&&bankM){
-    const bank=parseInt(bankM[1],10),n=1/Math.cos(bank*Math.PI/180);
-    title='Facteur de charge';
-    steps.push(`n = 1 / cos(${bank}°) = 1 / ${Math.cos(bank*Math.PI/180).toFixed(3)} = ${n.toFixed(2)}`);
-    result=`n = ${n.toFixed(2)}`;
-  }
-
-  const distM=text.match(/(\d+)\s*NM/i),angM=text.match(/(\d+)\s*°/);
-  if((hay.includes('1:60')||q.r.includes('1:60'))&&distM&&angM){
-    const d=parseInt(distM[1],10),a=parseInt(angM[1],10),dev=(d/60)*a;
-    title='Règle du 1:60';
-    steps.push(`Déviation ≈ (${d} / 60) × ${a}° = ${dev.toFixed(1)} NM`);
-    result=`${dev.toFixed(1)} NM de décalage`;
-  }
-
-  const ktM=text.match(/(\d+)\s*kt/i);
-  if(hay.includes('km/h')&&ktM&&!viM){
-    const kt=parseInt(ktM[1],10);
-    title='Conversion kt → km/h';
-    steps.push(`Exact : ${kt} × 1,852 = ${(kt*1.852).toFixed(1)} km/h`);
-    steps.push(`Astuce examen : ${kt} × 2 − 10% = ${Math.round(kt*2*0.9)} km/h`);
-    result=`${(kt*1.852).toFixed(1)} km/h`;
-  }
-
-  const calcInE=q.e.match(/=\s*([\d.,]+)\s*(NM|kt|ft|°C|%)/i);
-  if(!steps.length&&calcInE){
-    title='Calcul (explication)';
-    steps.push(q.e.replace(/\.\s*$/,''));
-    result=q.o[q.a]||calcInE[0];
-  }
-
-  return steps.length?{title,steps,result}:null;
-}
-
-function getModuleEssentials(m){return MODULE_ESSENTIALS[m]||[];}
-
-function renderFicheFormulaBlock(f,compact){
-  const ex=(f.examples||[]).slice(0,compact?1:2).map(e=>`<div class="fiche-formula-ex">→ ${esc(e)}</div>`).join('');
-  const calc=!compact&&f.calc?renderFormulaCalc(f):'';
-  const mn=f.mnemonic&&!compact?`<div class="fiche-formula-meta" style="color:#93b8fb;margin-top:3px">💡 ${esc(f.mnemonic)}</div>`:'';
-  return`<div class="fiche-formula">
-    <div class="fiche-formula-hd">${esc(f.title)} <span style="font-weight:400;color:var(--t3);font-size:10px">· ${esc(f.cat)}</span></div>
-    <div class="fiche-formula-eq">${esc(f.formula)}</div>
-    ${f.units?`<div class="fiche-formula-meta">${esc(f.units)}</div>`:''}
-    <div class="fiche-formula-meta">${esc(f.explain||'')}</div>${mn}${ex}${calc}
-  </div>`;
-}
-
-function renderFicheFormulasSection(formulas,worked,essentials,m){
-  const linked=formulas?.linked||[];
-  const moduleAll=formulas?.module||[];
-  if(!worked&&!linked.length&&!(essentials?.length)&&!moduleAll.length) return '';
-  let html='';
-  if(worked){
-    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Calcul pas à pas — ${esc(worked.title)}</div>
-      <div class="fiche-steps"><ol>${worked.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
-      ${worked.result?`<div style="font-size:12px;color:var(--acc);margin-top:6px;font-weight:600;font-family:'DM Mono',monospace">→ ${esc(worked.result)}</div>`:''}
-      </div></div>`;
-  }
-  if(linked.length){
-    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Formules liées (${linked.length})</div><div class="fiche-sec-bd">${linked.map(f=>renderFicheFormulaBlock(f,false)).join('')}</div></div>`;
-  }
-  if(essentials?.length){
-    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Constantes & rappels — ${modStr(m)}</div><div class="fiche-const-grid">${essentials.map(e=>`<div class="fiche-const"><strong>${esc(e.k)}</strong> ${esc(e.v)}</div>`).join('')}</div></div>`;
-  }
-  const linkedIds=new Set(linked.map(f=>f.id));
-  const rest=moduleAll.filter(f=>!linkedIds.has(f.id));
-  if(rest.length){
-    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Référentiel calculs ${modStr(m)} (${moduleAll.length} formules)</div><div class="fiche-sec-bd">${rest.map(f=>renderFicheFormulaBlock(f,true)).join('')}</div></div>`;
-  }
-  return html;
-}
-
-const FORMULA_CALCS={
-  vhf:(inputs)=>{const h=parseFloat(inputs.h)||0;return h>0?`Portée ≈ ${(1.23*Math.sqrt(h)).toFixed(1)} NM`:'';},
-  'isa-temp':(inputs)=>{const h=parseFloat(inputs.h)||0;return `T_ISA = ${isaTempAt(h).toFixed(0)}°C`;},
-  'isa-delta':(inputs)=>{
-    const h=parseFloat(inputs.h)||0,t=parseFloat(inputs.t);
-    if(isNaN(t)) return '';
-    const isa=isaTempAt(h),d=Math.round(t-isa);
-    return `T_ISA = ${isa.toFixed(0)}°C → ISA ${d>=0?'+':''}${d}`;
-  },
-  vp:(inputs)=>{
-    const vi=parseFloat(inputs.vi)||0,fl=parseFloat(inputs.fl)||0,delta=parseFloat(inputs.dt);
-    if(!vi||!fl) return '';
-    const corrAlt=Math.floor(fl*10/6);
-    const corrT=!isNaN(delta)?Math.floor(Math.abs(delta)/4):0;
-    const vp=Math.round(vi*(1+corrAlt/100)*(1+corrT/100));
-    return `Vp ≈ ${vp} kt (+${corrAlt}% alt · +${corrT}% T°)`;
-  },
-  'kt-kmh':(inputs)=>{const kt=parseFloat(inputs.kt)||0;return kt?`${kt} kt ≈ ${Math.round(kt*2*0.9)} km/h (×2 −10%) · exact ${(kt*1.852).toFixed(1)} km/h`:'';},
-  'kmh-kt':(inputs)=>{const km=parseFloat(inputs.km)||0;return km?`${km} km/h ≈ ${(km/1.852).toFixed(0)} kt`:'';},
-  'alt-corr':(inputs)=>{
-    const h=parseFloat(inputs.h)||0,t=parseFloat(inputs.t),ts=parseFloat(inputs.ts);
-    if(isNaN(t)||isNaN(ts)||!h) return '';
-    const dh=4*(h/1000)*(t-ts),real=h-dh;
-    return `Δh = ${Math.round(dh)} ft → Altitude réelle ≈ ${Math.round(real)} ft`;
-  },
-  'ms-ftmin':(inputs)=>{const ms=parseFloat(inputs.ms)||0;return ms?`${ms} m/s ≈ ${Math.round(ms*200)} ft/min`:'';},
-  descent:(inputs)=>{
-    const g=parseFloat(inputs.g)||0,v=parseFloat(inputs.v)||0;
-    return g&&v?`Vz = ${Math.round(g/100*v)} ft/min (${g}% × ${v} kt)`:'';},
-  'dist-time':(inputs)=>{
-    const v=parseFloat(inputs.v)||0,t=parseFloat(inputs.t),d=parseFloat(inputs.d);
-    if(v&&t) return `Distance = ${(v*t).toFixed(1)} NM`;
-    if(v&&d) return `Temps = ${(d/v).toFixed(2)} h (${Math.round(d/v*60)} min)`;
-    return '';
-  },
-  'nm-km':(inputs)=>{const nm=parseFloat(inputs.nm)||0;return nm?`${nm} NM = ${(nm*1.852).toFixed(2)} km`:'';},
-  'ft-m':(inputs)=>{const ft=parseFloat(inputs.ft)||0;return ft?`${ft} ft = ${(ft*0.3048).toFixed(0)} m`:'';}
-};
-
-const FORMULA_INPUTS={
-  vhf:[{id:'h',label:'h (ft)',def:100}],
-  'isa-temp':[{id:'h',label:'Altitude (ft)',def:1000}],
-  'isa-delta':[{id:'h',label:'Altitude (ft)',def:1000},{id:'t',label:'T° réelle (°C)',def:18}],
-  vp:[{id:'vi',label:'Vi (kt)',def:100},{id:'fl',label:'FL (ex: 10 = FL010)',def:10},{id:'dt',label:'|ΔT| vs std (°C)',def:16}],
-  'kt-kmh':[{id:'kt',label:'kt',def:100}],
-  'kmh-kt':[{id:'km',label:'km/h',def:180}],
-  'alt-corr':[{id:'h',label:'Alt. lue (ft)',def:2000},{id:'t',label:'T° réelle',def:26},{id:'ts',label:'T° standard',def:11}],
-  'ms-ftmin':[{id:'ms',label:'m/s',def:1}],
-  descent:[{id:'g',label:'Gradient (%)',def:5},{id:'v',label:'Vsol (kt)',def:90}],
-  'dist-time':[{id:'v',label:'Vitesse (kt)',def:100},{id:'t',label:'Temps (h)',def:1.5}],
-  'nm-km':[{id:'nm',label:'NM',def:10}],
-  'ft-m':[{id:'ft',label:'ft',def:1000}]
-};
-
-function renderFormulaCalc(f){
-  if(!f.calc||!FORMULA_INPUTS[f.calc]) return '';
-  const inputs=FORMULA_INPUTS[f.calc];
-  const res=FORMULA_CALCS[f.calc](Object.fromEntries(inputs.map(i=>[i.id,String(i.def)])));
-  return`<div class="formula-calc" data-calc-id="${f.id}" data-calc-type="${f.calc}">
-    <div class="formula-calc-hd">Calculateur interactif</div>
-    <div class="formula-calc-row">${inputs.map(i=>`<label>${i.label}<input type="number" step="any" data-in="${i.id}" value="${i.def}"></label>`).join('')}</div>
-    <div class="formula-calc-res" data-calc-res>${res||'—'}</div>
-  </div>`;
-}
-
-function renderFormulaCard(f){
-  const vars=f.vars?`<div class="formula-vars">${f.vars.map(v=>`<span>${esc(v.s)}</span>${esc(v.d)}`).join(' · ')}</div>`:'';
-  const ex=f.examples?f.examples.map(e=>`<div class="formula-ex">→ ${esc(e)}</div>`).join(''):'';
-  const quiz=f.quizRef?`<button type="button" class="formula-quiz-btn" data-formula-quiz="${esc(f.quizRef)}">🎯 Quiz : ${esc(f.quizRef)}</button>`:'';
-  return`<div class="formula-card" data-formula-id="${f.id}">
-    <button type="button" class="formula-card-hd" data-formula-toggle="${f.id}">
-      <div><div class="formula-card-title">${esc(f.title)}</div>
-        <div class="formula-card-meta"><span class="bd ${modClass(f.m)}">${modStr(f.m)}</span> · ${esc(f.cat)}</div>
-        <div class="formula-eq">${esc(f.formula)}</div></div>
-      <span style="color:var(--t3);font-size:11px">▾</span>
-    </button>
-    <div class="formula-card-bd">
-      ${f.units?`<div class="formula-sec"><strong>Unités</strong>${esc(f.units)}</div>`:''}
-      <div class="formula-sec"><strong>Explication</strong>${esc(f.explain||'')}</div>
-      ${vars}
-      ${f.mnemonic?`<div class="formula-mnemo">💡 ${esc(f.mnemonic)}</div>`:''}
-      ${ex?`<div class="formula-sec"><strong>Exemples</strong>${ex}</div>`:''}
-      ${renderFormulaCalc(f)}
-      ${quiz}
-    </div>
-  </div>`;
-}
-
-function buildFormulasPanel(){
-  const panel=document.getElementById('formulas-panel');
-  if(!panel||typeof FORMULAS==='undefined') return;
-  const q=formulaSearch.toLowerCase();
-  const filtered=FORMULAS.filter(f=>{
-    if(formulaTab!=='all'&&f.m!==formulaTab) return false;
-    if(!q) return true;
-    const hay=(f.title+f.formula+f.explain+f.cat+(f.examples||[]).join('')).toLowerCase();
-    return hay.includes(q);
-  });
-  panel.innerHTML=`
-    <div class="formulas-hd">
-      <div><div class="formula-count">${filtered.length} / ${FORMULAS.length} formules · calculateurs intégrés · tri par module</div></div>
-      <input type="search" class="formulas-search" id="formula-search" placeholder="Rechercher (Vp, ISA, VHF…)" value="${esc(formulaSearch)}">
-    </div>
-    <div class="formula-tabs">
-      <button type="button" class="formula-tab${formulaTab==='all'?' on':''}" data-ftab="all">Toutes</button>
-      ${MOD_ORDER.map(m=>`<button type="button" class="formula-tab${formulaTab===m?' on':''}" data-ftab="${m}">${modStr(m)}</button>`).join('')}
-    </div>
-    <div class="formula-grid">${filtered.map(renderFormulaCard).join('')||'<div class="rev-empty">Aucune formule trouvée.</div>'}</div>`;
-}
-
-
+/* Formules : formulas_engine.js (externe) */
 function analyzeTraps(q,chosenIdx){
   const correct=q.o[q.a];
   return q.o.map((o,i)=>{
@@ -386,6 +84,75 @@ function genMnemonic(q,topic){
   return null;
 }
 
+function aggregateThemeTraps(kb){
+  const samples=new Set();
+  kb.idxs.slice(0,4).forEach(i=>samples.add(i));
+  kb.idxs.filter(i=>Q[i]?.d>=3).slice(0,2).forEach(i=>samples.add(i));
+  kb.idxs.filter(i=>Q[i]?.d===4).slice(0,1).forEach(i=>samples.add(i));
+  const trapMap=new Map();
+  [...samples].forEach(idx=>{
+    const q=Q[idx]; if(!q) return;
+    analyzeTraps(q,-1).forEach(t=>{
+      const key=t.text.trim();
+      if(!trapMap.has(key)){
+        trapMap.set(key,{i:t.i,text:t.text,traps:[...t.traps],count:1,from:q.q.substring(0,60)});
+      }else{
+        const e=trapMap.get(key);
+        e.count++;
+        t.traps.forEach(r=>{if(!e.traps.includes(r))e.traps.push(r);});
+      }
+    });
+  });
+  return[...trapMap.values()].sort((a,b)=>b.count-a.count).slice(0,14);
+}
+
+function aggregateTopicRevision(kb){
+  let answered=0,ok=0,ko=0,dueSoon=0,sm2Reps=0;
+  const behTags={};
+  kb.idxs.forEach(idx=>{
+    if(hist[idx]===true){answered++;ok++;}
+    else if(hist[idx]===false){answered++;ko++;}
+    const e=revLog.entries[idx];
+    if(!e) return;
+    sm2Reps+=e.sm2?.reps||0;
+    if(e.due&&e.due<=Date.now()+86400000) dueSoon++;
+    (e.tags||[]).forEach(t=>{behTags[t]=(behTags[t]||0)+1;});
+  });
+  return{
+    answered,ok,ko,unanswered:Math.max(0,kb.idxs.length-answered),dueSoon,sm2Reps,
+    behTags:Object.entries(behTags).sort((a,b)=>b[1]-a[1]).slice(0,10)
+  };
+}
+
+function getRelatedTopics(ref,limit){
+  const kb=initTopicKB();
+  const cur=kb[ref]; if(!cur) return [];
+  const curKw=new Set(Object.keys(cur.kw||{}));
+  const scored=[];
+  Object.entries(kb).forEach(([r,data])=>{
+    if(r===ref||!data.idxs?.length) return;
+    let score=0;
+    Object.keys(data.kw||{}).forEach(w=>{if(curKw.has(w))score+=Math.min(cur.kw[w]||0,data.kw[w]||0);});
+    if(data.module===cur.module) score+=2;
+    if(score>0) scored.push({ref:r,count:data.idxs.length,module:data.module,score});
+  });
+  return scored.sort((a,b)=>b.score-a.score).slice(0,limit||5);
+}
+
+function aggregateWrongChoices(kb){
+  const wrongTextAgg={};
+  kb.idxs.forEach(idx=>{
+    const e=revLog.entries[idx],q=Q[idx];
+    if(!e||!q) return;
+    Object.entries(e.wrongChoices||{}).forEach(([choIdx,c])=>{
+      const i=parseInt(choIdx,10);
+      const text=q.o[i]||('Option '+String.fromCharCode(65+i));
+      wrongTextAgg[text]=(wrongTextAgg[text]||0)+c;
+    });
+  });
+  return Object.entries(wrongTextAgg).sort((a,b)=>b[1]-a[1]).slice(0,6);
+}
+
 function genTopicSummary(ref,kb,stats){
   const n=kb.idxs.length,r=ref.toLowerCase();
   const cov=stats.n?Math.round(stats.coverage*100):0;
@@ -403,7 +170,7 @@ function genTopicSummary(ref,kb,stats){
     return `Communications aériennes : phraséologie standard OACI, précision terminologique exigée à l'examen. ${n} questions${perf}.`;
   if(r.includes('vfr')||r.includes('réglem')||r.includes('espace'))
     return `Réglementation VFR France : visibilités, distances aux nuages, espaces aériens. Mémorisation pure des seuils. ${n} questions${perf}.`;
-  return `Notion clé du programme PPL « ${ref} » — ${n} questions${cov?`, ${cov}% de couverture`:''}${perf}.`;
+  return `Notion clé du programme PPL « ${ref} » — ${n} questions${cov?`, ${cov}% de couverture`:''}${perf}.${kb.expl.length>1?` ${Math.min(kb.expl.length,20)} points distincts documentés.`:''}`;
 }
 
 function genExamTip(ref,mod){
@@ -447,19 +214,25 @@ function buildTopicFiche(ref,sampleQ,entry,chosenIdx){
     struggleTotal+=e.struggleCount||0;
     Object.entries(e.wrongChoices||{}).forEach(([k,v])=>{wrongAgg[k]=(wrongAgg[k]||0)+v;});
   });
-  const allPoints=[...new Set(kb.expl)].slice(0,14);
+  const allPoints=[...new Set(kb.expl)];
   const byDiff={1:0,2:0,3:0,4:0};
   kb.idxs.forEach(i=>{const d=Q[i]?.d;if(d)byDiff[d]=(byDiff[d]||0)+1;});
   const workedExamples=[];
   for(const idx of kb.idxs){
-    if(workedExamples.length>=4) break;
+    if(workedExamples.length>=8) break;
     const qq=Q[idx],w=typeof buildWorkedExample==='function'?buildWorkedExample(qq):null;
     if(w&&!workedExamples.some(x=>x.title===w.title&&x.result===w.result))
-      workedExamples.push({...w,qPreview:qq.q.substring(0,90)+(qq.q.length>90?'…':'')});
+      workedExamples.push({...w,qPreview:qq.q.substring(0,120)+(qq.q.length>120?'…':''),qIdx:idx});
   }
-  const previews=kb.idxs.slice(0,4).map(i=>Q[i]).filter(Boolean);
+  const previews=kb.idxs.slice(0,6).map(i=>Q[i]).filter(Boolean);
   const weakCount=kb.idxs.filter(i=>weak.has(i)||(revLog.entries[i]?.failCount||0)>0).length;
   const topWrong=Object.entries(wrongAgg).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const topWrongDetailed=aggregateWrongChoices(kb);
+  const themeTraps=aggregateThemeTraps(kb);
+  const revStats=aggregateTopicRevision(kb);
+  const relatedTopics=getRelatedTopics(ref,6);
+  const refHtml=typeof renderFicheReferenceHTML==='function'?renderFicheReferenceHTML(ref):'';
+  const allRules=allPoints.slice(0,25);
   return{
     ref,module:kb.module||q.m,
     sampleQ:q,entry,chosenIdx:chosenIdx??-1,
@@ -469,7 +242,8 @@ function buildTopicFiche(ref,sampleQ,entry,chosenIdx){
     summary:genTopicSummary(ref,kb,topicStats),
     examTip:genExamTip(ref,kb.module||q.m),
     objectives:genTopicObjectives(ref,kb),
-    topWrong,topKw:base.topKw
+    topWrong,topWrongDetailed,themeTraps,revStats,relatedTopics,refHtml,allRules,
+    topKw:base.topKw
   };
 }
 
@@ -481,15 +255,27 @@ function renderTopicFicheHTML(ref,opts={}){
   const cov=f.topicStats.n?Math.round(f.topicStats.coverage*100):0;
   const formulasHtml=typeof renderFicheFormulasSection==='function'
     ?renderFicheFormulasSection(f.formulas,f.worked,f.essentials,f.module):'';
-  const points=(f.allPoints.length?f.allPoints:f.keyPoints);
-  const trapsHtml=f.traps.map(t=>{
+  const points=(f.allRules.length?f.allRules:f.allPoints.length?f.allPoints:f.keyPoints);
+  const trapsHtml=(f.themeTraps.length?f.themeTraps:f.traps).map(t=>{
     const isCorrect=t.i===f.sampleQ.a;
     const isChosen=opts.chosenIdx===t.i;
     return`<div class="fiche-trap-item${isChosen?' chosen':''}${isCorrect?' correct':''}">
       <span class="fiche-trap-letter">${String.fromCharCode(65+t.i)}</span>
-      <div><div class="fiche-trap-text">${esc(t.text)}${isCorrect?' ✓':''}</div>
+      <div><div class="fiche-trap-text">${esc(t.text)}${isCorrect?' ✓':''}${t.count>1?` <span class="fiche-trap-cnt">×${t.count}</span>`:''}</div>
         <div class="fiche-trap-why">${esc(t.traps.join(' · '))}</div></div></div>`;
   }).join('');
+  const topWrongHtml=f.topWrongDetailed.length?`<ul class="fiche-wrong-list">${f.topWrongDetailed.map(([text,c])=>
+    `<li class="fiche-wrong-item"><span class="fiche-wrong-txt">${esc(text)}</span><span class="fiche-wrong-cnt">${c}×</span></li>`).join('')}</ul>`:'';
+  const revStatsHtml=f.revStats?`<div class="fiche-rev-grid">
+    <div class="fiche-rev-stat"><span>Répondues</span><strong>${f.revStats.answered}/${f.questionCount}</strong></div>
+    <div class="fiche-rev-stat"><span>Correctes</span><strong style="color:var(--green)">${f.revStats.ok}</strong></div>
+    <div class="fiche-rev-stat"><span>Erreurs</span><strong style="color:var(--red)">${f.revStats.ko}</strong></div>
+    <div class="fiche-rev-stat"><span>Hésitations</span><strong>${f.struggleTotal||0}</strong></div>
+    <div class="fiche-rev-stat"><span>SM-2 reps</span><strong>${f.revStats.sm2Reps||0}</strong></div>
+    <div class="fiche-rev-stat"><span>À réviser</span><strong style="color:var(--amber)">${f.revStats.dueSoon||0}</strong></div>
+  </div>${f.revStats.behTags.length?`<div class="fiche-kw-row" style="margin-top:8px">${f.revStats.behTags.map(([t,c])=>`<span class="fiche-kw fiche-kw-beh">${esc(t)} (${c})</span>`).join('')}</div>`:''}`:'';
+  const relatedHtml=f.relatedTopics.length?`<div class="fiche-related">${f.relatedTopics.map(rt=>
+    `<a href="fiches.html?topic=${encodeURIComponent(rt.ref)}" class="fiche-related-link"><span>${esc(rt.ref)}</span><span class="fiche-related-meta">${modStr(rt.module)} · ${rt.count} q</span></a>`).join('')}</div>`:'';
   const workedMulti=f.workedExamples.length
     ?f.workedExamples.map(w=>`<div class="fiche-worked">
         <div class="fiche-worked-title">${esc(w.title)}</div>
@@ -522,7 +308,10 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-stat"><div class="fiche-stat-v">${cov}%</div><div class="fiche-stat-l">Couverture</div></div>
         <div class="fiche-stat"><div class="fiche-stat-v">${f.failTotal||0}</div><div class="fiche-stat-l">Erreurs</div></div>
         <div class="fiche-stat"><div class="fiche-stat-v" style="color:${mCol}">${f.mastery.pct}%</div><div class="fiche-stat-l">Maîtrise</div></div>
+        <div class="fiche-stat"><div class="fiche-stat-v">${f.struggleTotal||0}</div><div class="fiche-stat-l">Hésitations</div></div>
+        <div class="fiche-stat"><div class="fiche-stat-v">${f.revStats?.answered||0}/${f.questionCount}</div><div class="fiche-stat-l">Vues</div></div>
       </div>
+      ${f.concept?`<p class="fiche-concept">${esc(f.concept)}</p>`:''}
     </div>
     <div class="fiche-body">
       <div class="fiche-block">
@@ -534,13 +323,16 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-block-bd"><ul class="fiche-objectives">${f.objectives.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>
       </div>
       ${points.length?`<div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Points clés (${points.length})</div>
+        <div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Synthèse complète (${points.length} points)</div>
         <div class="fiche-block-bd"><ul class="fiche-points">${points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
       </div>`:''}
+      ${f.refHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📖</span> Référence programme</div><div class="fiche-block-bd">${f.refHtml}</div></div>`:''}
       ${formulasHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div><div class="fiche-block-bd">${formulasHtml}</div></div>`:''}
       ${workedMulti?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔢</span> Calculs pas à pas (${f.workedExamples.length})</div><div class="fiche-block-bd">${workedMulti}</div></div>`:''}
+      ${topWrongHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❌</span> Erreurs les plus fréquentes</div><div class="fiche-block-bd">${topWrongHtml}</div></div>`:''}
+      ${revStatsHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📈</span> Ta progression sur ce thème</div><div class="fiche-block-bd">${revStatsHtml}</div></div>`:''}
       ${f.topKw.length?`<div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">🔤</span> Vocabulaire</div>
+        <div class="fiche-block-hd"><span class="fiche-block-ico">🔤</span> Vocabulaire clé</div>
         <div class="fiche-block-bd"><div class="fiche-kw-row">${f.topKw.map(w=>`<span class="fiche-kw">${esc(w)}</span>`).join('')}</div></div>
       </div>`:''}
       <div class="fiche-block">
@@ -548,9 +340,10 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-block-bd">${previewsHtml||'<div class="rev-empty">Aucune question liée.</div>'}</div>
       </div>
       <div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Analyse des pièges</div>
+        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Pièges & distracteurs (${f.themeTraps.length||f.traps.length} analysés)</div>
         <div class="fiche-block-bd"><div class="fiche-trap-grid">${trapsHtml}</div></div>
       </div>
+      ${relatedHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔗</span> Thèmes liés</div><div class="fiche-block-bd">${relatedHtml}</div></div>`:''}
       ${f.mnemo?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">💡</span> Mnémotechnique</div><div class="fiche-block-bd"><div class="fiche-mnemo">${esc(f.mnemo)}</div></div></div>`:''}
       <div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">🎓</span> Conseil examen</div>
@@ -595,8 +388,8 @@ function buildDeepFiche(q,entry,chosenIdx){
   const traps=analyzeTraps(q,chosenIdx??-1);
   const mnemo=genMnemonic(q,topic);
   const mastery=computeMastery(entry,topic);
-  const keyPoints=[...new Set(topic.expl)].slice(0,8);
-  const topKw=Object.entries(topic.kw).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+  const keyPoints=[...new Set(topic.expl)];
+  const topKw=Object.entries(topic.kw).sort((a,b)=>b[1]-a[1]).slice(0,12).map(x=>x[0]);
   const formulaData=typeof getFormulasForQuestion==='function'?getFormulasForQuestion(q):{linked:[],module:[]};
   const worked=typeof buildWorkedExample==='function'?buildWorkedExample(q):null;
   const essentials=typeof getModuleEssentials==='function'?getModuleEssentials(q.m):[];
@@ -861,12 +654,41 @@ function buildFichesPanel(){
 }
 
 
+function renderFicheFormulasSection(formulas,worked,essentials,m){
+  const linked=formulas?.linked||[];
+  const moduleAll=formulas?.module||[];
+  if(!worked&&!linked.length&&!(essentials?.length)&&!moduleAll.length) return '';
+  let html='';
+  if(worked){
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Calcul pas à pas — ${esc(worked.title)}</div>
+      <div class="fiche-steps"><ol>${worked.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+      ${worked.result?`<div style="font-size:12px;color:var(--acc);margin-top:6px;font-weight:600;font-family:'DM Mono',monospace">→ ${esc(worked.result)}</div>`:''}
+      </div></div>`;
+  }
+  if(linked.length){
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Formules liées au thème (${linked.length})</div><div class="fiche-sec-bd">${linked.map(f=>renderFicheFormulaBlock(f,false)).join('')}</div></div>`;
+  }
+  if(essentials?.length){
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Constantes & rappels — ${modStr(m)}</div><div class="fiche-const-grid">${essentials.map(e=>`<div class="fiche-const"><strong>${esc(e.k)}</strong> ${esc(e.v)}</div>`).join('')}</div></div>`;
+  }
+  const linkedIds=new Set(linked.map(f=>f.id));
+  const rest=moduleAll.filter(f=>!linkedIds.has(f.id));
+  const restFull=rest.filter(f=>(f.prio||0)>=2||(f.tags||[]).includes('examen')).slice(0,8);
+  const restCompact=rest.filter(f=>!restFull.some(x=>x.id===f.id));
+  if(restFull.length){
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Formules essentielles ${modStr(m)} (${restFull.length})</div><div class="fiche-sec-bd">${restFull.map(f=>renderFicheFormulaBlock(f,false)).join('')}</div></div>`;
+  }
+  if(restCompact.length){
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Autres formules ${modStr(m)} (${restCompact.length})</div><div class="fiche-sec-bd fiche-formulas-compact">${restCompact.map(f=>renderFicheFormulaBlock(f,true)).join('')}</div></div>`;
+  }
+  return html;
+}
+
+
+
 let revTab='library', ficheLibSearch='', ficheLibMod='all';
 
-function goQuizTopic(ref){
-  const r=typeof resolveTopicRef==='function'?resolveTopicRef(ref):ref;
-  window.location.href='index.html?topic='+encodeURIComponent(r);
-}
+function goQuizTopic(ref){window.location.href='index.html?topic='+encodeURIComponent(ref);}
 function launchTopicReview(ref){ goQuizTopic(ref); }
 function launchRevision(){
   window.location.href='index.html?mode=weak';
@@ -898,26 +720,25 @@ revPanel.addEventListener('click',e=>{
 });
 revPanel.addEventListener('input',e=>{
   if(e.target.id==='fiche-lib-search'){ficheLibSearch=e.target.value;buildFichesPanel();}
+  handleFormulaCalcInput(e);
 });
-const btnAll=document.getElementById('btn-rev-all');
-if(btnAll) btnAll.addEventListener('click', launchRevision);
-buildFichesPanel();
-
+document.addEventListener('input',e=>{if(e.target.closest('[data-calc-type]')) handleFormulaCalcInput(e);});
 function handleFicheDeepLink(){
-  const topic=new URLSearchParams(location.search).get('topic');
+  const params=new URLSearchParams(location.search);
+  const topic=params.get('topic');
   if(!topic) return;
   revTab='library';
   ficheLibSearch=topic;
   buildFichesPanel();
-  requestAnimationFrame(()=>{
-    const resolved=typeof resolveTopicRef==='function'?resolveTopicRef(topic):topic;
-    const card=document.querySelector('.fiche-card[data-fiche-ref="'+resolved.replace(/"/g,'\\"')+'"]')
-      ||[...document.querySelectorAll('.fiche-card')].find(c=>c.dataset.ficheRef&&matchTopic(c.dataset.ficheRef,topic));
+  setTimeout(()=>{
+    const card=document.querySelector('[data-fiche-ref="'+CSS.escape(topic)+'"]')||document.querySelector('.fiche-card');
     if(card){
       card.classList.add('open');
       card.scrollIntoView({behavior:'smooth',block:'start'});
     }
-    history.replaceState({},'',location.pathname);
-  });
+  },120);
 }
+const btnAll=document.getElementById('btn-rev-all');
+if(btnAll) btnAll.addEventListener('click', launchRevision);
+buildFichesPanel();
 handleFicheDeepLink();

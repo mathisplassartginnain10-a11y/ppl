@@ -3,7 +3,8 @@
    Safe areas · touch 48px · barre quiz fixe · perf
    ═══════════════════════════════════════════════════════════ */
 
-@media (max-width: 480px) {
+/* ── Téléphone (≤640px) ── */
+@media (max-width: 640px) {
   html {
     font-size: 15px;
     -webkit-text-size-adjust: 100%;
@@ -25,18 +26,28 @@
       max(0.85rem, env(safe-area-inset-left));
   }
 
+  /* Header sticky — nav défilante horizontale */
   .app-header {
     margin:
       calc(-1 * max(0.75rem, env(safe-area-inset-top)))
       calc(-1 * max(0.85rem, env(safe-area-inset-right)))
-      1rem
+      0.85rem
       calc(-1 * max(0.85rem, env(safe-area-inset-left)));
     padding:
-      max(0.55rem, env(safe-area-inset-top))
+      max(0.5rem, env(safe-area-inset-top))
       max(0.75rem, env(safe-area-inset-right))
-      0.55rem
+      0.5rem
       max(0.75rem, env(safe-area-inset-left));
-    gap: 0.5rem;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 150;
+  }
+
+  .app-brand {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .app-brand-icon {
@@ -44,22 +55,38 @@
     height: 34px;
     font-size: 16px;
     border-radius: 10px;
+    flex-shrink: 0;
   }
 
   .app-brand-text {
     font-size: 16px;
+    white-space: nowrap;
   }
 
   .app-nav {
+    flex: 1 1 100%;
+    display: flex;
     gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+    margin: 0 -2px;
+  }
+
+  .app-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .app-nav-link {
-    padding: 0.5rem 0.65rem;
+    padding: 0.5rem 0.7rem;
     font-size: 12px;
-    min-height: 40px;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
+    flex-shrink: 0;
+    touch-action: manipulation;
   }
 
   /* Accueil */
@@ -96,6 +123,11 @@
   .panel {
     padding: 0.9rem 0.85rem;
     border-radius: var(--r2);
+    margin-bottom: 1rem;
+  }
+
+  .panel-head h2 {
+    font-size: 11px;
   }
 
   .panel-stats .kpi,
@@ -160,15 +192,17 @@
   }
 
   .n-pre {
-    min-height: 40px;
+    min-height: 44px;
     padding: 8px 12px;
     font-size: 12px;
     display: inline-flex;
     align-items: center;
+    touch-action: manipulation;
   }
 
   .btn-go,
-  .btn-sec {
+  .btn-sec,
+  .btn-rev {
     min-height: 52px;
     font-size: 16px;
     padding: 0.9rem 1rem;
@@ -177,7 +211,10 @@
 
   .btn-go:active,
   .btn-sec:active,
-  .opt:active {
+  .opt:active,
+  .rev-btn-sm:active,
+  .fiche-card-hd:active,
+  .formula-card-hd:active {
     transform: scale(0.98);
   }
 
@@ -186,9 +223,81 @@
     min-height: 88px;
   }
 
+  .hub-g {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* Dashboards accueil */
+  .exam-dash,
+  .proba-dash,
+  .react-dash {
+    padding: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .exam-big {
+    font-size: 24px;
+  }
+
+  .exam-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .proba-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .react-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rev-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .rev-card {
+    padding: 0.85rem;
+  }
+
+  .rev-actions {
+    flex-direction: column;
+  }
+
+  .rev-actions .rev-btn-sm {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+  }
+
+  .rev-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .rev-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rev-tab {
+    flex-shrink: 0;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
   /* ── Écran quiz ── */
   #sq.on {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #sq.on:has(#fb:not(:empty)) {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
   }
 
   .qtop {
@@ -268,6 +377,71 @@
     line-height: 1.5;
   }
 
+  /* Feedback quiz */
+  .fb {
+    padding: 0.85rem;
+    margin-top: 0.75rem;
+  }
+
+  .fb-hd {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .fb-st {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .fb .proba-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .fb-txt {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .fb-brief .fb-key {
+    font-size: 14px;
+  }
+
+  .fb-stats-link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 0;
+    font-size: 13px;
+    touch-action: manipulation;
+  }
+
+  .fiche-deep,
+  .fiche-sheet {
+    font-size: 13px;
+  }
+
+  .fiche-hero {
+    padding: 0.85rem;
+  }
+
+  .fiche-hero-title {
+    font-size: 15px;
+  }
+
+  .fiche-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .fiche-rev-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fiche-trap-item {
+    padding: 0.65rem;
+  }
+
   /* Barre d'actions quiz — fixée en bas (pouce) */
   #sq.on .qact {
     position: fixed;
@@ -281,7 +455,7 @@
       max(10px, env(safe-area-inset-bottom))
       max(0.85rem, env(safe-area-inset-left));
     gap: 8px;
-    background: rgba(8, 11, 18, 0.92);
+    background: rgba(8, 11, 18, 0.94);
     backdrop-filter: blur(16px) saturate(1.3);
     -webkit-backdrop-filter: blur(16px) saturate(1.3);
     border-top: 1px solid var(--glass-border);
@@ -321,7 +495,7 @@
     margin: 1rem;
   }
 
-  /* Résultats */
+  /* Résultats session */
   .rring {
     width: 130px;
     height: 130px;
@@ -329,6 +503,14 @@
 
   .rpct {
     font-size: 28px;
+  }
+
+  .rkpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bkd {
+    grid-template-columns: 1fr;
   }
 
   .rbtns {
@@ -343,10 +525,22 @@
     width: 100%;
   }
 
+  .ph-section,
+  .algo-box,
+  .bcard {
+    padding: 0.85rem;
+  }
+
   /* Fiches & formules */
+  .resource-screen {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
   .resource-top {
     flex-wrap: wrap;
     gap: 10px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
   }
 
   .resource-top h2 {
@@ -358,6 +552,9 @@
     min-height: 44px;
     padding: 0.65rem 1rem;
     font-size: 13px;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
   }
 
   .fiche-stats,
@@ -368,6 +565,7 @@
   .fiche-card-hd {
     padding: 0.9rem 0.85rem;
     min-height: 56px;
+    touch-action: manipulation;
   }
 
   .fiche-card-title {
@@ -414,7 +612,8 @@
   }
 
   .formulas-tabs,
-  .fiche-tabs {
+  .fiche-tabs,
+  .formula-tabs {
     overflow-x: auto;
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
@@ -423,13 +622,28 @@
   }
 
   .formulas-tabs::-webkit-scrollbar,
-  .fiche-tabs::-webkit-scrollbar {
+  .fiche-tabs::-webkit-scrollbar,
+  .formula-tabs::-webkit-scrollbar {
     display: none;
+  }
+
+  .formula-tab,
+  .fiche-lib-mod {
+    flex-shrink: 0;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
   }
 
   .formula-card-hd {
     padding: 0.9rem 0.85rem;
     min-height: 56px;
+    touch-action: manipulation;
+  }
+
+  .formula-eq {
+    font-size: 13px;
+    word-break: break-word;
   }
 
   .formula-calc input,
@@ -451,6 +665,11 @@
     font-size: 11px;
   }
 
+  .formula-grid {
+    max-height: none;
+    overflow: visible;
+  }
+
   .react-hero {
     flex-direction: column;
     text-align: center;
@@ -459,10 +678,207 @@
   .react-phases {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  /* ── Page Stats ── */
+  .stats-screen {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .stats-top h2 {
+    font-size: 16px;
+  }
+
+  .stats-intro {
+    font-size: 12px;
+  }
+
+  .stats-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .stats-card {
+    padding: 0.6rem 0.5rem;
+  }
+
+  .stats-card-v {
+    font-size: 1rem;
+  }
+
+  .stats-toolbar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .stats-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stats-toolbar .btn-rev {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0.5rem 0.85rem;
+    font-size: 12px;
+    touch-action: manipulation;
+  }
+
+  .stats-toolbar #btn-clear-stats {
+    margin-left: 0 !important;
+  }
+
+  .stats-table-wrap {
+    display: none;
+  }
+
+  .stats-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stats-m-card {
+    background: var(--card, var(--s1));
+    border: 1px solid var(--border, var(--b1));
+    border-radius: var(--r2);
+    padding: 0.85rem;
+    touch-action: manipulation;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .stats-m-card:active {
+    transform: scale(0.99);
+  }
+
+  .stats-m-card.hl {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  .stats-m-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .stats-m-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--t3);
+  }
+
+  .stats-m-res {
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .stats-m-res.ok {
+    color: var(--green);
+  }
+
+  .stats-m-res.ko {
+    color: var(--red);
+  }
+
+  .stats-m-q {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--t1);
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .stats-m-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .stats-m-kpi {
+    text-align: center;
+    background: var(--s2);
+    border-radius: 8px;
+    padding: 5px 4px;
+    border: 1px solid var(--b1);
+  }
+
+  .stats-m-kpi-v {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .stats-m-kpi-l {
+    font-size: 8px;
+    color: var(--t3);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
+  }
+
+  .stats-m-meta {
+    font-size: 10px;
+    color: var(--t3);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .stats-avg-card {
+    background: rgba(52, 211, 168, 0.06);
+    border: 1px solid rgba(52, 211, 168, 0.2);
+    border-radius: var(--r2);
+    padding: 0.85rem;
+    margin-top: 4px;
+  }
+
+  .stats-avg-card h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--t3);
+    margin: 0 0 8px;
+  }
+
+  .stats-detail {
+    padding: 0.85rem;
+    margin-top: 0.85rem;
+  }
+
+  .stats-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .stats-detail-grid > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--b1);
+  }
+
+  .stats-detail-grid > div:last-child {
+    border-bottom: none;
+  }
+}
+
+/* Desktop : masquer cartes stats mobile */
+@media (min-width: 641px) {
+  .stats-mobile-list {
+    display: none;
+  }
 }
 
 /* Nothing Phone 2a — écran tall 20:9 */
-@media (max-width: 480px) and (min-height: 800px) {
+@media (max-width: 640px) and (min-height: 800px) {
   .bank-hero-n {
     font-size: 40px;
   }
@@ -477,7 +893,7 @@
 }
 
 /* Perf mobile — réduire animations lourdes */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .mesh-bg {
     animation: none;
     opacity: 0.7;
@@ -492,9 +908,18 @@
   .grid-overlay {
     opacity: 0.02;
   }
+
+  .panel::before,
+  .hc:hover {
+    transform: none;
+  }
+
+  .screen.on {
+    animation-duration: 0.25s;
+  }
 }
 
-@media (max-width: 480px) and (prefers-reduced-motion: reduce) {
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
   .mesh-bg,
   .glows .g3,
   .screen.on,
@@ -507,6 +932,12 @@
 @media (max-height: 500px) and (orientation: landscape) {
   .app-header {
     position: relative;
+    flex-wrap: nowrap;
+  }
+
+  .app-nav {
+    flex: 1 1 auto;
+    overflow-x: auto;
   }
 
   #sq.on .qact {
@@ -515,6 +946,10 @@
   }
 
   #sq.on {
+    padding-bottom: 0;
+  }
+
+  #sq.on:has(#fb:not(:empty)) {
     padding-bottom: 0;
   }
 }

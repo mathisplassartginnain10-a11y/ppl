@@ -42,12 +42,13 @@ const sharedUtils = [
   slice('function barColor', 'let mode='),
 ].join('\n');
 
-const formulaBlock = slice('// FORMULES PPL — RÉFÉRENTIEL + CALCULATEURS', "document.getElementById('formulas-panel')?.addEventListener('click'");
+const formulaBlock = '/* Formules : formulas_engine.js (externe) */';
 
 const ficheBlock = [
   slice('function analyzeTraps', 'function probaPct'),
   slice('function learnObjectives', 'function buildExamDash'),
   slice('function buildFichesPanel()', 'function buildRevisionPanel'),
+  slice('function renderFicheFormulasSection', 'function show(id)'),
 ].join('\n').replace(
   /document\.getElementById\('h-weak'\)\.textContent=nRev;\s*/g,
   ''
@@ -122,10 +123,28 @@ revPanel.addEventListener('click',e=>{
 });
 revPanel.addEventListener('input',e=>{
   if(e.target.id==='fiche-lib-search'){ficheLibSearch=e.target.value;buildFichesPanel();}
+  handleFormulaCalcInput(e);
 });
+document.addEventListener('input',e=>{if(e.target.closest('[data-calc-type]')) handleFormulaCalcInput(e);});
+function handleFicheDeepLink(){
+  const params=new URLSearchParams(location.search);
+  const topic=params.get('topic');
+  if(!topic) return;
+  revTab='library';
+  ficheLibSearch=topic;
+  buildFichesPanel();
+  setTimeout(()=>{
+    const card=document.querySelector('[data-fiche-ref="'+CSS.escape(topic)+'"]')||document.querySelector('.fiche-card');
+    if(card){
+      card.classList.add('open');
+      card.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  },120);
+}
 const btnAll=document.getElementById('btn-rev-all');
 if(btnAll) btnAll.addEventListener('click', launchRevision);
 buildFichesPanel();
+handleFicheDeepLink();
 `;
 
 fs.writeFileSync(path.join(dir, 'ppl_formulas_page.js'), formulasPageJs);
@@ -142,7 +161,7 @@ const formulesHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
 <link rel="stylesheet" href="ppl_resources.css?v=20260528c">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528h">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
 </head>
 <body>
 <div class="mesh-bg"></div>
@@ -171,6 +190,7 @@ const formulesHtml = `<!DOCTYPE html>
 <script src="formulas_engine.js?v=20260528d"></script>
 <script src="questions_bank.js?v=20260528f"></script>
 <script src="topics_utils.js?v=20260528e"></script>
+<script src="fiche_enrich.js?v=20260528l"></script>
 <script src="ppl_formulas_page.js"></script>
 </body>
 </html>
@@ -187,7 +207,7 @@ const fichesHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528c">
 <link rel="stylesheet" href="ppl_resources.css?v=20260528c">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528h">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
 </head>
 <body>
 <div class="mesh-bg"></div>
@@ -221,6 +241,7 @@ const fichesHtml = `<!DOCTYPE html>
 <script src="formulas_bank.js?v=20260528d"></script>
 <script src="formulas_engine.js?v=20260528d"></script>
 <script src="topics_utils.js?v=20260528e"></script>
+<script src="fiche_enrich.js?v=20260528l"></script>
 <script src="ppl_fiches_page.js"></script>
 </body>
 </html>

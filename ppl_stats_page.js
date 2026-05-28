@@ -109,6 +109,62 @@ function findHighlight(items, params){
 
 let filterMode='all';
 
+function renderMobileCards(items, av, hl){
+  const cards=items.map((it,i)=>{
+    const isHl=hl&&hl.item&&hl.item.t===it.t;
+    return `<article class="stats-m-card${isHl?' hl':''}" data-t="${it.t}" role="button" tabindex="0">
+      <div class="stats-m-hd">
+        <span class="stats-m-num">#${items.length-i} · ${modStr(it.mod)}</span>
+        <span class="stats-m-res ${it.ok?'ok':'ko'}">${it.ok?'✓ Correct':'✗ Incorrect'}</span>
+      </div>
+      <div class="stats-m-q">${escapeHtml(it.question||'')}</div>
+      <div class="stats-m-grid">
+        <div class="stats-m-kpi"><div class="stats-m-kpi-v">${(it.el||0).toFixed(1)}s</div><div class="stats-m-kpi-l">Temps</div></div>
+        <div class="stats-m-kpi"><div class="stats-m-kpi-v" style="color:${probaColor(it.reactScore||50)}">${it.reactScore??'—'}%</div><div class="stats-m-kpi-l">Réact.</div></div>
+        <div class="stats-m-kpi"><div class="stats-m-kpi-v" style="color:${probaColor(it.mastery||50)}">${it.mastery??'—'}%</div><div class="stats-m-kpi-l">Maîtr.</div></div>
+      </div>
+      <div class="stats-m-meta">${fmtDate(it.t)} · réact. ${(it.reactSec||0).toFixed(1)}s · survols ${it.hoverSwitches??0}</div>
+    </article>`;
+  }).join('');
+  const avg=`<div class="stats-avg-card">
+    <h4>Moyennes (${av.n} réponses)</h4>
+    <div class="stats-m-grid">
+      <div class="stats-m-kpi"><div class="stats-m-kpi-v">${av.okRate}%</div><div class="stats-m-kpi-l">Réussite</div></div>
+      <div class="stats-m-kpi"><div class="stats-m-kpi-v">${av.avgEl??'—'}s</div><div class="stats-m-kpi-l">Temps</div></div>
+      <div class="stats-m-kpi"><div class="stats-m-kpi-v">${av.avgReactScore??'—'}%</div><div class="stats-m-kpi-l">Réact.</div></div>
+      <div class="stats-m-kpi"><div class="stats-m-kpi-v">${av.avgMastery??'—'}%</div><div class="stats-m-kpi-l">Maîtr.</div></div>
+      <div class="stats-m-kpi"><div class="stats-m-kpi-v">${av.avgReactSec??'—'}s</div><div class="stats-m-kpi-l">Réact.s</div></div>
+      <div class="stats-m-kpi"><div class="stats-m-kpi-v">${av.avgConf??'—'}%</div><div class="stats-m-kpi-l">Conf.</div></div>
+    </div>
+  </div>`;
+  return `<div class="stats-mobile-list">${cards}${avg}</div>`;
+}
+
+function bindAnswerClicks(root, log){
+  function openDetail(t){
+    const it=(log.items||[]).find(x=>x.t===t);
+    if(!it) return;
+    const det=document.getElementById('stats-detail');
+    if(det&&det.closest('#stats-root')){
+      det.outerHTML=renderDetail(it);
+    }else{
+      root.insertAdjacentHTML('beforeend',renderDetail(it));
+    }
+    const el=root.querySelector(`[data-t="${t}"]`);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  root.querySelectorAll('tbody tr:not(.avg-row), .stats-m-card').forEach(el=>{
+    el.style.cursor='pointer';
+    const t=parseInt(el.getAttribute('data-t'),10);
+    el.addEventListener('click',()=>openDetail(t));
+    if(el.classList.contains('stats-m-card')){
+      el.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openDetail(t); }
+      });
+    }
+  });
+}
+
 function render(){
   const log=loadLog();
   let items=(log.items||[]).slice().reverse();
@@ -195,6 +251,7 @@ function render(){
         </tbody>
       </table>
     </div>
+    ${renderMobileCards(items,av,hl)}
     ${hl&&hl.item?renderDetail(hl.item):''}
   `;
 
@@ -205,20 +262,7 @@ function render(){
     });
   });
 
-  root.querySelectorAll('tbody tr:not(.avg-row)').forEach(tr=>{
-    tr.style.cursor='pointer';
-    tr.addEventListener('click',()=>{
-      const t=parseInt(tr.getAttribute('data-t'),10);
-      const it=(log.items||[]).find(x=>x.t===t);
-      const det=document.getElementById('stats-detail');
-      if(det&&det.closest('#stats-root')){
-        det.outerHTML=renderDetail(it);
-      }else{
-        root.insertAdjacentHTML('beforeend',renderDetail(it));
-      }
-      tr.scrollIntoView({behavior:'smooth',block:'nearest'});
-    });
-  });
+  bindAnswerClicks(root, log);
 
   const clearBtn=document.getElementById('btn-clear-stats');
   if(clearBtn){
@@ -231,10 +275,14 @@ function render(){
   }
 
   if(hl&&hl.item){
-    const row=root.querySelector(`tr[data-t="${hl.item.t}"]`);
+    const row=root.querySelector(`tr[data-t="${hl.item.t}"], .stats-m-card[data-t="${hl.item.t}"]`);
     if(row) row.scrollIntoView({behavior:'smooth',block:'center'});
   }
 }
 
 document.addEventListener('DOMContentLoaded',render);
+window.addEventListener('resize',()=>{
+  clearTimeout(window._pplStatsResize);
+  window._pplStatsResize=setTimeout(render,200);
+});
 })();

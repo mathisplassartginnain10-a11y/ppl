@@ -275,7 +275,7 @@
         if (!seen.has(f.id) && keysMatchModule(hay, f)) add(f);
       });
     linked.sort((a, b) => (b.prio || 2) - (a.prio || 2));
-    return { linked: linked.slice(0, 10), module: FORMULAS.filter((f) => f.m === q.m) };
+    return { linked: linked.slice(0, 15), module: FORMULAS.filter((f) => f.m === q.m) };
   }
 
   function keysMatchModule(hay, f) {
@@ -431,10 +431,10 @@
         ? `<ol class="formula-worked formula-worked-sm">${f.worked.map((w) => `<li>${esc(w)}</li>`).join('')}</ol>`
         : '';
     const util =
-      f.utility && !compact
+      f.utility
         ? `<div class="fiche-formula-meta formula-util">🎯 ${esc(f.utility)}</div>`
         : '';
-    const calc = !compact && f.calc ? renderFormulaCalc(f) : '';
+    const calc = f.calc ? renderFormulaCalc(f) : '';
     const mn =
       f.mnemonic && !compact
         ? `<div class="fiche-formula-meta" style="color:#93b8fb;margin-top:3px">💡 ${esc(f.memonic)}</div>`

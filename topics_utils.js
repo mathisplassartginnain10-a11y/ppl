@@ -69,7 +69,10 @@
           ${st === 'ok' ? '<span class="fiche-q-status ok">✓</span>' : st === 'ko' ? '<span class="fiche-q-status ko">✗</span>' : ''}
         </div>
         <p class="fiche-q-text">${esc(q.q)}</p>
-        <details class="fiche-q-answer"><summary>Voir la réponse</summary><p class="fiche-q-ans">✓ ${esc(ans)}</p>${q.e ? `<p class="fiche-q-exp">${esc(q.e)}</p>` : ''}</details>
+        <details class="fiche-q-options"><summary>Toutes les options QCM</summary>
+          <ul class="fiche-opt-list">${q.o.map((o, j) => `<li class="fiche-opt-item${j === q.a ? ' fiche-opt-ok' : ''}"><span class="fiche-opt-letter">${String.fromCharCode(65 + j)}</span> ${esc(o)}${j === q.a ? ' ✓' : ''}</li>`).join('')}</ul>
+        </details>
+        <details class="fiche-q-answer"><summary>Réponse & explication</summary><p class="fiche-q-ans">✓ ${esc(ans)}</p>${q.e ? `<p class="fiche-q-exp">${esc(q.e)}</p>` : ''}</details>
         <div class="fiche-q-actions">
           <a href="index.html?q=${idx}" class="rev-btn-sm">Refaire cette question</a>
         </div>

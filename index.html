@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b12">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528j">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528h">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
 </head>
 <body>
 <div class="mesh-bg"></div>
@@ -190,6 +192,7 @@
 <script src="formulas_bank.js?v=20260528d"></script>
 <script src="formulas_engine.js?v=20260528d"></script>
 <script src="topics_utils.js?v=20260528e"></script>
+<script src="fiche_enrich.js?v=20260528l"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // MOTEUR PROBABILITÉ AVANCÉ + TRACKING COMPORTEMENTAL
@@ -931,6 +934,75 @@ function genMnemonic(q,topic){
   return null;
 }
 
+function aggregateThemeTraps(kb){
+  const samples=new Set();
+  kb.idxs.slice(0,4).forEach(i=>samples.add(i));
+  kb.idxs.filter(i=>Q[i]?.d>=3).slice(0,2).forEach(i=>samples.add(i));
+  kb.idxs.filter(i=>Q[i]?.d===4).slice(0,1).forEach(i=>samples.add(i));
+  const trapMap=new Map();
+  [...samples].forEach(idx=>{
+    const q=Q[idx]; if(!q) return;
+    analyzeTraps(q,-1).forEach(t=>{
+      const key=t.text.trim();
+      if(!trapMap.has(key)){
+        trapMap.set(key,{i:t.i,text:t.text,traps:[...t.traps],count:1,from:q.q.substring(0,60)});
+      }else{
+        const e=trapMap.get(key);
+        e.count++;
+        t.traps.forEach(r=>{if(!e.traps.includes(r))e.traps.push(r);});
+      }
+    });
+  });
+  return[...trapMap.values()].sort((a,b)=>b.count-a.count).slice(0,14);
+}
+
+function aggregateTopicRevision(kb){
+  let answered=0,ok=0,ko=0,dueSoon=0,sm2Reps=0;
+  const behTags={};
+  kb.idxs.forEach(idx=>{
+    if(hist[idx]===true){answered++;ok++;}
+    else if(hist[idx]===false){answered++;ko++;}
+    const e=revLog.entries[idx];
+    if(!e) return;
+    sm2Reps+=e.sm2?.reps||0;
+    if(e.due&&e.due<=Date.now()+86400000) dueSoon++;
+    (e.tags||[]).forEach(t=>{behTags[t]=(behTags[t]||0)+1;});
+  });
+  return{
+    answered,ok,ko,unanswered:Math.max(0,kb.idxs.length-answered),dueSoon,sm2Reps,
+    behTags:Object.entries(behTags).sort((a,b)=>b[1]-a[1]).slice(0,10)
+  };
+}
+
+function getRelatedTopics(ref,limit){
+  const kb=initTopicKB();
+  const cur=kb[ref]; if(!cur) return [];
+  const curKw=new Set(Object.keys(cur.kw||{}));
+  const scored=[];
+  Object.entries(kb).forEach(([r,data])=>{
+    if(r===ref||!data.idxs?.length) return;
+    let score=0;
+    Object.keys(data.kw||{}).forEach(w=>{if(curKw.has(w))score+=Math.min(cur.kw[w]||0,data.kw[w]||0);});
+    if(data.module===cur.module) score+=2;
+    if(score>0) scored.push({ref:r,count:data.idxs.length,module:data.module,score});
+  });
+  return scored.sort((a,b)=>b.score-a.score).slice(0,limit||5);
+}
+
+function aggregateWrongChoices(kb){
+  const wrongTextAgg={};
+  kb.idxs.forEach(idx=>{
+    const e=revLog.entries[idx],q=Q[idx];
+    if(!e||!q) return;
+    Object.entries(e.wrongChoices||{}).forEach(([choIdx,c])=>{
+      const i=parseInt(choIdx,10);
+      const text=q.o[i]||('Option '+String.fromCharCode(65+i));
+      wrongTextAgg[text]=(wrongTextAgg[text]||0)+c;
+    });
+  });
+  return Object.entries(wrongTextAgg).sort((a,b)=>b[1]-a[1]).slice(0,6);
+}
+
 function genTopicSummary(ref,kb,stats){
   const n=kb.idxs.length,r=ref.toLowerCase();
   const cov=stats.n?Math.round(stats.coverage*100):0;
@@ -948,7 +1020,7 @@ function genTopicSummary(ref,kb,stats){
     return `Communications aériennes : phraséologie standard OACI, précision terminologique exigée à l'examen. ${n} questions${perf}.`;
   if(r.includes('vfr')||r.includes('réglem')||r.includes('espace'))
     return `Réglementation VFR France : visibilités, distances aux nuages, espaces aériens. Mémorisation pure des seuils. ${n} questions${perf}.`;
-  return `Notion clé du programme PPL « ${ref} » — ${n} questions${cov?`, ${cov}% de couverture`:''}${perf}.`;
+  return `Notion clé du programme PPL « ${ref} » — ${n} questions${cov?`, ${cov}% de couverture`:''}${perf}.${kb.expl.length>1?` ${Math.min(kb.expl.length,20)} points distincts documentés.`:''}`;
 }
 
 function genExamTip(ref,mod){
@@ -992,19 +1064,25 @@ function buildTopicFiche(ref,sampleQ,entry,chosenIdx){
     struggleTotal+=e.struggleCount||0;
     Object.entries(e.wrongChoices||{}).forEach(([k,v])=>{wrongAgg[k]=(wrongAgg[k]||0)+v;});
   });
-  const allPoints=[...new Set(kb.expl)].slice(0,14);
+  const allPoints=[...new Set(kb.expl)];
   const byDiff={1:0,2:0,3:0,4:0};
   kb.idxs.forEach(i=>{const d=Q[i]?.d;if(d)byDiff[d]=(byDiff[d]||0)+1;});
   const workedExamples=[];
   for(const idx of kb.idxs){
-    if(workedExamples.length>=4) break;
+    if(workedExamples.length>=8) break;
     const qq=Q[idx],w=typeof buildWorkedExample==='function'?buildWorkedExample(qq):null;
     if(w&&!workedExamples.some(x=>x.title===w.title&&x.result===w.result))
-      workedExamples.push({...w,qPreview:qq.q.substring(0,90)+(qq.q.length>90?'…':'')});
+      workedExamples.push({...w,qPreview:qq.q.substring(0,120)+(qq.q.length>120?'…':''),qIdx:idx});
   }
-  const previews=kb.idxs.slice(0,4).map(i=>Q[i]).filter(Boolean);
+  const previews=kb.idxs.slice(0,6).map(i=>Q[i]).filter(Boolean);
   const weakCount=kb.idxs.filter(i=>weak.has(i)||(revLog.entries[i]?.failCount||0)>0).length;
   const topWrong=Object.entries(wrongAgg).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const topWrongDetailed=aggregateWrongChoices(kb);
+  const themeTraps=aggregateThemeTraps(kb);
+  const revStats=aggregateTopicRevision(kb);
+  const relatedTopics=getRelatedTopics(ref,6);
+  const refHtml=typeof renderFicheReferenceHTML==='function'?renderFicheReferenceHTML(ref):'';
+  const allRules=allPoints.slice(0,25);
   return{
     ref,module:kb.module||q.m,
     sampleQ:q,entry,chosenIdx:chosenIdx??-1,
@@ -1014,7 +1092,8 @@ function buildTopicFiche(ref,sampleQ,entry,chosenIdx){
     summary:genTopicSummary(ref,kb,topicStats),
     examTip:genExamTip(ref,kb.module||q.m),
     objectives:genTopicObjectives(ref,kb),
-    topWrong,topKw:base.topKw
+    topWrong,topWrongDetailed,themeTraps,revStats,relatedTopics,refHtml,allRules,
+    topKw:base.topKw
   };
 }
 
@@ -1026,15 +1105,27 @@ function renderTopicFicheHTML(ref,opts={}){
   const cov=f.topicStats.n?Math.round(f.topicStats.coverage*100):0;
   const formulasHtml=typeof renderFicheFormulasSection==='function'
     ?renderFicheFormulasSection(f.formulas,f.worked,f.essentials,f.module):'';
-  const points=(f.allPoints.length?f.allPoints:f.keyPoints);
-  const trapsHtml=f.traps.map(t=>{
+  const points=(f.allRules.length?f.allRules:f.allPoints.length?f.allPoints:f.keyPoints);
+  const trapsHtml=(f.themeTraps.length?f.themeTraps:f.traps).map(t=>{
     const isCorrect=t.i===f.sampleQ.a;
     const isChosen=opts.chosenIdx===t.i;
     return`<div class="fiche-trap-item${isChosen?' chosen':''}${isCorrect?' correct':''}">
       <span class="fiche-trap-letter">${String.fromCharCode(65+t.i)}</span>
-      <div><div class="fiche-trap-text">${esc(t.text)}${isCorrect?' ✓':''}</div>
+      <div><div class="fiche-trap-text">${esc(t.text)}${isCorrect?' ✓':''}${t.count>1?` <span class="fiche-trap-cnt">×${t.count}</span>`:''}</div>
         <div class="fiche-trap-why">${esc(t.traps.join(' · '))}</div></div></div>`;
   }).join('');
+  const topWrongHtml=f.topWrongDetailed.length?`<ul class="fiche-wrong-list">${f.topWrongDetailed.map(([text,c])=>
+    `<li class="fiche-wrong-item"><span class="fiche-wrong-txt">${esc(text)}</span><span class="fiche-wrong-cnt">${c}×</span></li>`).join('')}</ul>`:'';
+  const revStatsHtml=f.revStats?`<div class="fiche-rev-grid">
+    <div class="fiche-rev-stat"><span>Répondues</span><strong>${f.revStats.answered}/${f.questionCount}</strong></div>
+    <div class="fiche-rev-stat"><span>Correctes</span><strong style="color:var(--green)">${f.revStats.ok}</strong></div>
+    <div class="fiche-rev-stat"><span>Erreurs</span><strong style="color:var(--red)">${f.revStats.ko}</strong></div>
+    <div class="fiche-rev-stat"><span>Hésitations</span><strong>${f.struggleTotal||0}</strong></div>
+    <div class="fiche-rev-stat"><span>SM-2 reps</span><strong>${f.revStats.sm2Reps||0}</strong></div>
+    <div class="fiche-rev-stat"><span>À réviser</span><strong style="color:var(--amber)">${f.revStats.dueSoon||0}</strong></div>
+  </div>${f.revStats.behTags.length?`<div class="fiche-kw-row" style="margin-top:8px">${f.revStats.behTags.map(([t,c])=>`<span class="fiche-kw fiche-kw-beh">${esc(t)} (${c})</span>`).join('')}</div>`:''}`:'';
+  const relatedHtml=f.relatedTopics.length?`<div class="fiche-related">${f.relatedTopics.map(rt=>
+    `<a href="fiches.html?topic=${encodeURIComponent(rt.ref)}" class="fiche-related-link"><span>${esc(rt.ref)}</span><span class="fiche-related-meta">${modStr(rt.module)} · ${rt.count} q</span></a>`).join('')}</div>`:'';
   const workedMulti=f.workedExamples.length
     ?f.workedExamples.map(w=>`<div class="fiche-worked">
         <div class="fiche-worked-title">${esc(w.title)}</div>
@@ -1067,7 +1158,10 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-stat"><div class="fiche-stat-v">${cov}%</div><div class="fiche-stat-l">Couverture</div></div>
         <div class="fiche-stat"><div class="fiche-stat-v">${f.failTotal||0}</div><div class="fiche-stat-l">Erreurs</div></div>
         <div class="fiche-stat"><div class="fiche-stat-v" style="color:${mCol}">${f.mastery.pct}%</div><div class="fiche-stat-l">Maîtrise</div></div>
+        <div class="fiche-stat"><div class="fiche-stat-v">${f.struggleTotal||0}</div><div class="fiche-stat-l">Hésitations</div></div>
+        <div class="fiche-stat"><div class="fiche-stat-v">${f.revStats?.answered||0}/${f.questionCount}</div><div class="fiche-stat-l">Vues</div></div>
       </div>
+      ${f.concept?`<p class="fiche-concept">${esc(f.concept)}</p>`:''}
     </div>
     <div class="fiche-body">
       <div class="fiche-block">
@@ -1079,13 +1173,16 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-block-bd"><ul class="fiche-objectives">${f.objectives.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>
       </div>
       ${points.length?`<div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Points clés (${points.length})</div>
+        <div class="fiche-block-hd"><span class="fiche-block-ico">📋</span> Synthèse complète (${points.length} points)</div>
         <div class="fiche-block-bd"><ul class="fiche-points">${points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
       </div>`:''}
+      ${f.refHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📖</span> Référence programme</div><div class="fiche-block-bd">${f.refHtml}</div></div>`:''}
       ${formulasHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div><div class="fiche-block-bd">${formulasHtml}</div></div>`:''}
       ${workedMulti?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔢</span> Calculs pas à pas (${f.workedExamples.length})</div><div class="fiche-block-bd">${workedMulti}</div></div>`:''}
+      ${topWrongHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❌</span> Erreurs les plus fréquentes</div><div class="fiche-block-bd">${topWrongHtml}</div></div>`:''}
+      ${revStatsHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📈</span> Ta progression sur ce thème</div><div class="fiche-block-bd">${revStatsHtml}</div></div>`:''}
       ${f.topKw.length?`<div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">🔤</span> Vocabulaire</div>
+        <div class="fiche-block-hd"><span class="fiche-block-ico">🔤</span> Vocabulaire clé</div>
         <div class="fiche-block-bd"><div class="fiche-kw-row">${f.topKw.map(w=>`<span class="fiche-kw">${esc(w)}</span>`).join('')}</div></div>
       </div>`:''}
       <div class="fiche-block">
@@ -1093,9 +1190,10 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-block-bd">${previewsHtml||'<div class="rev-empty">Aucune question liée.</div>'}</div>
       </div>
       <div class="fiche-block">
-        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Analyse des pièges</div>
+        <div class="fiche-block-hd"><span class="fiche-block-ico">⚠️</span> Pièges & distracteurs (${f.themeTraps.length||f.traps.length} analysés)</div>
         <div class="fiche-block-bd"><div class="fiche-trap-grid">${trapsHtml}</div></div>
       </div>
+      ${relatedHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔗</span> Thèmes liés</div><div class="fiche-block-bd">${relatedHtml}</div></div>`:''}
       ${f.mnemo?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">💡</span> Mnémotechnique</div><div class="fiche-block-bd"><div class="fiche-mnemo">${esc(f.mnemo)}</div></div></div>`:''}
       <div class="fiche-block">
         <div class="fiche-block-hd"><span class="fiche-block-ico">🎓</span> Conseil examen</div>
@@ -1140,8 +1238,8 @@ function buildDeepFiche(q,entry,chosenIdx){
   const traps=analyzeTraps(q,chosenIdx??-1);
   const mnemo=genMnemonic(q,topic);
   const mastery=computeMastery(entry,topic);
-  const keyPoints=[...new Set(topic.expl)].slice(0,8);
-  const topKw=Object.entries(topic.kw).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+  const keyPoints=[...new Set(topic.expl)];
+  const topKw=Object.entries(topic.kw).sort((a,b)=>b[1]-a[1]).slice(0,12).map(x=>x[0]);
   const formulaData=typeof getFormulasForQuestion==='function'?getFormulasForQuestion(q):{linked:[],module:[]};
   const worked=typeof buildWorkedExample==='function'?buildWorkedExample(q):null;
   const essentials=typeof getModuleEssentials==='function'?getModuleEssentials(q.m):[];
@@ -1692,15 +1790,20 @@ function renderFicheFormulasSection(formulas,worked,essentials,m){
       </div></div>`;
   }
   if(linked.length){
-    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Formules liées (${linked.length})</div><div class="fiche-sec-bd">${linked.map(f=>renderFicheFormulaBlock(f,false)).join('')}</div></div>`;
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Formules liées au thème (${linked.length})</div><div class="fiche-sec-bd">${linked.map(f=>renderFicheFormulaBlock(f,false)).join('')}</div></div>`;
   }
   if(essentials?.length){
     html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Constantes & rappels — ${modStr(m)}</div><div class="fiche-const-grid">${essentials.map(e=>`<div class="fiche-const"><strong>${esc(e.k)}</strong> ${esc(e.v)}</div>`).join('')}</div></div>`;
   }
   const linkedIds=new Set(linked.map(f=>f.id));
   const rest=moduleAll.filter(f=>!linkedIds.has(f.id));
-  if(rest.length){
-    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Référentiel calculs ${modStr(m)} (${moduleAll.length} formules)</div><div class="fiche-sec-bd">${rest.map(f=>renderFicheFormulaBlock(f,true)).join('')}</div></div>`;
+  const restFull=rest.filter(f=>(f.prio||0)>=2||(f.tags||[]).includes('examen')).slice(0,8);
+  const restCompact=rest.filter(f=>!restFull.some(x=>x.id===f.id));
+  if(restFull.length){
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Formules essentielles ${modStr(m)} (${restFull.length})</div><div class="fiche-sec-bd">${restFull.map(f=>renderFicheFormulaBlock(f,false)).join('')}</div></div>`;
+  }
+  if(restCompact.length){
+    html+=`<div class="fiche-sec"><div class="fiche-sec-hd">Autres formules ${modStr(m)} (${restCompact.length})</div><div class="fiche-sec-bd fiche-formulas-compact">${restCompact.map(f=>renderFicheFormulaBlock(f,true)).join('')}</div></div>`;
   }
   return html;
 }
