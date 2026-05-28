@@ -188,7 +188,7 @@ const formulesHtml = `<!DOCTYPE html>
 </div>
 <script src="formulas_bank.js?v=20260528d"></script>
 <script src="formulas_engine.js?v=20260528d"></script>
-<script src="questions_bank.js?v=20260528f"></script>
+<script src="questions_bank.js?v=20260528m"></script>
 <script src="topics_utils.js?v=20260528e"></script>
 <script src="fiche_enrich.js?v=20260528l"></script>
 <script src="ppl_formulas_page.js"></script>
@@ -237,7 +237,7 @@ const fichesHtml = `<!DOCTYPE html>
     </div>
   </div>
 </div>
-<script src="questions_bank.js?v=20260528f"></script>
+<script src="questions_bank.js?v=20260528m"></script>
 <script src="formulas_bank.js?v=20260528d"></script>
 <script src="formulas_engine.js?v=20260528d"></script>
 <script src="topics_utils.js?v=20260528e"></script>

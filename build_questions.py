@@ -605,6 +605,273 @@ def gen_meteo():
     return qs
 
 
+def gen_meteo_symbols_advanced():
+    """Questions météo développées : symboles cartes, décodage METAR/TAF, pièges examen."""
+    qs = []
+
+    def add(d, question, correct, wrongs, explain, ref, fillers=None):
+        opts, a = shuffle_opts(correct, wrongs, fillers)
+        qs.append(q("M", d, question, opts, a, explain, ref))
+
+    # ── Symboles cartes TEMSI (Aérogligli) ──
+    TEMSI_LINES = [
+        ("Une ligne festonnée sur une carte TEMSI", "Limite d'une zone de temps significatif",
+         ["Limite d'une zone de turbulence légère", "Axe d'un courant-jet", "Front stationnaire en surface"],
+         "La ligne festonnée délimite les zones où le temps se dégrade (précipitations, brouillard, orages…).",
+         "Cartes TEMSI - symboles", 2),
+        ("Une ligne fine discontinue à l'intérieur d'une zone festonnée TEMSI", "Limite d'une sous-zone",
+         ["Limite de vent ≥ 30 kt", "Projection d'un front occlus", "Isoligne de pression"],
+         "Subdivision interne d'une zone de temps significatif.", "Cartes TEMSI - symboles", 3),
+        ("Une ligne épaisse discontinue sur carte TEMSI", "Limite de turbulence ou zone de vent surface ≥ 30 kt",
+         ["Limite de brume sèche uniquement", "Front chaud en surface", "Limite de givrage léger"],
+         "Ligne épaisse = turbulence ou grande étendue de vent fort au sol.", "Cartes TEMSI - symboles", 3),
+        ("Un chiffre dans un carré sur carte TEMSI", "Renvoi vers la légende pour une ligne épaisse discontinue",
+         ["Température à la tropopause", "QNH de la zone", "Niveau de vol du courant-jet"],
+         "Le carré numéroté précise le type de ligne épaisse (turbulence, vent fort…).", "Cartes TEMSI - symboles", 3),
+        ("Une lettre dans un carré sur carte TEMSI", "Conditions supplémentaires d'une sous-zone",
+         ["Code OACI de l'aérodrome", "Indice de stabilité", "Numéro de charte"],
+         "Lettre = renvoi légende pour affiner la sous-zone festonnée.", "Cartes TEMSI - symboles", 3),
+    ]
+    for stem, correct, wrongs, expl, ref, diff in TEMSI_LINES:
+        add(diff, f"{stem} représente :", correct, wrongs, expl, ref)
+
+    TEMSI_PHEN = [
+        ("Symbole « orages » sur carte TEMSI", "Orages (convectifs)", ["Averses isolées", "Brouillard givrant", "Brume sèche"]),
+        ("Symbole « brouillard » sur carte TEMSI", "Brouillard", ["Brume sèche", "Brouillard givrant", "Obscurcissement"]),
+        ("Symbole « brume sèche » grande étendue", "Brume sèche étendue", ["Brouillard local", "Pluie surfondue", "Grêle"]),
+        ("Symbole « givrage modéré »", "Givrage modéré en vol", ["Givrage au sol uniquement", "Givrage fort", "Givrage léger carburateur"]),
+        ("Symbole « turbulence modérée »", "Turbulence modérée", ["Turbulence légère", "Turbulence forte", "Cisaillement bas"]),
+        ("Symbole « turbulence forte »", "Turbulence forte", ["Turbulence modérée", "Ondes orographiques seules", "Vent de rafales"]),
+        ("Symbole « ondes orographiques »", "Ondes orographiques (lee waves)", ["Courant-jet", "Ligne de grains", "Brise de pente"]),
+        ("Obscurcissement des sommets sur TEMSI", "Sommets masqués / obscurcis", ["Givrage fort", "Anticyclone", "Front froid"]),
+        ("Centre marqué « dépression » sur TEMSI", "Centre de basses pressions", ["Centre de hautes pressions", "Col barométrique", "Thalweg"]),
+        ("Centre marqué « anticyclone » sur TEMSI", "Centre de hautes pressions", ["Dépression", "Marais barométrique", "Front occlus"]),
+    ]
+    for stem, correct, wrongs in TEMSI_PHEN:
+        add(2, f"Sur carte TEMSI, {stem.lower()} indique :", correct, wrongs,
+            f"{correct}.", "Cartes TEMSI - phénomènes")
+
+    TEMSI_EUROC = [
+        ("Axe de courant-jet sur TEMSI EUROC", "Vent maximal et niveau de vol associé",
+         ["QNH moyen de la dépression", "Température au sol", "Limite de brume"]),
+        ("Annotation tropopause « max » sur EUROC", "Température et FL de la tropopause la plus haute",
+         ["Température minimale ISA", "Base des Cb", "Gradient vent surface"]),
+        ("Annotation tropopause « min » sur EUROC", "Température et FL de la tropopause la plus basse",
+         ["Température ISA au sol", "Plafond nuageux", "Vent de rafales max"]),
+    ]
+    for stem, correct, wrongs in TEMSI_EUROC:
+        add(3, f"{stem} : information fournie ?", correct, wrongs,
+            f"Symboles EUROC spécifiques : {correct.lower()}.", "Cartes TEMSI - EUROC")
+
+    # ── Fronts sur cartes (symboles) ──
+    add(2, "Sur carte de fronts, les triangles bleus pointent dans le sens :",
+        ["Avance de l'air froid", "Avance de l'air chaud", "Vent de surface", "Axe thalweg"],
+        ["Avance de l'air chaud", "Stationnaire", "Occlusion"],
+        "Triangles = front froid (masse froide avance).", "Fronts - symboles cartes")
+    add(2, "Sur carte de fronts, les demi-cercles rouges indiquent :",
+        ["Avance de l'air chaud", "Avance de l'air froid", "Front stationnaire", "Axe dorsale"],
+        ["Avance de l'air froid", "Occlusion chaude", "Col barométrique"],
+        "Demi-cercles = front chaud.", "Fronts - symboles cartes")
+    add(3, "Front occlus sur carte TEMSI — symbolisation :",
+        "Projection en surface du front occlus (froid rattrape chaud)",
+        ["Front stationnaire seul", "Ligne festonnée", "Axe courant-jet"],
+        "Occlusion = front froid rattrape le front chaud ; secteur chaud rejeté en altitude.", "Front occlus - symboles")
+
+    # ── WINTEM barbes de vent (symboles) ──
+    WINTEM_BARB = [
+        ("▲ + — + — + –", "75 kt", ["65 kt", "85 kt", "55 kt"], "50 + 10 + 10 + 5 = 75 kt.", 3),
+        ("▲ + ▲", "100 kt", ["75 kt", "110 kt", "80 kt"], "50 + 50 = 100 kt (deux triangles).", 3),
+        ("— + — + — + — + –", "45 kt", ["40 kt", "50 kt", "35 kt"], "4×10 + 5 = 45 kt.", 2),
+        ("▲ + — + –", "65 kt", ["60 kt", "70 kt", "55 kt"], "50 + 10 + 5 = 65 kt.", 2),
+        ("— + –", "15 kt", ["10 kt", "20 kt", "25 kt"], "10 + 5 = 15 kt.", 1),
+        ("▲ seul", "50 kt", ["30 kt", "60 kt", "40 kt"], "Un triangle = 50 kt.", 2),
+    ]
+    for barb, correct, wrongs, expl, diff in WINTEM_BARB:
+        add(diff, f"Sur carte WINTEM, barbule {barb} = quelle vitesse ?",
+            correct, wrongs, expl, "Cartes WINTEM - barbules")
+
+    add(2, "Sur carte WINTEM, l'orientation du trait de vent est référencée au :",
+        "Nord vrai", ["Nord magnétique", "Nord piste", "Cap vrai de l'avion"],
+        "WINTEM et METAR/TAF vent = Nord vrai (contrairement aux ATIS sol en magnétique).", "Cartes WINTEM - orientation")
+    add(2, "Température +12 sur WINTEM signifie :",
+        "+12°C", ["-12°C", "ISA +12", "12 000 ft"],
+        "Températures positives sont préfixées + ; négatives sans signe.", "Cartes WINTEM - températures")
+    add(2, "Température 8 (sans signe) sur WINTEM signifie :",
+        "-8°C", ["+8°C", "8°C au sol", "FL080"],
+        "Convention WINTEM : pas de signe = température négative.", "Cartes WINTEM - températures")
+
+    # ── Nébulosité & plafond (pièges octas) ──
+    NEBUL = [
+        ("NSC", "0 octa — pas de nuage significatif", ["1-2 octas", "8 octas", "Plafond obligatoire"]),
+        ("FEW", "1 à 2 octas", ["3-4 octas", "5-7 octas", "0 octa"]),
+        ("SCT", "3 à 4 octas — nuages épars", ["1-2 octas", "5-7 octas", "8 octas"]),
+        ("BKN", "5 à 7 octas — plafond aéronautique", ["3-4 octas", "0 octa", "8 octas sans plafond"]),
+        ("OVC", "8 octas — ciel couvert, plafond", ["5-7 octas", "1-2 octas", "Pas de plafond"]),
+    ]
+    for code, meaning, wrongs in NEBUL:
+        add(2 if code in ("BKN", "OVC") else 1,
+            f"Code nébulosité METAR « {code} » :", meaning, wrongs,
+            f"{code} = {meaning}. Hauteur en pieds dans le groupe (ex. BKN015 = 1500 ft).", "Nébulosité - octas")
+
+    add(2, "Quels codes METAR définissent un plafond aéronautique ?",
+        "BKN et OVC", ["FEW et SCT", "NSC et FEW", "SCT et BKN"],
+        "Plafond = base des nuages BKN ou OVC exprimée en pieds.", "Nébulosité - plafond")
+    add(3, "Dans « BKN015 », que signifie 015 ?",
+        "Base des nuages à 1500 ft", ["15 octas", "1500 m de visibilité", "FL015"],
+        "Hauteur en centaines de pieds : 015 = 1500 ft.", "METAR - nuages")
+    add(3, "Dans « OVC002 », le plafond est à :",
+        "200 ft", ["2000 ft", "200 m", "FL002"],
+        "002 = 200 ft — plafond très bas, VFR compromis.", "METAR - nuages")
+    add(2, "FEW040 et SCT040 — quelle différence ?",
+        "FEW = 1-2 octas, SCT = 3-4 octas (même base 4000 ft)",
+        ["FEW = plafond, SCT = pas plafond", "FEW = 8 octas", "SCT = 0 octa", "Identiques"],
+        "Le suffixe indique la hauteur ; le préfixe la couverture en octas.", "METAR - nuages")
+
+    # ── Temps présent METAR (intensité + descripteurs) ──
+    WX_CODES = [
+        ("RA", "Pluie", ["Bruine", "Averse", "Orage"]),
+        ("DZ", "Bruine", ["Pluie", "Neige", "Grêle"]),
+        ("SN", "Neige", ["Pluie", "Grésil", "Brouillard"]),
+        ("SHRA", "Averse de pluie", ["Pluie continue", "Orage sec", "Bruine"]),
+        ("TSRA", "Orage avec pluie", ["Orage sec", "Pluie verglaçante", "Averse de neige"]),
+        ("+RA", "Pluie forte", ["Pluie faible", "Pluie modérée seule", "Bruine"]),
+        ("-RA", "Pluie faible ou modérée", ["Pluie forte", "Pluie verglaçante", "Averse"]),
+        ("FZRA", "Pluie verglaçante", ["Pluie forte", "Neige fondue", "Brouillard givrant"]),
+        ("FG", "Brouillard", ["Brume", "Brouillard givrant", "Nuage bas"]),
+        ("BR", "Brume (visibilité ≥ 1000 m)", ["Brouillard", "Brume sèche étendue", "Pluie"]),
+        ("HZ", "Brume sèche", ["Brouillard", "Brouillard givrant", "Pluie fine"]),
+        ("GR", "Grêle", ["Grésil", "Neige", "Pluie verglaçante"]),
+        ("GS", "Grésil / petite grêle", ["Grêle", "Neige", "Givrage"]),
+        ("BLSN", "Neige soulevée par le vent", ["Averse de neige", "Neige fondue", "Grésil"]),
+        ("VCTS", "Orage dans le voisinage (vicinity)", ["Orage sur l'aérodrome", "Orage récent", "CAVOK"]),
+        ("RETS", "Orage récent", ["Orage en cours", "Orage prévu TAF", "Orage au loin"]),
+    ]
+    pool_meanings = [w[1] for w in WX_CODES]
+    for code, meaning, _ in WX_CODES:
+        wrongs = [w[1] for w in WX_CODES if w[0] != code][:3]
+        add(2 if len(code) <= 3 else 3, f"Code temps présent METAR « {code} » :", meaning, wrongs,
+            f"{code} = {meaning}. Intensité : - faible/modérée, + forte.", "METAR - temps présent")
+
+    add(3, "Préfixe « - » devant RA dans un METAR indique :",
+        "Intensité faible ou modérée", ["Intensité forte", "Pluie récente", "Pluie au voisinage"],
+        "− = light/moderate · + = heavy · pas de signe = modéré.", "METAR - intensité")
+    add(3, "Préfixe « + » devant TSRA indique :",
+        "Orage avec pluie forte", ["Orage faible", "Orage récent", "Orage au voisinage"],
+        "Le + qualifie l'intensité du phénomène principal.", "METAR - intensité")
+
+    # ── Décodage METAR contextualisé ──
+    METAR_SCENARIOS = [
+        ("32010KT 9999 FEW040", "Quelle est la visibilité ?",
+         "10 km ou plus", ["9999 m exactement", "3200 m", "10 000 ft"],
+         "9999 = visibilité ≥ 10 km.", "METAR - décodage", 2),
+        ("26015G30KT", "Que signifie G30 ?",
+         "Rafales à 30 kt", ["Vent moyen 30 kt", "Givrage modéré", "Gradient 30 hPa"],
+         "G = Gust ; rafales si écart ≥ 10 kt vs moyenne 10 min.", "METAR - vent", 2),
+        ("VRB03KT", "Vent VRB03KT :",
+         "Vent variable à 3 kt", ["Vent de 030°", "Vent nul", "Rafales 3 kt"],
+         "VRB = direction variable (faible intensité).", "METAR - vent", 2),
+        ("CAVOK", "Conditions CAVOK — combien de critères ?",
+         "4 conditions cumulatives", ["2 critères", "3 critères", "Visibilité seule"],
+         "Vis≥10km + pas nuage sous 5000ft/ref + pas CB/TCU + pas temps sig.", "METAR - CAVOK", 2),
+        ("12/M08", "Température air / point de rosée :",
+         "+12°C / −8°C", ["−12°C / +8°C", "+12°C / +8°C", "M = moyenne"],
+         "M = Minus : M08 = −8°C rosée.", "METAR - température", 3),
+        ("Q1013", "Groupe Q1013 :",
+         "QNH 1013 hPa", ["QFE", "Altitude pression", "QNE FL"],
+         "Q + 4 chiffres = QNH local arrondi à l'unité inférieure.", "METAR - QNH", 2),
+        ("NOSIG", "NOSIG en fin de METAR :",
+         "Pas de changement significatif dans les 2 h", ["Pas de signal radio", "Nuages NS", "Message annulé"],
+         "No Significant Change — tendance 2 h.", "METAR - NOSIG", 2),
+        ("AUTO", "Mention AUTO dans METAR :",
+         "Observation automatisée", ["Vol automatique", "Message corrigé", "Aérodrome fermé"],
+         "AUTO = capteurs automatiques (peut manquer nuages fins).", "METAR - AUTO", 2),
+        ("COR", "Mention COR dans METAR :",
+         "Message corrigé", ["Observation auto", "Orage", "Annulation"],
+         "Correction d'un METAR précédent erroné.", "METAR - COR", 3),
+        ("SPECI", "Un SPECI est :",
+         "Observation spéciale (changement significatif)", ["Prévision 9 h", "Carte TEMSI", "TAF amendé"],
+         "SPECI complète le METAR si dégradation/amélioration importante.", "METAR - SPECI", 2),
+        ("BKN020 OVC100", "Deux étages nuageux :",
+         "Plafond 2000 ft (BKN) et couvert 10000 ft", ["Un seul plafond 2000 ft", "Plafond 10000 ft seul", "FEW à 2000 ft"],
+         "On peut avoir plusieurs groupes nuages — le plus bas est le plafond opérationnel.", "METAR - nuages", 3),
+        ("TCU", "Code nuage TCU dans METAR :",
+         "Tower Cumulus (cumulus congestus)", ["Cumulonimbus", "Cirrus", "Stratus"],
+         "TCU = développement vertical marqué ; vigilance évolution CB.", "METAR - nuages", 2),
+        ("CB", "Code nuage CB dans METAR :",
+         "Cumulonimbus", ["Tower cumulus", "Cirrostratus", "Nimbostratus bas"],
+         "CB = orage ; interdit de traverser.", "METAR - nuages", 2),
+    ]
+    for snippet, question, correct, wrongs, expl, ref, diff in METAR_SCENARIOS:
+        add(diff, f"Dans « {snippet} », {question}", correct, wrongs, expl, ref)
+
+    add(3, "Ordre des groupes METAR — le vent est le :",
+        "Groupe 4", ["Groupe 3", "Groupe 5", "Groupe 7"],
+        "1 type/lieu · 2 OACI · 3 date · 4 vent · 5 visi · 6 temps · 7 nuages · 8 T/Td · 9 QNH · 10 tendance.",
+        "METAR - structure")
+
+    # ── Étages nuageux & genres ──
+    ETAGES = [
+        ("Ci (Cirrus) — filaments en fibres", "Étage haut (> 7000 ft)", ["Étage bas", "Étage moyen", "Sol uniquement"]),
+        ("Ns (Nimbostratus) — couche grise pluvieuse", "Étage moyen (peut occuper plusieurs étages)", ["Étage haut seul", "Étage bas uniquement", "Convection pure"]),
+        ("Cu (Cumulus) — chapeau coton", "Étage bas (< 2000 ft)", ["Étage haut", "Étage moyen seul", "Stratosphere"]),
+        ("Cb (Cumulonimbus)", "Développement vertical — tous étages", ["Étage bas seul", "Étage moyen", "Nuage lentille"]),
+    ]
+    for desc, correct, wrongs in ETAGES:
+        add(2, f"{desc} : étage typique ?", correct, wrongs,
+            f"Classification 3 étages + nuages à développement vertical.", "Classification nuages - étages")
+
+    # ── TAF symboles & scénarios ──
+    TAF_EXTRA = [
+        ("TEMPO1214/1216 3000 -RA BKN010", "TEMPO indique :",
+         "Fluctuations temporaires < 1 h entre 12h14 et 12h16 UTC",
+         ["Changement permanent", "Probabilité 30%", "Amendement"],
+         "TEMPO = phénomène temporaire ; durée totale < 50% période.", "TAF - TEMPO", 3),
+        ("BECMG 1218/1220 9999 NSW", "BECMG indique :",
+         "Évolution vers conditions meilleures sur ~2 h",
+         ["Changement en 10 min", "Fluctuation 30 min", "Annulation TAF"],
+         "BECMG = becoming — transition progressive (< 4 h).", "TAF - BECMG", 2),
+        ("FM121800", "FM121800 signifie :",
+         "Changement permanent et brutal à 18h00 UTC le 12",
+         ["Fin de validité", "Probabilité 40%", "Temporaire 1 h"],
+         "FM = From — nouvelle période dès l'heure indiquée.", "TAF - FM", 3),
+        ("PROB30 TEMPO", "PROB30 TEMPO combine :",
+         "30% de probabilité de fluctuations temporaires",
+         ["30 kt de vent", "30% d'humidité", "Certitude 30%"],
+         "PROB30 = faible probabilité · PROB40 = modérée.", "TAF - PROB", 3),
+    ]
+    for snippet, question, correct, wrongs, expl, ref, diff in TAF_EXTRA:
+        add(diff, f"Dans un TAF « {snippet} », {question}", correct, wrongs, expl, ref)
+
+    add(2, "Validité d'un TAF court (aérodrome standard) :",
+        "9 heures", ["6 heures", "12 heures", "24 heures"],
+        "TAF court 9 h (émission /3 h). TAF long 24-30 h pour grands aéroports.", "TAF - validité")
+    add(2, "Fréquence d'émission TAF court :",
+        "Toutes les 3 heures", ["Toutes les heures", "Toutes les 6 h", "Une fois par jour"],
+        "TAF émis /3 h ; METAR /30 min ou /1 h selon trafic.", "TAF - validité")
+
+    # ── Cartes TEMSI vs WINTEM (comparaison) ──
+    add(2, "TEMSI France couvre l'altitude :",
+        "Surface à 15 000 ft QNH", ["Surface à FL450", "FL100 à FL450", "Surface à FL195"],
+        "TEMSI France = prévision temps significatif bas/moyen niveau.", "Cartes TEMSI")
+    add(2, "WINTEM France propose les niveaux :",
+        "FL020, FL050, FL100", ["FL050 à FL390 seulement", "Surface à 5000 ft", "FL100 seul"],
+        "WINTEM France = vent + température à 3 niveaux.", "Cartes WINTEM")
+    add(3, "Différence principale TEMSI vs WINTEM :",
+        "TEMSI = phénomènes/significatif · WINTEM = vent et température par FL",
+        ["Identiques", "TEMSI = vent seul", "WINTEM = pluie et brouillard"],
+        "Complémentarité briefing : temps sig. vs performance navigation.", "Cartes météo - comparaison")
+
+    # ── Pièges symboles / régions TEMSI ──
+    for code, loc in [("MAR", "en mer"), ("MON", "au-dessus des montagnes"), ("COT", "sur les côtes"),
+                      ("VAL", "dans les vallées"), ("LOC", "localement")]:
+        wrongs = [l for c, l in [("MAR", "en mer"), ("MON", "au-dessus des montagnes"), ("COT", "sur les côtes"),
+                                ("VAL", "dans les vallées"), ("LOC", "localement"), ("SFC", "en surface")] if c != code][:3]
+        add(2, f"Sur TEMSI, abréviation « {code} » précise un phénomène :", loc, wrongs,
+            f"{code} = {loc} — précise la localisation du phénomène.", "Cartes TEMSI - localisation")
+
+    return qs
+
+
 # ─── RÉGLEMENTATION ─────────────────────────────────────────────
 def gen_reg():
     qs = []
@@ -1148,6 +1415,7 @@ def main():
     bank.extend(gen_comm())
     bank.extend(gen_aero())
     bank.extend(gen_meteo())
+    bank.extend(gen_meteo_symbols_advanced())
     bank.extend(gen_reg())
     bank.extend(gen_bulk_meteo())
     bank.extend(gen_bulk_reg())
