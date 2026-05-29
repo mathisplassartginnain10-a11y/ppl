@@ -156,24 +156,10 @@ const fichesHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="ppl_resources.css?v=20260528s">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
 <link rel="stylesheet" href="ppl_auth.css?v=20260529a">
-<link rel="preload" href="docs/Meshy_AI_Elixir_Aircraft_Conce_0528193216_texture.glb" as="fetch" crossorigin>
-<script type="importmap">
-{
-  "imports": {
-    "three": "./vendor/three/build/three.module.min.js",
-    "three/addons/": "./vendor/three/examples/jsm/"
-  }
-}
-</script>
-<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528w">
+<link rel="stylesheet" href="ppl_perf.css?v=20260529e">
 <script src="ppl_auth.js?v=20260529a"></script>
-<script src="ppl_plane_bg.js?v=20260528w" defer></script>
 </head>
 <body class="fiches-page">
-<div class="mesh-bg"></div>
-<div class="grid-overlay"></div>
-<div class="noise"></div>
-<div class="glows"><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
 <div class="wrap app-shell">
 <header class="app-header">
   <a href="index.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>

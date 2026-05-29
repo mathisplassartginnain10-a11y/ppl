@@ -12,28 +12,14 @@
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260529b">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528p">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528p">
+<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260529e">
+<link rel="stylesheet" href="ppl_mobile.css?v=20260529e">
 <link rel="stylesheet" href="ppl_auth.css?v=20260529a">
-<link rel="preload" href="docs/Meshy_AI_Elixir_Aircraft_Conce_0528193216_texture.glb" as="fetch" crossorigin>
-<script type="importmap">
-{
-  "imports": {
-    "three": "./vendor/three/build/three.module.min.js",
-    "three/addons/": "./vendor/three/examples/jsm/"
-  }
-}
-</script>
-<link rel="stylesheet" href="ppl_plane_bg.css?v=20260528w">
+<link rel="stylesheet" href="ppl_perf.css?v=20260529e">
 <script src="ppl_auth.js?v=20260529a"></script>
 <script src="ppl_session_fiches.js?v=20260529d"></script>
-<script src="ppl_plane_bg.js?v=20260528w" defer></script>
 </head>
 <body>
-<div class="mesh-bg"></div>
-<div class="grid-overlay"></div>
-<div class="noise"></div>
-<div class="glows"><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
 <div class="wrap app-shell">
 <header class="app-header">
   <a href="index.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
@@ -220,9 +206,11 @@ const QBehavior={
     this.dist=0;this.moves=0;this.hovers={};this.currentHover=null;this.hoverSwitches=0;
     this.lastEvt=this.t0;this.idleMs=0;this.scrollCount=0;this.handlers=[];
     this.velSamples=[];this.vacillations=0;this.lastHoverLeave=null;this.prevHover=null;
-    this.blurCount=0;this._blurAt=null;this.optsEnter=null;this.maxVel=0;this.pathDirect=0;
+    this.blurCount=0;this._blurAt=null;this.optsEnter=null;this.maxVel=0;this.pathDirect=0;this._moveThrottle=0;
     this._onMove=(e)=>{
       const now=Date.now();
+      if(now-this._moveThrottle<50) return;
+      this._moveThrottle=now;
       if(this.lastX!=null){
         const dx=e.clientX-this.lastX,dy=e.clientY-this.lastY,d=Math.hypot(dx,dy);
         this.dist+=d;
@@ -643,7 +631,7 @@ function startReactLive(diff){
   const box=document.getElementById('react-live');
   if(box){box.className='react-live wait';document.getElementById('react-val').textContent='—';}
   updateReactLive();
-  reactInt=setInterval(updateReactLive,80);
+  reactInt=setInterval(updateReactLive,250);
 }
 
 function getReactStats(src){

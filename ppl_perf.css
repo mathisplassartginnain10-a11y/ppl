@@ -1,0 +1,94 @@
+/* PPL Quiz — performances : pas de 3D, pas de blur GPU lourd */
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background: var(--bg, #080b12) !important;
+}
+
+.mesh-bg,
+.grid-overlay,
+.noise,
+.glows,
+#ppl-sky,
+.ppl-sky,
+.ppl-sky-plane {
+  display: none !important;
+}
+
+.app-header,
+.kpi-c,
+.mc,
+.qcard,
+.fb,
+.fiche-card,
+.rev-card,
+.resource-screen,
+.fiches-dashboard,
+.fiches-mod-chip,
+.session-fiche-group,
+.session-recap-stored,
+.stats-card,
+.pause-ov,
+#ppl-gate,
+.ppl-gate-card,
+.react-live,
+.fiche-sticky-bar,
+.algo-box,
+.stats-summary,
+.formula-card,
+.rev-panel,
+.fiches-hero,
+.resource-top,
+.stats-table-wrap,
+.fiche-tabs-wrap,
+.app-nav-link,
+.mc-ico,
+.bank-hero,
+.dist-preview,
+.config-panel,
+.tbox-wrap,
+.n-presets,
+.exam-dash,
+.react-dash,
+.proba-dash {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.mesh-bg,
+.grid-overlay,
+.noise,
+.glows,
+.glows .g1,
+.glows .g2,
+.glows .g3,
+.dot-pulse,
+.fiche-lazy-spin,
+.progress-bar-fi,
+.pbar-fi,
+.prog-fi {
+  animation: none !important;
+}
+
+.app-header {
+  background: rgba(8, 11, 18, 0.96);
+  box-shadow: 0 1px 0 rgba(100, 130, 255, 0.1);
+}
+
+.kpi-c,
+.mc,
+.qcard,
+.fiche-card,
+.rev-card,
+.formula-card {
+  box-shadow: var(--shadow-sm, 0 4px 16px rgba(0, 0, 0, 0.2));
+}
+
+#ppl-gate {
+  background: rgba(8, 11, 18, 0.98);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}

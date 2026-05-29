@@ -30,18 +30,9 @@ body {
     var(--bg);
 }
 
-/* Fond animé */
+/* Fond animé — désactivé (perf) */
 .mesh-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(at 40% 20%, rgba(91, 138, 240, 0.14) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, rgba(124, 108, 246, 0.1) 0px, transparent 45%),
-    radial-gradient(at 0% 50%, rgba(52, 211, 168, 0.07) 0px, transparent 50%),
-    radial-gradient(at 80% 100%, rgba(240, 176, 64, 0.05) 0px, transparent 40%);
-  animation: meshShift 18s ease-in-out infinite alternate;
+  display: none;
 }
 
 @keyframes meshShift {
@@ -63,15 +54,7 @@ body {
 }
 
 .glows .g3 {
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(52, 211, 168, 0.07) 0%, transparent 70%);
-  top: 40%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  animation: pulseGlow 8s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes pulseGlow {
