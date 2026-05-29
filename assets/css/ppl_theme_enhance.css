@@ -24,9 +24,9 @@ html { scroll-behavior: smooth; }
 body {
   font-family: var(--font-display);
   background:
-    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(91, 138, 240, 0.18) 0%, transparent 55%),
-    radial-gradient(ellipse 80% 50% at 100% 50%, rgba(124, 108, 246, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 0% 80%, rgba(52, 211, 168, 0.06) 0%, transparent 45%),
+    radial-gradient(ellipse 120% 80% at 50% -20%, var(--mesh-a, rgba(91, 138, 240, 0.18)) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 50% at 100% 50%, var(--mesh-b, rgba(124, 108, 246, 0.08)) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 0% 80%, var(--mesh-c, rgba(52, 211, 168, 0.06)) 0%, transparent 45%),
     var(--bg);
 }
 
@@ -53,6 +53,14 @@ body {
   mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 70%);
 }
 
+.glows .g1 {
+  background: radial-gradient(circle, var(--acc-glow, rgba(91, 138, 240, 0.12)) 0%, transparent 70%);
+}
+
+.glows .g2 {
+  background: radial-gradient(circle, color-mix(in srgb, var(--acc2, #7c6cf6) 8%, transparent) 0%, transparent 70%);
+}
+
 .glows .g3 {
   display: none;
 }
@@ -73,7 +81,7 @@ body {
   gap: 1rem;
   padding: 0.85rem 1.5rem;
   margin: -2rem -1.25rem 1.75rem;
-  background: rgba(8, 11, 18, 0.75);
+  background: var(--hdr-bg, rgba(8, 11, 18, 0.75));
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
   border-bottom: 1px solid var(--glass-border);

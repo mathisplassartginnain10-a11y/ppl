@@ -1,6 +1,9 @@
 const fs = require('fs');
+const path = require('path');
 const vm = require('vm');
-const code = fs.readFileSync(__dirname + '/questions_bank.js', 'utf8');
+const ROOT = path.join(__dirname, '..', '..');
+const BANK = path.join(ROOT, 'assets', 'js', 'questions_bank.js');
+const code = fs.readFileSync(BANK, 'utf8');
 const sandbox = {};
 vm.createContext(sandbox);
 vm.runInContext(code + '\nthis.Q = typeof Q !== "undefined" ? Q : null;', sandbox);

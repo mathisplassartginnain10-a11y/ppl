@@ -5,8 +5,8 @@ from pathlib import Path
 from collections import Counter
 from formula_enrich import enrich_all
 
-ROOT = Path(__file__).parent
-OUT = ROOT / "formulas_bank.js"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "assets" / "js" / "formulas_bank.js"
 
 
 def F(**kw):

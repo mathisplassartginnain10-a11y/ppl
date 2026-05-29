@@ -13,13 +13,15 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
-<link rel="stylesheet" href="ppl_theme.css?v=20260529b">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260529j">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260529e">
-<link rel="stylesheet" href="ppl_auth.css?v=20260529b">
-<link rel="stylesheet" href="ppl_perf.css?v=20260529e">
-<script src="ppl_auth.js?v=20260529b"></script>
-<script src="ppl_session_fiches.js?v=20260529g"></script>
+<link rel="stylesheet" href="assets/css/ppl_theme.css?v=20260529b">
+<link rel="stylesheet" href="assets/css/ppl_theme_enhance.css?v=20260529j">
+<link rel="stylesheet" href="assets/css/ppl_mobile.css?v=20260529e">
+<link rel="stylesheet" href="assets/css/ppl_auth.css?v=20260529b">
+<link rel="stylesheet" href="assets/css/ppl_perf.css?v=20260529e">
+<link rel="stylesheet" href="assets/css/ppl_settings.css?v=20260529m">
+<script src="assets/js/ppl_settings.js?v=20260529m"></script>
+<script src="assets/js/ppl_auth.js?v=20260529b"></script>
+<script src="assets/js/ppl_session_fiches.js?v=20260529g"></script>
 </head>
 <body>
 <div class="wrap app-shell">
@@ -175,7 +177,7 @@
 </div>
 
 </div>
-<script src="questions_bank.js?v=20260529q"></script>
+<script src="assets/js/questions_bank.js?v=20260529q"></script>
 <script>
 (function(){
   const meta=typeof Q_BANK_META!=='undefined'?Q_BANK_META:null;
@@ -191,10 +193,10 @@
   }
 })();
 </script>
-<script src="formulas_bank.js?v=20260528d"></script>
-<script src="formulas_engine.js?v=20260528d"></script>
-<script src="topics_utils.js?v=20260528e"></script>
-<script src="fiche_enrich.js?v=20260528q"></script>
+<script src="assets/js/formulas_bank.js?v=20260528d"></script>
+<script src="assets/js/formulas_engine.js?v=20260528d"></script>
+<script src="assets/js/topics_utils.js?v=20260528e"></script>
+<script src="assets/js/fiche_enrich.js?v=20260528q"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // MOTEUR PROBABILITÉ AVANCÉ + TRACKING COMPORTEMENTAL
@@ -399,6 +401,9 @@ function estimateModuleSkill(ok,t,globalRate,gs){
   }else{
     pEst=globalMix;
   }
+  if(gs?.reactAvg!=null&&gs.reactAvg>0){
+    pEst=clampProba(pEst+(gs.reactAvg-52)/380);
+  }
   const {adj}=moduleExamAdjustments(gs||{weakN:0,fails:0,hes:0,sm2Due:0,hardGap:0,trend:{delta:0},reactAvg:null,sm2Reps:0,byDiff:{3:{t:0},4:{t:0}}});
   return clampProba(pEst+adj);
 }
@@ -410,9 +415,9 @@ function modulePassProb(ok,t,nExam,globalRate,gs){
   const rate=ok/t;
   const margin=rate-EXAM_PASS_THRESHOLD;
   const direct=margin>=0
-    ?Math.min(0.96,0.62+margin*2.2)
-    :Math.max(0.08,0.42+margin*1.6);
-  return Math.min(0.98,Math.max(0.05,0.38*strict+0.62*direct));
+    ?Math.min(0.97,0.58+margin*2.8)
+    :Math.max(0.18,0.52+margin*1.9);
+  return Math.min(0.98,Math.max(0.10,0.20*strict+0.80*direct));
 }
 
 function comb(n,k){
@@ -536,18 +541,17 @@ function collectGlobalStats(){
 
 function moduleExamAdjustments(gs){
   let adj=0; const f=[];
-  if(gs.weakN>0){const p=-Math.min(0.08,gs.weakN*0.005);adj+=p;f.push({name:`Points faibles (${gs.weakN})`,v:p});}
-  if(gs.fails>0){const p=-Math.min(0.06,gs.fails*0.003);adj+=p;f.push({name:`Erreurs cumulées (${gs.fails})`,v:p});}
-  if(gs.hes>0){const p=-Math.min(0.05,gs.hes*0.004);adj+=p;f.push({name:`Hésitations (${gs.hes})`,v:p});}
-  if(gs.sm2Due>0){const p=-Math.min(0.04,gs.sm2Due*0.008);adj+=p;f.push({name:`SM-2 en retard (${gs.sm2Due})`,v:p});}
-  if(gs.hardGap>0.15&&gs.byDiff[3].t+gs.byDiff[4].t>=3){const p=-Math.min(0.05,gs.hardGap*0.2);adj+=p;f.push({name:'Écart facile/difficile',v:p});}
-  if(gs.trend.rate!=null&&gs.trend.delta<-0.1){adj-=0.03;f.push({name:'Tendance récente ↓',v:-0.03});}
+  const reactOk=(gs.reactAvg??50)>=72;
+  const penScale=reactOk?0.55:1;
+  if(gs.weakN>0){const p=-Math.min(0.06,gs.weakN*0.004)*penScale;adj+=p;f.push({name:`Points faibles (${gs.weakN})`,v:p});}
+  if(gs.fails>0){const p=-Math.min(0.05,gs.fails*0.0025)*penScale;adj+=p;f.push({name:`Erreurs cumulées (${gs.fails})`,v:p});}
+  if(gs.hes>0){const p=-Math.min(0.04,gs.hes*0.003)*penScale;adj+=p;f.push({name:`Hésitations (${gs.hes})`,v:p});}
+  if(gs.sm2Due>0){const p=-Math.min(0.03,gs.sm2Due*0.006);adj+=p;f.push({name:`SM-2 en retard (${gs.sm2Due})`,v:p});}
+  if(gs.hardGap>0.15&&gs.byDiff[3].t+gs.byDiff[4].t>=3){const p=-Math.min(0.04,gs.hardGap*0.16);adj+=p;f.push({name:'Écart facile/difficile',v:p});}
+  if(gs.trend.rate!=null&&gs.trend.delta<-0.1){adj-=0.02;f.push({name:'Tendance récente ↓',v:-0.02});}
   else if(gs.trend.delta>0.08){adj+=0.02;f.push({name:'Tendance récente ↑',v:0.02});}
-  if(gs.reactAvg!=null){
-    const p=(gs.reactAvg-55)/1000; adj+=p;
-    if(Math.abs(p)>=0.003) f.push({name:`Réaction module (${gs.reactAvg}%)`,v:p});
-  }
   if(gs.sm2Reps>=5){adj+=0.02;f.push({name:'Mémoire SM-2 solide',v:0.02});}
+  adj=Math.max(-0.09,Math.min(0.08,adj));
   return {adj,f};
 }
 
@@ -584,73 +588,73 @@ function passProbFromCounts(m,ok,t,globalRate){
 
 /* ── Moteur réaction — facteur #1 ── */
 const REACT_PROFILE={
-  1:{reactSweet:[2,22],reactWarn:[0.8,50],decideSweet:[0.3,20],readMin:0.25},
-  2:{reactSweet:[3,35],reactWarn:[1,65],decideSweet:[0.4,28],readMin:0.4},
-  3:{reactSweet:[4,45],reactWarn:[1.2,80],decideSweet:[0.5,38],readMin:0.6},
-  4:{reactSweet:[5,55],reactWarn:[1.5,95],decideSweet:[0.6,48],readMin:0.8},
+  1:{reactSweet:[4,16],reactWarn:[1.5,28],decideSweet:[0.4,12],readMin:0.5},
+  2:{reactSweet:[5,24],reactWarn:[2,38],decideSweet:[0.5,18],readMin:0.7},
+  3:{reactSweet:[7,32],reactWarn:[2.5,50],decideSweet:[0.6,24],readMin:1},
+  4:{reactSweet:[9,42],reactWarn:[3,62],decideSweet:[0.8,32],readMin:1.2},
 };
 
 function reactionEngine(correct,diff,beh){
-  if(!beh) return {score:50,bonus:0,tags:[],label:'—',tier:'na',phase:{read:0,react:0,decide:0,total:0},confIdx:50,reactSweet:[3,35]};
+  if(!beh) return {score:50,bonus:0,tags:[],label:'—',tier:'na',phase:{read:0,react:0,decide:0,total:0},confIdx:50,reactSweet:[5,24]};
   const prof=REACT_PROFILE[diff]||REACT_PROFILE[2];
   const choose=beh.chooseSec??beh.reactionSec??0;
   const total=(beh.totalMs||0)/1000||(beh.totalSec??((beh.readSec||0)+choose));
   const decide=beh.decisionSec||0,read=beh.readSec||0;
   const [rLo,rHi]=prof.reactSweet,[rMin,rMax]=prof.reactWarn;
   const [dLo,dHi]=prof.decideSweet;
-  const tags=[]; let score=52;
+  const tags=[]; let score=50;
 
   if(total>=rLo&&total<=rHi){
     const mid=(rLo+rHi)/2,dist=Math.abs(total-mid)/Math.max(0.01,(rHi-rLo)/2);
-    score=88+Math.round(12*(1-Math.min(1,dist)));
+    score=74+Math.round(14*(1-Math.min(1,dist)));
     tags.push('réaction optimale');
   }else if(total<rMin){
-    score=Math.max(28,52-Math.round((rMin-total)*6));
+    score=Math.max(30,48-Math.round((rMin-total)*5));
     tags.push('très rapide');
   }else if(total<rLo){
-    score=74+Math.round((total-rMin)/(rLo-rMin)*14);
+    score=62+Math.round((total-rMin)/(rLo-rMin)*12);
     tags.push('réaction rapide');
   }else if(total<=rMax){
-    score=62-Math.round(((total-rHi)/(rMax-rHi))*22);
+    score=58-Math.round(((total-rHi)/(rMax-rHi))*20);
     tags.push('réaction lente');
   }else{
-    score=Math.max(22,48-Math.round((total-rMax)*1.2));
+    score=Math.max(24,42-Math.round((total-rMax)*1.1));
     tags.push('sur-analyse');
   }
 
   if(decide>=dLo&&decide<=dHi){
-    if(correct) score=Math.min(98,score+6);
+    if(correct) score=Math.min(90,score+4);
   }else if(decide<0.4&&!correct){
-    score=Math.max(18,score-8);
+    score=Math.max(20,score-10);
     tags.push('clic précipité');
   }else if(decide>dHi*1.6&&!correct){
-    score=Math.max(18,score-8);
+    score=Math.max(20,score-10);
     tags.push('hésitation prolongée');
   }else if(decide<dLo&&correct&&total>=rLo){
-    score=Math.min(98,score+4);
+    score=Math.min(88,score+3);
     tags.push('décision assurée');
   }
 
-  if(read<prof.readMin&&total<rLo*0.6){
-    score=Math.max(22,score-8);
+  if(read<prof.readMin&&total<rLo*0.55){
+    score=Math.max(24,score-10);
     tags.push('lecture courte');
-  }else if(read>=prof.readMin){
-    score=Math.min(98,score+3);
+  }else if(read>=prof.readMin&&total>=rLo*0.8){
+    score=Math.min(90,score+2);
   }
 
   if(correct){
-    score=Math.min(98,score+4);
-    if(total>=rMin&&total<=rMax) score=Math.max(score,78);
-    if(total>=rLo&&total<=rHi) score=Math.max(score,90);
-    if(score>=78) tags.push('réflexe sûr');
+    score=Math.min(92,score+2);
+    if(total>=rMin&&total<=rMax) score=Math.max(score,68);
+    if(total>=rLo&&total<=rHi) score=Math.max(score,78);
+    if(score>=72) tags.push('réflexe sûr');
   }else{
-    score=Math.max(28,score-14);
-    if(total<rMin||decide<0.35) score=Math.max(18,score-8);
+    score=Math.max(26,score-16);
+    if(total<rMin||decide<0.35) score=Math.max(20,score-10);
   }
 
-  score=Math.max(15,Math.min(98,Math.round(score)));
-  const bonus=Math.max(-40,Math.min(40,Math.round((score-52)*0.82)));
-  const tier=score>=82?'optimal':score>=64?'good':score>=42?'warn':'bad';
+  score=Math.max(18,Math.min(92,Math.round(score)));
+  const bonus=Math.max(-40,Math.min(40,Math.round((score-50)*0.82)));
+  const tier=score>=78?'optimal':score>=60?'good':score>=42?'warn':'bad';
   const label={optimal:'Réaction optimale — rythme examen',good:'Réaction correcte',warn:'Réaction à calibrer',bad:'Réaction problématique',na:'—'}[tier];
   return {score,bonus,tags,label,tier,phase:{read,react:choose,decide,total},confIdx:score,reactSweet:prof.reactSweet};
 }
@@ -951,23 +955,43 @@ function calcProba(correct,elapsedSec,diff,sessionHistory,beh,ctx){
     reactScore:reactRes.score,reactRes,mastery:scorePct,examImpact};
 }
 
+function globalExamSkill(g){
+  const priorN=Math.max(4,EXAM_PRIOR.n+Math.floor((g.totalT||0)/10));
+  const base=g.totalT>=5
+    ?bayesianRate(g.totalOk,g.totalT,EXAM_PRIOR.mean,priorN)
+    :EXAM_PRIOR.mean;
+  const react=g.reactG.n>=3?(g.reactG.avgScore-50)/260:0;
+  const covBonus=Math.min(0.05,(g.coverage||0)*0.1);
+  let pen=0;
+  if(g.weakN>0) pen+=Math.min(0.07,g.weakN*0.0035);
+  if(g.totalFails>0) pen+=Math.min(0.05,g.totalFails*0.002);
+  if(g.totalHes>0) pen+=Math.min(0.04,g.totalHes*0.002);
+  if(g.wRate>=0.72&&g.reactG.avgScore>=68) pen*=0.5;
+  return clampProba(base+react+covBonus-pen);
+}
+
 function simulateExamReadiness(){
   const g=collectGlobalStats();
   const globalRate=g.wRate??EXAM_PRIOR.mean;
+  const gSkill=globalExamSkill(g);
   const mods={};
-  let globalPass=1,globalPassLow=1,globalPassHigh=1,totalT=0,reliableModules=0;
+  let moduleProduct=1,globalPassLow=1,globalPassHigh=1,totalT=0,reliableModules=0;
   MOD_ORDER.forEach(m=>{
     const s=getModuleExamStats(m,globalRate);
     totalT+=s.t;
+    const cov=Math.min(1,s.t/EXAM_MIN_ANSWERS_MODULE);
+    const localPass=s.passProb;
+    const fallback=binomialPassProb(s.nExam,gSkill);
+    const blendedPass=Math.min(0.98,Math.max(0.10,cov*localPass+(1-cov)*fallback));
     if(s.reliable) reliableModules++;
-    globalPass*=s.passProb;
-    globalPassLow*=s.passLow;
-    globalPassHigh*=Math.min(0.999,s.passHigh);
+    moduleProduct*=blendedPass;
+    globalPassLow*=Math.max(0.05,cov*s.passLow+(1-cov)*fallback*0.85);
+    globalPassHigh*=Math.min(0.999,cov*s.passHigh+(1-cov)*Math.min(0.999,fallback*1.08));
     mods[m]={
       rate:Math.round(s.pExam*100),
-      passProb:Math.round(s.passProb*100),
-      passLow:Math.round(s.passLow*100),
-      passHigh:Math.round(s.passHigh*100),
+      passProb:Math.round(blendedPass*100),
+      passLow:Math.round(Math.max(0,cov*s.passLow+(1-cov)*fallback*0.85)*100),
+      passHigh:Math.round(Math.min(99,cov*s.passHigh+(1-cov)*Math.min(0.99,fallback*1.08))*100),
       coverage:Math.round(s.coverage*100),
       n:s.t,nExam:s.nExam,kMin:s.kMin,weak:s.weakN,reliable:s.reliable,
       hardRate:Math.round((s.hardRate||0)*100),easyRate:Math.round((s.easyRate||0)*100),
@@ -975,8 +999,10 @@ function simulateExamReadiness(){
     };
   });
   const reliable=totalT>=EXAM_MIN_ANSWERS_GLOBAL;
-  const examP=reliable?Math.round(globalPass*100):null;
-  const examPLow=reliable?Math.round(globalPassLow*100):null;
+  const fullExam=binomialPassProb(64,gSkill);
+  const examPRaw=reliable?0.38*moduleProduct+0.62*fullExam:null;
+  const examP=reliable?Math.round(Math.min(99,Math.max(5,examPRaw*100))):null;
+  const examPLow=reliable?Math.round(Math.max(3,globalPassLow*100)):null;
   const examPHigh=reliable?Math.min(99,Math.round(globalPassHigh*100)):null;
   const verdict=!reliable?'na':examP>=80?'ready':examP>=55?'mid':'low';
   const vLabel=!reliable
@@ -2789,9 +2815,10 @@ function showFb(ok,q,el,beh){
   const res=calcProba(ok,el,q.d,sesHist.slice(0,-1),beh,{q,idx,qi,total:queue.length});
   const p=res.p,pc=probaClass(p);
   const examSim=simulateExamReadiness();
+  const modPass=examSim.mods[q.m]?.passProb;
   const examTag=examSim.reliable&&examSim.examP!=null
-    ?`<span class="proba-tag ${probaClass(examSim.examP)}" title="Probabilité estimée de réussir les 4 épreuves (≥75% chacune)">P(examen) ${examSim.examP}%</span>`
-    :`<span class="proba-tag proba-tag-muted">P(examen) · ${examSim.totalT||0}/${EXAM_MIN_ANSWERS_GLOBAL} rép.</span>`;
+    ?`<span class="proba-tag ${probaClass(examSim.examP)}" title="Probabilité estimée de réussir les 4 épreuves (≥75% chacune) — basée sur précision globale, réaction et couverture par matière">P(examen) ${examSim.examP}%</span>`
+    :`<span class="proba-tag proba-tag-muted" title="Minimum ${EXAM_MIN_ANSWERS_GLOBAL} réponses pour estimer">P(examen) · ${examSim.totalT||0}/${EXAM_MIN_ANSWERS_GLOBAL} rép.</span>`;
   const tlim={1:12,2:22,3:38,4:55}[q.d];
   const r=el/tlim;
   const tl=r<0.35?'⚡ Très rapide':r<0.7?'✓ Rapide':r<1.1?'◎ Normal':'○ Long';
@@ -2808,8 +2835,9 @@ function showFb(ok,q,el,beh){
     <div class="fb ${ok?'ok':'ko'} fb-brief">
       <div class="fb-hd">
         <span class="fb-st">${ok?'✓ Correct':'✗ Incorrect'} · ${el.toFixed(1)}s · ${tl}</span>
-        <span class="proba-tag ${probaClass(res.reactScore||50)}">Réaction ${res.reactScore||50}%</span>
-        <span class="proba-tag ${pc}">Maîtrise ${p}%</span>
+        <span class="proba-tag ${probaClass(res.reactScore||50)}" title="Rythme de lecture et de décision sur cette question">Réaction ${res.reactScore||50}%</span>
+        <span class="proba-tag ${pc}" title="Estimation bayésienne sur ce thème précis (pas la probabilité d'examen)">Thème ${p}%</span>
+        ${modPass!=null?`<span class="proba-tag ${probaClass(modPass)}" title="P(réussite) sur l'épreuve ${modStr(q.m)}">Épreuve ${modPass}%</span>`:''}
         ${examTag}
       </div>
       ${ansBlock}

@@ -3,11 +3,11 @@
 import json, re, math, random
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 HTML = ROOT / "index.html"
-OUT = ROOT / "questions_bank.js"
-META = ROOT / "questions_meta.json"
+OUT = ROOT / "assets" / "js" / "questions_bank.js"
+META = ROOT / "data" / "questions_meta.json"
 
 random.seed(42)
 

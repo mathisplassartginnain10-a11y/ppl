@@ -1,0 +1,756 @@
+(function (global) {
+  'use strict';
+
+  const STORAGE_KEY = 'ppl4settings';
+
+  const DEFAULTS = {
+    theme: 'midnight',
+    accent: 'blue',
+    fontSize: 'normal',
+    density: 'comfort',
+    font: 'outfit',
+    animations: true,
+    glass: true,
+    glow: true,
+    grid: true,
+  };
+
+  const THEMES = {
+    midnight: {
+      label: 'Minuit',
+      icon: '🌙',
+      vars: {
+        '--bg': '#080b12',
+        '--s1': '#0e1420',
+        '--s2': '#141c2e',
+        '--s3': '#1c2640',
+        '--s4': '#243050',
+        '--t1': '#eef0f8',
+        '--t2': '#8b93b8',
+        '--t3': '#4a5278',
+        '--t4': '#2a3060',
+        '--b1': 'rgba(100,130,255,.08)',
+        '--b2': 'rgba(100,130,255,.16)',
+        '--b3': 'rgba(100,130,255,.28)',
+        '--glass': 'rgba(14, 20, 32, 0.72)',
+        '--glass2': 'rgba(20, 28, 46, 0.85)',
+        '--glass-border': 'rgba(120, 160, 255, 0.12)',
+        '--glass-border-hi': 'rgba(120, 160, 255, 0.28)',
+        '--hdr-bg': 'rgba(8, 11, 18, 0.75)',
+        '--mesh-a': 'rgba(91, 138, 240, 0.18)',
+        '--mesh-b': 'rgba(124, 108, 246, 0.08)',
+        '--mesh-c': 'rgba(52, 211, 168, 0.06)',
+      },
+      meta: '#080b12',
+    },
+    cockpit: {
+      label: 'Cockpit',
+      icon: '✈',
+      vars: {
+        '--bg': '#060a0f',
+        '--s1': '#0a1218',
+        '--s2': '#101c24',
+        '--s3': '#162830',
+        '--s4': '#1c343c',
+        '--t1': '#e8f4f0',
+        '--t2': '#7a9a90',
+        '--t3': '#3d5c54',
+        '--t4': '#243830',
+        '--b1': 'rgba(52, 211, 168, 0.08)',
+        '--b2': 'rgba(52, 211, 168, 0.16)',
+        '--b3': 'rgba(52, 211, 168, 0.28)',
+        '--glass': 'rgba(10, 18, 24, 0.78)',
+        '--glass2': 'rgba(16, 28, 36, 0.88)',
+        '--glass-border': 'rgba(52, 211, 168, 0.14)',
+        '--glass-border-hi': 'rgba(52, 211, 168, 0.3)',
+        '--hdr-bg': 'rgba(6, 10, 15, 0.82)',
+        '--mesh-a': 'rgba(52, 211, 168, 0.12)',
+        '--mesh-b': 'rgba(64, 192, 240, 0.06)',
+        '--mesh-c': 'rgba(240, 176, 64, 0.04)',
+      },
+      meta: '#060a0f',
+    },
+    ocean: {
+      label: 'Océan',
+      icon: '🌊',
+      vars: {
+        '--bg': '#061018',
+        '--s1': '#0a1824',
+        '--s2': '#102030',
+        '--s3': '#162a3c',
+        '--s4': '#1c3448',
+        '--t1': '#e8f0fa',
+        '--t2': '#7a94b8',
+        '--t3': '#3d5878',
+        '--t4': '#243850',
+        '--b1': 'rgba(64, 192, 240, 0.08)',
+        '--b2': 'rgba(64, 192, 240, 0.16)',
+        '--b3': 'rgba(64, 192, 240, 0.28)',
+        '--glass': 'rgba(10, 24, 36, 0.75)',
+        '--glass2': 'rgba(16, 32, 48, 0.85)',
+        '--glass-border': 'rgba(64, 192, 240, 0.14)',
+        '--glass-border-hi': 'rgba(64, 192, 240, 0.3)',
+        '--hdr-bg': 'rgba(6, 16, 24, 0.8)',
+        '--mesh-a': 'rgba(64, 192, 240, 0.16)',
+        '--mesh-b': 'rgba(91, 138, 240, 0.08)',
+        '--mesh-c': 'rgba(52, 211, 168, 0.05)',
+      },
+      meta: '#061018',
+    },
+    dawn: {
+      label: 'Aube',
+      icon: '🌅',
+      vars: {
+        '--bg': '#100c14',
+        '--s1': '#18101c',
+        '--s2': '#221828',
+        '--s3': '#2c2034',
+        '--s4': '#362840',
+        '--t1': '#f8f0f4',
+        '--t2': '#a89098',
+        '--t3': '#685860',
+        '--t4': '#403038',
+        '--b1': 'rgba(240, 106, 176, 0.08)',
+        '--b2': 'rgba(240, 176, 64, 0.16)',
+        '--b3': 'rgba(240, 176, 64, 0.28)',
+        '--glass': 'rgba(24, 16, 28, 0.75)',
+        '--glass2': 'rgba(34, 24, 40, 0.85)',
+        '--glass-border': 'rgba(240, 176, 64, 0.14)',
+        '--glass-border-hi': 'rgba(240, 176, 64, 0.3)',
+        '--hdr-bg': 'rgba(16, 12, 20, 0.8)',
+        '--mesh-a': 'rgba(240, 106, 176, 0.1)',
+        '--mesh-b': 'rgba(240, 176, 64, 0.08)',
+        '--mesh-c': 'rgba(155, 138, 240, 0.06)',
+      },
+      meta: '#100c14',
+    },
+    paper: {
+      label: 'Jour',
+      icon: '☀',
+      vars: {
+        '--bg': '#f0f2f8',
+        '--s1': '#ffffff',
+        '--s2': '#e8ecf4',
+        '--s3': '#dce2ee',
+        '--s4': '#cfd6e4',
+        '--t1': '#14182a',
+        '--t2': '#4a5270',
+        '--t3': '#7a8498',
+        '--t4': '#a8b0c0',
+        '--b1': 'rgba(91, 138, 240, 0.1)',
+        '--b2': 'rgba(91, 138, 240, 0.18)',
+        '--b3': 'rgba(91, 138, 240, 0.32)',
+        '--glass': 'rgba(255, 255, 255, 0.82)',
+        '--glass2': 'rgba(248, 250, 255, 0.92)',
+        '--glass-border': 'rgba(91, 138, 240, 0.15)',
+        '--glass-border-hi': 'rgba(91, 138, 240, 0.35)',
+        '--hdr-bg': 'rgba(255, 255, 255, 0.88)',
+        '--mesh-a': 'rgba(91, 138, 240, 0.08)',
+        '--mesh-b': 'rgba(124, 108, 246, 0.05)',
+        '--mesh-c': 'rgba(52, 211, 168, 0.04)',
+      },
+      meta: '#f0f2f8',
+    },
+    forest: {
+      label: 'Forêt',
+      icon: '🌲',
+      vars: {
+        '--bg': '#071008',
+        '--s1': '#0c1810',
+        '--s2': '#122018',
+        '--s3': '#182c20',
+        '--s4': '#1e3828',
+        '--t1': '#e8f4ec',
+        '--t2': '#7a9a82',
+        '--t3': '#3d5c48',
+        '--t4': '#243830',
+        '--b1': 'rgba(72, 187, 120, 0.08)',
+        '--b2': 'rgba(72, 187, 120, 0.16)',
+        '--b3': 'rgba(72, 187, 120, 0.28)',
+        '--glass': 'rgba(12, 24, 16, 0.78)',
+        '--glass2': 'rgba(18, 32, 24, 0.88)',
+        '--glass-border': 'rgba(72, 187, 120, 0.14)',
+        '--glass-border-hi': 'rgba(72, 187, 120, 0.3)',
+        '--hdr-bg': 'rgba(7, 16, 8, 0.82)',
+        '--mesh-a': 'rgba(72, 187, 120, 0.14)',
+        '--mesh-b': 'rgba(132, 164, 74, 0.08)',
+        '--mesh-c': 'rgba(52, 211, 168, 0.05)',
+      },
+      meta: '#071008',
+    },
+    sunset: {
+      label: 'Coucher',
+      icon: '🔥',
+      vars: {
+        '--bg': '#140a06',
+        '--s1': '#1e1008',
+        '--s2': '#28180c',
+        '--s3': '#342010',
+        '--s4': '#402818',
+        '--t1': '#faf0e8',
+        '--t2': '#b89880',
+        '--t3': '#786050',
+        '--t4': '#483830',
+        '--b1': 'rgba(255, 140, 66, 0.08)',
+        '--b2': 'rgba(255, 107, 53, 0.16)',
+        '--b3': 'rgba(255, 107, 53, 0.28)',
+        '--glass': 'rgba(30, 16, 8, 0.78)',
+        '--glass2': 'rgba(40, 24, 12, 0.88)',
+        '--glass-border': 'rgba(255, 140, 66, 0.14)',
+        '--glass-border-hi': 'rgba(255, 140, 66, 0.32)',
+        '--hdr-bg': 'rgba(20, 10, 6, 0.82)',
+        '--mesh-a': 'rgba(255, 107, 53, 0.16)',
+        '--mesh-b': 'rgba(255, 180, 64, 0.1)',
+        '--mesh-c': 'rgba(225, 29, 72, 0.06)',
+      },
+      meta: '#140a06',
+    },
+    lavender: {
+      label: 'Lavande',
+      icon: '💜',
+      vars: {
+        '--bg': '#0e0a18',
+        '--s1': '#161024',
+        '--s2': '#1e1830',
+        '--s3': '#28203c',
+        '--s4': '#322848',
+        '--t1': '#f0ecfa',
+        '--t2': '#a898c8',
+        '--t3': '#685888',
+        '--t4': '#403060',
+        '--b1': 'rgba(167, 139, 250, 0.08)',
+        '--b2': 'rgba(167, 139, 250, 0.16)',
+        '--b3': 'rgba(167, 139, 250, 0.28)',
+        '--glass': 'rgba(22, 16, 36, 0.78)',
+        '--glass2': 'rgba(30, 24, 48, 0.88)',
+        '--glass-border': 'rgba(167, 139, 250, 0.14)',
+        '--glass-border-hi': 'rgba(167, 139, 250, 0.32)',
+        '--hdr-bg': 'rgba(14, 10, 24, 0.82)',
+        '--mesh-a': 'rgba(167, 139, 250, 0.14)',
+        '--mesh-b': 'rgba(217, 70, 239, 0.08)',
+        '--mesh-c': 'rgba(139, 92, 246, 0.06)',
+      },
+      meta: '#0e0a18',
+    },
+    wine: {
+      label: 'Bordeaux',
+      icon: '🍷',
+      vars: {
+        '--bg': '#100608',
+        '--s1': '#1a0c10',
+        '--s2': '#241218',
+        '--s3': '#2e1820',
+        '--s4': '#381e28',
+        '--t1': '#f8ecee',
+        '--t2': '#b89098',
+        '--t3': '#785860',
+        '--t4': '#483038',
+        '--b1': 'rgba(190, 60, 90, 0.08)',
+        '--b2': 'rgba(190, 60, 90, 0.16)',
+        '--b3': 'rgba(190, 60, 90, 0.28)',
+        '--glass': 'rgba(26, 12, 16, 0.78)',
+        '--glass2': 'rgba(36, 18, 24, 0.88)',
+        '--glass-border': 'rgba(190, 60, 90, 0.14)',
+        '--glass-border-hi': 'rgba(190, 60, 90, 0.32)',
+        '--hdr-bg': 'rgba(16, 6, 8, 0.84)',
+        '--mesh-a': 'rgba(190, 60, 90, 0.14)',
+        '--mesh-b': 'rgba(225, 29, 72, 0.08)',
+        '--mesh-c': 'rgba(155, 89, 182, 0.05)',
+      },
+      meta: '#100608',
+    },
+    neon: {
+      label: 'Néon',
+      icon: '⚡',
+      vars: {
+        '--bg': '#06040e',
+        '--s1': '#0c0818',
+        '--s2': '#140c24',
+        '--s3': '#1c1030',
+        '--s4': '#24143c',
+        '--t1': '#f0e8ff',
+        '--t2': '#a088c8',
+        '--t3': '#605080',
+        '--t4': '#383050',
+        '--b1': 'rgba(224, 64, 251, 0.08)',
+        '--b2': 'rgba(224, 64, 251, 0.16)',
+        '--b3': 'rgba(224, 64, 251, 0.28)',
+        '--glass': 'rgba(12, 8, 24, 0.78)',
+        '--glass2': 'rgba(20, 12, 36, 0.88)',
+        '--glass-border': 'rgba(224, 64, 251, 0.16)',
+        '--glass-border-hi': 'rgba(224, 64, 251, 0.36)',
+        '--hdr-bg': 'rgba(6, 4, 14, 0.84)',
+        '--mesh-a': 'rgba(224, 64, 251, 0.16)',
+        '--mesh-b': 'rgba(34, 211, 238, 0.1)',
+        '--mesh-c': 'rgba(255, 107, 157, 0.08)',
+      },
+      meta: '#06040e',
+    },
+    sand: {
+      label: 'Sable',
+      icon: '🏜',
+      vars: {
+        '--bg': '#f5ede0',
+        '--s1': '#fffaf2',
+        '--s2': '#ede4d4',
+        '--s3': '#e0d4c0',
+        '--s4': '#d4c8b0',
+        '--t1': '#2a2018',
+        '--t2': '#6a5848',
+        '--t3': '#9a8878',
+        '--t4': '#c0b0a0',
+        '--b1': 'rgba(200, 124, 74, 0.12)',
+        '--b2': 'rgba(200, 124, 74, 0.2)',
+        '--b3': 'rgba(200, 124, 74, 0.34)',
+        '--glass': 'rgba(255, 250, 242, 0.85)',
+        '--glass2': 'rgba(248, 242, 232, 0.92)',
+        '--glass-border': 'rgba(200, 124, 74, 0.2)',
+        '--glass-border-hi': 'rgba(200, 124, 74, 0.38)',
+        '--hdr-bg': 'rgba(255, 250, 242, 0.9)',
+        '--mesh-a': 'rgba(255, 140, 66, 0.1)',
+        '--mesh-b': 'rgba(232, 185, 35, 0.08)',
+        '--mesh-c': 'rgba(200, 124, 74, 0.06)',
+      },
+      meta: '#f5ede0',
+    },
+    mint: {
+      label: 'Menthe',
+      icon: '🍃',
+      vars: {
+        '--bg': '#e8f8f0',
+        '--s1': '#f4fff8',
+        '--s2': '#dcf0e4',
+        '--s3': '#c8e8d4',
+        '--s4': '#b4dcc4',
+        '--t1': '#102820',
+        '--t2': '#406850',
+        '--t3': '#689878',
+        '--t4': '#98b8a4',
+        '--b1': 'rgba(46, 204, 113, 0.12)',
+        '--b2': 'rgba(46, 204, 113, 0.2)',
+        '--b3': 'rgba(46, 204, 113, 0.34)',
+        '--glass': 'rgba(244, 255, 248, 0.85)',
+        '--glass2': 'rgba(236, 248, 240, 0.92)',
+        '--glass-border': 'rgba(46, 204, 113, 0.2)',
+        '--glass-border-hi': 'rgba(46, 204, 113, 0.38)',
+        '--hdr-bg': 'rgba(244, 255, 248, 0.9)',
+        '--mesh-a': 'rgba(46, 204, 113, 0.1)',
+        '--mesh-b': 'rgba(52, 211, 168, 0.08)',
+        '--mesh-c': 'rgba(132, 164, 74, 0.06)',
+      },
+      meta: '#e8f8f0',
+    },
+    coral: {
+      label: 'Corail',
+      icon: '🪸',
+      vars: {
+        '--bg': '#fff0ec',
+        '--s1': '#fff8f6',
+        '--s2': '#ffe4dc',
+        '--s3': '#ffd4c8',
+        '--s4': '#ffc4b4',
+        '--t1': '#281810',
+        '--t2': '#785048',
+        '--t3': '#a87868',
+        '--t4': '#d0a898',
+        '--b1': 'rgba(255, 107, 107, 0.12)',
+        '--b2': 'rgba(255, 107, 107, 0.2)',
+        '--b3': 'rgba(255, 107, 107, 0.34)',
+        '--glass': 'rgba(255, 248, 246, 0.85)',
+        '--glass2': 'rgba(255, 240, 236, 0.92)',
+        '--glass-border': 'rgba(255, 107, 107, 0.2)',
+        '--glass-border-hi': 'rgba(255, 107, 107, 0.38)',
+        '--hdr-bg': 'rgba(255, 248, 246, 0.9)',
+        '--mesh-a': 'rgba(255, 107, 107, 0.1)',
+        '--mesh-b': 'rgba(255, 140, 66, 0.08)',
+        '--mesh-c': 'rgba(240, 106, 176, 0.06)',
+      },
+      meta: '#fff0ec',
+    },
+    slate: {
+      label: 'Ardoise',
+      icon: '🪨',
+      vars: {
+        '--bg': '#1a1c22',
+        '--s1': '#22242c',
+        '--s2': '#2a2e38',
+        '--s3': '#343844',
+        '--s4': '#3e4450',
+        '--t1': '#eceef4',
+        '--t2': '#989aa8',
+        '--t3': '#686a78',
+        '--t4': '#484a58',
+        '--b1': 'rgba(152, 154, 168, 0.08)',
+        '--b2': 'rgba(152, 154, 168, 0.16)',
+        '--b3': 'rgba(152, 154, 168, 0.28)',
+        '--glass': 'rgba(34, 36, 44, 0.78)',
+        '--glass2': 'rgba(42, 46, 56, 0.88)',
+        '--glass-border': 'rgba(152, 154, 168, 0.14)',
+        '--glass-border-hi': 'rgba(152, 154, 168, 0.3)',
+        '--hdr-bg': 'rgba(26, 28, 34, 0.84)',
+        '--mesh-a': 'rgba(152, 154, 168, 0.1)',
+        '--mesh-b': 'rgba(120, 122, 140, 0.06)',
+        '--mesh-c': 'rgba(200, 124, 74, 0.04)',
+      },
+      meta: '#1a1c22',
+    },
+    arctic: {
+      label: 'Arctique',
+      icon: '❄',
+      vars: {
+        '--bg': '#e8f4fc',
+        '--s1': '#f4faff',
+        '--s2': '#dceef8',
+        '--s3': '#c8e4f4',
+        '--s4': '#b4d8ec',
+        '--t1': '#102030',
+        '--t2': '#406880',
+        '--t3': '#6898b0',
+        '--t4': '#98b8cc',
+        '--b1': 'rgba(56, 189, 248, 0.12)',
+        '--b2': 'rgba(56, 189, 248, 0.2)',
+        '--b3': 'rgba(56, 189, 248, 0.34)',
+        '--glass': 'rgba(244, 250, 255, 0.85)',
+        '--glass2': 'rgba(236, 246, 252, 0.92)',
+        '--glass-border': 'rgba(56, 189, 248, 0.2)',
+        '--glass-border-hi': 'rgba(56, 189, 248, 0.38)',
+        '--hdr-bg': 'rgba(244, 250, 255, 0.9)',
+        '--mesh-a': 'rgba(56, 189, 248, 0.12)',
+        '--mesh-b': 'rgba(34, 211, 238, 0.08)',
+        '--mesh-c': 'rgba(167, 139, 250, 0.05)',
+      },
+      meta: '#e8f4fc',
+    },
+    honey: {
+      label: 'Miel',
+      icon: '🍯',
+      vars: {
+        '--bg': '#1a1408',
+        '--s1': '#241c0c',
+        '--s2': '#302410',
+        '--s3': '#3c2e14',
+        '--s4': '#483818',
+        '--t1': '#faf4e8',
+        '--t2': '#c8a870',
+        '--t3': '#907848',
+        '--t4': '#584828',
+        '--b1': 'rgba(232, 185, 35, 0.08)',
+        '--b2': 'rgba(232, 185, 35, 0.16)',
+        '--b3': 'rgba(232, 185, 35, 0.28)',
+        '--glass': 'rgba(36, 28, 12, 0.78)',
+        '--glass2': 'rgba(48, 36, 16, 0.88)',
+        '--glass-border': 'rgba(232, 185, 35, 0.14)',
+        '--glass-border-hi': 'rgba(232, 185, 35, 0.32)',
+        '--hdr-bg': 'rgba(26, 20, 8, 0.84)',
+        '--mesh-a': 'rgba(232, 185, 35, 0.14)',
+        '--mesh-b': 'rgba(255, 140, 66, 0.08)',
+        '--mesh-c': 'rgba(200, 124, 74, 0.06)',
+      },
+      meta: '#1a1408',
+    },
+  };
+
+  const ACCENTS = {
+    coral: { label: 'Corail', vars: { '--acc': '#ff6b6b', '--acc2': '#ff8c66', '--acc-glow': 'rgba(255, 107, 107, 0.16)' }, swatch: '#ff6b6b' },
+    orange: { label: 'Orange', vars: { '--acc': '#ff8c42', '--acc2': '#ffb347', '--acc-glow': 'rgba(255, 140, 66, 0.16)' }, swatch: '#ff8c42' },
+    gold: { label: 'Or', vars: { '--acc': '#e8b923', '--acc2': '#f0c850', '--acc-glow': 'rgba(232, 185, 35, 0.16)' }, swatch: '#e8b923' },
+    copper: { label: 'Cuivre', vars: { '--acc': '#c87c4a', '--acc2': '#e09860', '--acc-glow': 'rgba(200, 124, 74, 0.16)' }, swatch: '#c87c4a' },
+    lime: { label: 'Citron', vars: { '--acc': '#a8e063', '--acc2': '#c8f070', '--acc-glow': 'rgba(168, 224, 99, 0.16)' }, swatch: '#a8e063' },
+    emerald: { label: 'Émeraude', vars: { '--acc': '#2ecc71', '--acc2': '#48d88a', '--acc-glow': 'rgba(46, 204, 113, 0.16)' }, swatch: '#2ecc71' },
+    teal: { label: 'Turquoise', vars: { '--acc': '#34d3a8', '--acc2': '#2eb8e8', '--acc-glow': 'rgba(52, 211, 168, 0.16)' }, swatch: '#34d3a8' },
+    cyan: { label: 'Cyan', vars: { '--acc': '#22d3ee', '--acc2': '#38bdf8', '--acc-glow': 'rgba(34, 211, 238, 0.16)' }, swatch: '#22d3ee' },
+    sky: { label: 'Ciel', vars: { '--acc': '#38bdf8', '--acc2': '#60c8fa', '--acc-glow': 'rgba(56, 189, 248, 0.16)' }, swatch: '#38bdf8' },
+    blue: { label: 'Bleu', vars: { '--acc': '#5b8af0', '--acc2': '#7c6cf6', '--acc-glow': 'rgba(91, 138, 240, 0.16)' }, swatch: '#5b8af0' },
+    indigo: { label: 'Indigo', vars: { '--acc': '#6366f1', '--acc2': '#818cf8', '--acc-glow': 'rgba(99, 102, 241, 0.16)' }, swatch: '#6366f1' },
+    violet: { label: 'Violet', vars: { '--acc': '#8b6cf6', '--acc2': '#a78bfa', '--acc-glow': 'rgba(139, 108, 246, 0.16)' }, swatch: '#8b6cf6' },
+    plum: { label: 'Prune', vars: { '--acc': '#9b59b6', '--acc2': '#b07cc8', '--acc-glow': 'rgba(155, 89, 182, 0.16)' }, swatch: '#9b59b6' },
+    magenta: { label: 'Magenta', vars: { '--acc': '#e040fb', '--acc2': '#ea6cff', '--acc-glow': 'rgba(224, 64, 251, 0.16)' }, swatch: '#e040fb' },
+    rose: { label: 'Rose', vars: { '--acc': '#f06ab0', '--acc2': '#e85a8a', '--acc-glow': 'rgba(240, 106, 176, 0.16)' }, swatch: '#f06ab0' },
+    crimson: { label: 'Cramoisi', vars: { '--acc': '#e11d48', '--acc2': '#f43f5e', '--acc-glow': 'rgba(225, 29, 72, 0.16)' }, swatch: '#e11d48' },
+    amber: { label: 'Ambre', vars: { '--acc': '#f0b040', '--acc2': '#f08040', '--acc-glow': 'rgba(240, 176, 64, 0.16)' }, swatch: '#f0b040' },
+    olive: { label: 'Olive', vars: { '--acc': '#84a44a', '--acc2': '#9ab85a', '--acc-glow': 'rgba(132, 164, 74, 0.16)' }, swatch: '#84a44a' },
+  };
+
+  const FONT_SIZES = { compact: '14px', normal: '16px', large: '18px' };
+  const DENSITY = { compact: '0.88', comfort: '1', spacious: '1.12' };
+
+  let current = { ...DEFAULTS };
+  let panelOpen = false;
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...DEFAULTS };
+      return { ...DEFAULTS, ...JSON.parse(raw) };
+    } catch (e) {
+      return { ...DEFAULTS };
+    }
+  }
+
+  function save(next) {
+    current = { ...current, ...next };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    } catch (e) { /* ignore */ }
+    apply(current);
+    syncPanelUI();
+  }
+
+  function apply(s) {
+    current = { ...DEFAULTS, ...s };
+    const root = document.documentElement;
+    const theme = THEMES[current.theme] || THEMES.midnight;
+    const accent = ACCENTS[current.accent] || ACCENTS.blue;
+
+    Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+    Object.entries(accent.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+
+    root.style.setProperty('--ui-font-size', FONT_SIZES[current.fontSize] || FONT_SIZES.normal);
+    root.style.setProperty('--ui-density', DENSITY[current.density] || DENSITY.comfort);
+    root.style.fontSize = FONT_SIZES[current.fontSize] || FONT_SIZES.normal;
+
+    root.dataset.theme = current.theme;
+    root.dataset.accent = current.accent;
+    root.dataset.fontSize = current.fontSize;
+    root.dataset.density = current.density;
+    root.dataset.font = current.font;
+    root.dataset.anim = current.animations ? 'on' : 'off';
+    root.dataset.glass = current.glass ? 'on' : 'off';
+    root.dataset.glow = current.glow ? 'on' : 'off';
+    root.dataset.grid = current.grid ? 'on' : 'off';
+
+    if (current.font === 'system') {
+      root.style.setProperty('--font-display', "system-ui, -apple-system, 'Segoe UI', sans-serif");
+    } else if (current.font === 'mono') {
+      root.style.setProperty('--font-display', "var(--font-mono)");
+    } else {
+      root.style.removeProperty('--font-display');
+    }
+
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta && theme.meta) meta.setAttribute('content', theme.meta);
+  }
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function themeCard(id, t) {
+    const ma = t.vars['--mesh-a'] || 'transparent';
+    const mb = t.vars['--mesh-b'] || 'transparent';
+    const mc = t.vars['--mesh-c'] || 'transparent';
+    const bg = t.vars['--bg'] || '#080b12';
+    return `<button type="button" class="set-theme-card${current.theme === id ? ' on' : ''}" data-set-theme="${id}" style="--prev-bg:${bg};--prev-a:${ma};--prev-b:${mb};--prev-c:${mc}">
+      <span class="set-theme-preview" aria-hidden="true"></span>
+      <span class="set-theme-label">${esc(t.icon)} ${esc(t.label)}</span>
+    </button>`;
+  }
+
+  function accentBtn(id, a) {
+    return `<button type="button" class="set-accent-dot${current.accent === id ? ' on' : ''}" data-set-accent="${id}" style="--sw:${a.swatch}" title="${esc(a.label)}" aria-label="${esc(a.label)}"></button>`;
+  }
+
+  function chipGroup(name, options, currentVal) {
+    const attr = name.replace(/([A-Z])/g, '-$1').toLowerCase();
+    return Object.entries(options).map(([id, label]) =>
+      `<button type="button" class="set-chip${currentVal === id ? ' on' : ''}" data-set-${attr}="${id}">${esc(label)}</button>`
+    ).join('');
+  }
+
+  function toggleRow(key, label, desc) {
+    const on = current[key];
+    return `<label class="set-toggle-row">
+      <span class="set-toggle-text"><strong>${esc(label)}</strong><span>${esc(desc)}</span></span>
+      <input type="checkbox" class="set-toggle" data-set-toggle="${key}"${on ? ' checked' : ''}>
+      <span class="set-toggle-track" aria-hidden="true"></span>
+    </label>`;
+  }
+
+  function panelHTML() {
+    return `<div class="set-overlay" id="set-overlay" hidden>
+      <div class="set-backdrop" data-set-close></div>
+      <aside class="set-panel" id="set-panel" role="dialog" aria-labelledby="set-title" aria-modal="true" tabindex="-1">
+        <header class="set-panel-hd">
+          <div>
+            <h2 id="set-title">Paramètres</h2>
+            <p>Personnalise l'apparence de PPL Quiz</p>
+          </div>
+          <button type="button" class="set-close" data-set-close aria-label="Fermer">✕</button>
+        </header>
+        <div class="set-panel-body">
+          <section class="set-section">
+            <h3>Thème <span class="set-count">${Object.keys(THEMES).length}</span></h3>
+            <div class="set-theme-grid">${Object.entries(THEMES).map(([id, t]) => themeCard(id, t)).join('')}</div>
+          </section>
+          <section class="set-section">
+            <h3>Couleur d'accent <span class="set-count">${Object.keys(ACCENTS).length}</span></h3>
+            <div class="set-accent-row">${Object.entries(ACCENTS).map(([id, a]) => accentBtn(id, a)).join('')}</div>
+          </section>
+          <section class="set-section">
+            <h3>Typographie</h3>
+            <div class="set-chip-row">${chipGroup('fontSize', { compact: 'Compact', normal: 'Normal', large: 'Grand' }, current.fontSize)}</div>
+            <div class="set-chip-row set-chip-row--sub">${chipGroup('font', { outfit: 'Outfit', system: 'Système', mono: 'Mono' }, current.font)}</div>
+          </section>
+          <section class="set-section">
+            <h3>Mise en page</h3>
+            <div class="set-chip-row">${chipGroup('density', { compact: 'Serré', comfort: 'Confort', spacious: 'Aéré' }, current.density)}</div>
+          </section>
+          <section class="set-section">
+            <h3>Effets visuels</h3>
+            <div class="set-toggles">
+              ${toggleRow('animations', 'Animations', 'Transitions et micro-mouvements')}
+              ${toggleRow('glass', 'Verre dépoli', 'Flou sur en-tête et cartes')}
+              ${toggleRow('glow', 'Lueurs', 'Halos de couleur en arrière-plan')}
+              ${toggleRow('grid', 'Grille', 'Motif discret sur le fond')}
+            </div>
+          </section>
+        </div>
+        <footer class="set-panel-ft">
+          <button type="button" class="set-reset" data-set-reset>Réinitialiser</button>
+        </footer>
+      </aside>
+    </div>`;
+  }
+
+  function open() {
+    const overlay = document.getElementById('set-overlay');
+    if (!overlay) return;
+    overlay.hidden = false;
+    panelOpen = true;
+    document.body.classList.add('set-open');
+    requestAnimationFrame(() => overlay.classList.add('open'));
+    const panel = document.getElementById('set-panel');
+    if (panel) panel.focus();
+  }
+
+  function close() {
+    const overlay = document.getElementById('set-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    panelOpen = false;
+    document.body.classList.remove('set-open');
+    setTimeout(() => { overlay.hidden = true; }, 280);
+  }
+
+  function syncPanelUI() {
+    const overlay = document.getElementById('set-overlay');
+    if (!overlay) return;
+    const parent = overlay.parentNode;
+    const open = panelOpen;
+    overlay.remove();
+    parent.insertAdjacentHTML('beforeend', panelHTML());
+    const newOverlay = document.getElementById('set-overlay');
+    if (open) {
+      newOverlay.hidden = false;
+      newOverlay.classList.add('open');
+      document.body.classList.add('set-open');
+    }
+    bindPanelEvents();
+  }
+
+  function bindPanelEvents() {
+    const overlay = document.getElementById('set-overlay');
+    if (!overlay) return;
+
+    overlay.querySelectorAll('[data-set-close]').forEach((el) => {
+      el.addEventListener('click', close);
+    });
+
+    overlay.querySelectorAll('[data-set-theme]').forEach((btn) => {
+      btn.addEventListener('click', () => save({ theme: btn.dataset.setTheme }));
+    });
+
+    overlay.querySelectorAll('[data-set-accent]').forEach((btn) => {
+      btn.addEventListener('click', () => save({ accent: btn.dataset.setAccent }));
+    });
+
+    overlay.querySelectorAll('[data-set-font-size]').forEach((btn) => {
+      btn.addEventListener('click', () => save({ fontSize: btn.dataset.setFontSize }));
+    });
+
+    overlay.querySelectorAll('[data-set-font]').forEach((btn) => {
+      btn.addEventListener('click', () => save({ font: btn.dataset.setFont }));
+    });
+
+    overlay.querySelectorAll('[data-set-density]').forEach((btn) => {
+      btn.addEventListener('click', () => save({ density: btn.dataset.setDensity }));
+    });
+
+    overlay.querySelectorAll('[data-set-toggle]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const key = input.dataset.setToggle;
+        save({ [key]: input.checked });
+      });
+    });
+
+    const reset = overlay.querySelector('[data-set-reset]');
+    if (reset) {
+      reset.addEventListener('click', () => {
+        if (confirm('Réinitialiser tous les paramètres d\'apparence ?')) {
+          try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+          apply({ ...DEFAULTS });
+          current = { ...DEFAULTS };
+          syncPanelUI();
+        }
+      });
+    }
+
+    bindKeydown();
+  }
+
+  function ensureDecorations() {
+    if (!document.querySelector('.grid-overlay')) {
+      document.body.insertAdjacentHTML('afterbegin',
+        '<div class="grid-overlay" aria-hidden="true"></div>'
+        + '<div class="glows" aria-hidden="true"><div class="g1"></div><div class="g2"></div></div>'
+        + '<div class="noise" aria-hidden="true"></div>');
+    }
+  }
+
+  let keydownBound = false;
+
+  function onKeydown(e) {
+    if (e.key === 'Escape' && panelOpen) close();
+  }
+
+  function bindKeydown() {
+    if (keydownBound) return;
+    document.addEventListener('keydown', onKeydown);
+    keydownBound = true;
+  }
+
+  function mountUI() {
+    ensureDecorations();
+    if (document.getElementById('set-overlay')) return;
+
+    const header = document.querySelector('.app-header');
+    if (header && !document.getElementById('app-settings-btn')) {
+      const actions = document.createElement('div');
+      actions.className = 'app-header-actions';
+      actions.innerHTML = '<button type="button" class="app-settings-btn" id="app-settings-btn" aria-label="Paramètres" title="Paramètres">'
+        + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        + '<circle cx="12" cy="12" r="3"/>'
+        + '<path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M19.78 4.22l-1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M19.78 19.78l-1.42-1.42"/>'
+        + '</svg></button>';
+      header.appendChild(actions);
+      document.getElementById('app-settings-btn').addEventListener('click', open);
+    }
+
+    document.body.insertAdjacentHTML('beforeend', panelHTML());
+    bindPanelEvents();
+  }
+
+  function init() {
+    current = load();
+    apply(current);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', mountUI);
+    } else {
+      mountUI();
+    }
+  }
+
+  global.PPLSettings = { load, save, apply, open, close, DEFAULTS, THEMES, ACCENTS };
+
+  init();
+})(typeof window !== 'undefined' ? window : this);

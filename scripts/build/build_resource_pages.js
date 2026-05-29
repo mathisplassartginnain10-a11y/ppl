@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const dir = __dirname;
+const dir = path.join(__dirname, '..', '..');
 const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
 const script = html.match(/<script>\s*([\s\S]*?)<\/script>\s*<\/body>/)[1];
-const fullCss = fs.readFileSync(path.join(dir, 'ppl_theme.css'), 'utf8');
+const fullCss = fs.readFileSync(path.join(dir, 'assets/css/ppl_theme.css'), 'utf8');
 
 function slice(start, end) {
   const si = script.indexOf(start);
@@ -26,7 +26,7 @@ const cssParts = [
   fullCss.match(/\/\* Hub ressources[\s\S]*?\.resource-actions\{[^}]+\}/)?.[0],
   fullCss.match(/@media\(max-width:520px\)\{[\s\S]*?\.fiche-stats\{[^}]+\}\s*\}/)?.[0],
 ].filter(Boolean);
-fs.writeFileSync(path.join(dir, 'ppl_resources.css'), '/* PPL Quiz — formules & fiches */\n' + cssParts.join('\n') + '\na.btn-back{text-decoration:none;display:inline-block}\n');
+fs.writeFileSync(path.join(dir, 'assets/css/ppl_resources.css'), '/* PPL Quiz — formules & fiches */\n' + cssParts.join('\n') + '\na.btn-back{text-decoration:none;display:inline-block}\n');
 
 const storageInit = `
 let hist={}, weak=new Set(), revLog={entries:{}}, answerLog={items:[]};
@@ -46,7 +46,7 @@ const sharedUtils = [
 
 const formulaBlock = '/* Formules : formulas_engine.js (externe) */';
 
-const formulasPath = path.join(dir, 'ppl_formulas_page.js');
+const formulasPath = path.join(dir, 'assets/js/ppl_formulas_page.js');
 const formulasPageJs = fs.readFileSync(formulasPath, 'utf8');
 if (!formulasPageJs.includes('function buildFormulasPanel')) {
   throw new Error('ppl_formulas_page.js must define buildFormulasPanel()');
@@ -139,7 +139,7 @@ handleFicheDeepLink();
 `;
 
 // ppl_formulas_page.js — maintenu manuellement (buildFormulasPanel)
-fs.writeFileSync(path.join(dir, 'ppl_fiches_page.js'), fichesPageJs);
+fs.writeFileSync(path.join(dir, 'assets/js/ppl_fiches_page.js'), fichesPageJs);
 
 const formulesHtml = fs.readFileSync(path.join(dir, 'formules.html'), 'utf8');
 
@@ -153,13 +153,13 @@ const fichesHtml = `<!DOCTYPE html>
 <link rel="apple-touch-icon" href="favicon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Fiches explicatives — Quiz PPL</title>
-<link rel="stylesheet" href="ppl_theme.css?v=20260528c">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528s">
-<link rel="stylesheet" href="ppl_resources.css?v=20260528s">
-<link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
-<link rel="stylesheet" href="ppl_auth.css?v=20260529a">
-<link rel="stylesheet" href="ppl_perf.css?v=20260529e">
-<script src="ppl_auth.js?v=20260529b"></script>
+<link rel="stylesheet" href="assets/css/ppl_theme.css?v=20260528c">
+<link rel="stylesheet" href="assets/css/ppl_theme_enhance.css?v=20260528s">
+<link rel="stylesheet" href="assets/css/ppl_resources.css?v=20260528s">
+<link rel="stylesheet" href="assets/css/ppl_mobile.css?v=20260528k">
+<link rel="stylesheet" href="assets/css/ppl_auth.css?v=20260529a">
+<link rel="stylesheet" href="assets/css/ppl_perf.css?v=20260529e">
+<script src="assets/js/ppl_auth.js?v=20260529b"></script>
 </head>
 <body class="fiches-page">
 <div class="wrap app-shell">
@@ -188,13 +188,13 @@ const fichesHtml = `<!DOCTYPE html>
     </div>
   </div>
 </div>
-<script src="questions_bank.js?v=20260528m"></script>
-<script src="formulas_bank.js?v=20260528d"></script>
-<script src="formulas_engine.js?v=20260528d"></script>
-<script src="topics_utils.js?v=20260528e"></script>
-<script src="fiche_enrich.js?v=20260528l"></script>
-<script src="ppl_session_fiches.js?v=20260528v"></script>
-<script src="ppl_fiches_page.js?v=20260528v"></script>
+<script src="assets/js/questions_bank.js?v=20260528m"></script>
+<script src="assets/js/formulas_bank.js?v=20260528d"></script>
+<script src="assets/js/formulas_engine.js?v=20260528d"></script>
+<script src="assets/js/topics_utils.js?v=20260528e"></script>
+<script src="assets/js/fiche_enrich.js?v=20260528l"></script>
+<script src="assets/js/ppl_session_fiches.js?v=20260528v"></script>
+<script src="assets/js/ppl_fiches_page.js?v=20260528v"></script>
 </body>
 </html>
 `;
