@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-const MOD_LABELS={1:'Météo',2:'Nav',3:'Perf',4:'Masse',5:'Plan',6:'Droit',7:'Moteur',8:'Instr',9:'Com',10:'Hum',11:'Ops',12:'Aéro'};
+const MOD_LABELS={C:'Communications',A:'Aéronef',M:'Météorologie',R:'Réglementation'};
 const DIFF_LABELS={1:'Facile',2:'Moyen',3:'Difficile',4:'Expert'};
 
 function loadLog(){
@@ -18,7 +18,7 @@ function probaColor(p){
   return 'var(--red)';
 }
 
-function modStr(m){ return MOD_LABELS[m]||('M'+m); }
+function modStr(m){ return MOD_LABELS[m]||String(m||'—'); }
 function diffStr(d){ return DIFF_LABELS[d]||('D'+d); }
 
 function fmtDate(ts){

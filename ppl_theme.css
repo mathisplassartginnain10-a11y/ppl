@@ -154,6 +154,9 @@ input[type=number].cfg-num:focus{outline:none;border-color:var(--acc)}
 .opt.sh{background:rgba(91,138,240,.06);border-color:rgba(91,138,240,.25)}
 .opt.sh .olet{background:rgba(91,138,240,.15);color:var(--acc)}
 .opt.sh .otxt{color:#93b8fb}
+.opt.picked{background:rgba(91,138,240,.08);border-color:rgba(91,138,240,.35)}
+.opt.picked .olet{background:rgba(91,138,240,.2);color:var(--acc)}
+.fb-exam{border-color:rgba(91,138,240,.25);background:rgba(91,138,240,.06)}
 
 .fb{margin-top:.85rem;border-radius:var(--r);padding:.9rem 1rem;animation:fIn .18s ease}
 @keyframes fIn{from{opacity:0}to{opacity:1}}

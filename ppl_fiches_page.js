@@ -354,10 +354,11 @@ function renderErrorUltraHTML(f,opts){
   </div>`;
 }
 
-function renderDeepFicheHTML(q,entry,chosenIdx,beh){
+function renderDeepFicheHTML(q,entry,chosenIdx,beh,logEntry){
   const idx=Q.indexOf(q);
   const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
-  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:getLastAnswerLogForIdx(idx>=0?idx:undefined)});
+  const log=logEntry||getLastAnswerLogForIdx(idx>=0?idx:undefined);
+  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:log});
 }
 
 function renderTopicFicheHTML(ref,opts={}){
@@ -532,7 +533,10 @@ function computeFicheStats(allThemes){
 }
 
 function renderFichesDashboard(stats,nRev){
+  const sessionCount=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.count():0;
+  const sessionBanner=sessionCount?`<a href="fiches.html?session=1" class="fiches-session-banner" data-rev-tab-jump="sessions">📋 ${sessionCount} résumé${sessionCount>1?'s':''} de session archivé${sessionCount>1?'s':''} — consulter le détail →</a>`:'';
   return`<div class="fiches-dashboard">
+    ${sessionBanner}
     <div class="fiches-hero">
       <div class="fiches-hero-stat"><span class="fiches-hero-n">${stats.total}</span><span class="fiches-hero-l">Thèmes</span></div>
       <div class="fiches-hero-stat accent-green"><span class="fiches-hero-n">${stats.studied}</span><span class="fiches-hero-l">Étudiés</span></div>
@@ -914,7 +918,9 @@ function buildFichesPanel(){
   }else if(revTab==='priority'){
     listHtml=nRev?items.slice(0,15).map((it,i)=>renderRevCard(it,i<5,false)).join(''):`<div class="rev-empty">Aucune priorité — consulte la <strong>Bibliothèque</strong> ou lance un quiz.</div>`;
   }else if(revTab==='errors'){
-    listHtml=(errItems.length?errItems:items).map(it=>renderRevCard(it,false,false)).join('')||`<div class="rev-empty">Aucune erreur enregistrée.</div>`;
+    listHtml=typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.renderErrorsTab
+      ?PPLSessionFiches.renderErrorsTab()
+      :((errItems.length?errItems:items).map(it=>renderRevCard(it,false,false)).join('')||`<div class="rev-empty">Aucune erreur enregistrée.</div>`);
   }else if(revTab==='hesitations'){
     listHtml=(hesItems.length?hesItems:items).map(it=>renderRevCard(it,false,false)).join('')||`<div class="rev-empty">Aucune hésitation enregistrée.</div>`;
   }else if(revTab==='plan'){
@@ -940,17 +946,18 @@ function buildFichesPanel(){
   }
 
   const sessionCount=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.count():0;
+  const errorFicheCount=typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.countErrors?PPLSessionFiches.countErrors():errItems.length;
 
   panel.innerHTML=`
     ${renderFichesDashboard(ficheStats,nRev)}
     <div class="fiche-tabs-wrap">
       <div class="rev-tabs fiche-tabs-inner">
         <button type="button" class="rev-tab${revTab==='fiches'?' on':''}" data-rev-tab="fiches"><span class="rev-tab-ico">📂</span> Par matière</button>
-        <button type="button" class="rev-tab${revTab==='sessions'?' on':''}" data-rev-tab="sessions"><span class="rev-tab-ico">📋</span> Fin de session${sessionCount?` <em>${sessionCount}</em>`:''}</button>
+        <button type="button" class="rev-tab${revTab==='sessions'?' on':''}" data-rev-tab="sessions"><span class="rev-tab-ico">📋</span> Résumés session${sessionCount?` <em>${sessionCount}</em>`:''}</button>
         <button type="button" class="rev-tab${revTab==='library'?' on':''}" data-rev-tab="library"><span class="rev-tab-ico">📚</span> Bibliothèque</button>
         <button type="button" class="rev-tab${revTab==='priority'?' on':''}" data-rev-tab="priority"><span class="rev-tab-ico">⚡</span> Priorités</button>
         <button type="button" class="rev-tab${revTab==='plan'?' on':''}" data-rev-tab="plan"><span class="rev-tab-ico">📅</span> SM-2</button>
-        <button type="button" class="rev-tab${revTab==='errors'?' on':''}" data-rev-tab="errors"><span class="rev-tab-ico">✕</span> Erreurs${errItems.length?` <em>${errItems.length}</em>`:''}</button>
+        <button type="button" class="rev-tab${revTab==='errors'?' on':''}" data-rev-tab="errors"><span class="rev-tab-ico">✕</span> Erreurs${errorFicheCount?` <em>${errorFicheCount}</em>`:''}</button>
         <button type="button" class="rev-tab${revTab==='hesitations'?' on':''}" data-rev-tab="hesitations"><span class="rev-tab-ico">?</span> Hésitations</button>
         <button type="button" class="rev-tab${revTab==='themes'?' on':''}" data-rev-tab="themes"><span class="rev-tab-ico">🏷</span> Par thème</button>
       </div>
@@ -1014,12 +1021,22 @@ const revPanel=document.getElementById('rev-panel');
 revPanel.addEventListener('click',e=>{
   const tab=e.target.closest('[data-rev-tab]');
   if(tab){revTab=tab.dataset.revTab;buildFichesPanel();return;}
+  const jump=e.target.closest('[data-rev-tab-jump]');
+  if(jump){e.preventDefault();revTab='sessions';buildFichesPanel();return;}
   const fmod=e.target.closest('[data-fmod]');
   if(fmod){ficheLibMod=fmod.dataset.fmod;buildFichesPanel();return;}
   const sessionClear=e.target.closest('[data-session-clear]');
   if(sessionClear){
-    if(confirm('Effacer toutes les fiches de fin de session enregistrées ?')){
+    if(confirm('Effacer tous les résumés de session archivés ?')){
       if(typeof PPLSessionFiches!=='undefined') PPLSessionFiches.clear();
+      buildFichesPanel();
+    }
+    return;
+  }
+  const errorClear=e.target.closest('[data-error-clear]');
+  if(errorClear){
+    if(confirm('Effacer toutes les fiches d\'erreur enregistrées ?')){
+      if(typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.clearErrors) PPLSessionFiches.clearErrors();
       buildFichesPanel();
     }
     return;
@@ -1079,9 +1096,11 @@ function handleFicheDeepLink(){
   const params=new URLSearchParams(location.search);
   const topic=params.get('topic');
   const session=params.get('session');
+  const errors=params.get('errors');
   if(session!=null) revTab='sessions';
+  if(errors!=null) revTab='errors';
   if(!topic){
-    if(session!=null) buildFichesPanel();
+    if(session!=null||errors!=null) buildFichesPanel();
     return;
   }
   revTab='fiches';

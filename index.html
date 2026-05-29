@@ -11,7 +11,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
-<link rel="stylesheet" href="ppl_theme.css?v=20260528c">
+<link rel="stylesheet" href="ppl_theme.css?v=20260529b">
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528p">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528p">
 <link rel="stylesheet" href="ppl_auth.css?v=20260529a">
@@ -26,7 +26,7 @@
 </script>
 <link rel="stylesheet" href="ppl_plane_bg.css?v=20260528w">
 <script src="ppl_auth.js?v=20260529a"></script>
-<script src="ppl_session_fiches.js?v=20260528v"></script>
+<script src="ppl_session_fiches.js?v=20260529d"></script>
 <script src="ppl_plane_bg.js?v=20260528w" defer></script>
 </head>
 <body>
@@ -1518,7 +1518,7 @@ try{reactLog=JSON.parse(localStorage.getItem('ppl4react')||'{"history":[]}')}cat
 if(!revLog.entries) revLog.entries={};
 if(!reactLog.history) reactLog.history=[];
 
-const PPL_STORAGE_KEYS=['ppl4h','ppl4w','ppl4rev','ppl4react','ppl4proba','ppl4div','ppl4answers','ppl4sessionFiches'];
+const PPL_STORAGE_KEYS=['ppl4h','ppl4w','ppl4rev','ppl4react','ppl4proba','ppl4div','ppl4answers','ppl4sessionFiches','ppl4errorFiches'];
 
 let answerLog={items:[]};
 try{answerLog=JSON.parse(localStorage.getItem('ppl4answers')||'{"items":[]}')}catch(e){answerLog={items:[]}}
@@ -1605,10 +1605,11 @@ function isStruggle(ok,beh){
     (ok&&beh.wrongHoverCount>=2);
 }
 
-function renderDeepFicheHTML(q,entry,chosenIdx,beh){
+function renderDeepFicheHTML(q,entry,chosenIdx,beh,logEntry){
   const idx=Q.indexOf(q);
   const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
-  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:getLastAnswerLogForIdx(idx>=0?idx:undefined)});
+  const log=logEntry||getLastAnswerLogForIdx(idx>=0?idx:undefined);
+  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:log});
 }
 
 function learnObjectives(q,beh,ok,entry,chosenIdx){
@@ -2587,7 +2588,7 @@ function autoTO(){
   stopReactLive();
   const q=queue[qi];
   document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
-  document.getElementById('o'+q.a).classList.add('sh');
+  if(mode!=='exam') document.getElementById('o'+q.a).classList.add('sh');
   const el=(Date.now()-t0)/1000;
   const beh=QBehavior.snapshot(-1,q.a);
   record(false,el,beh); showFb(false,q,el,beh);
@@ -2605,8 +2606,12 @@ function doAns(i){
   const ok=i===q.a;
   const beh=QBehavior.snapshot(i,q.a);
   document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
-  document.getElementById('o'+i).classList.add(ok?'ok':'ko');
-  if(!ok) document.getElementById('o'+q.a).classList.add('sh');
+  if(mode==='exam'){
+    document.getElementById('o'+i).classList.add('picked');
+  }else{
+    document.getElementById('o'+i).classList.add(ok?'ok':'ko');
+    if(!ok) document.getElementById('o'+q.a).classList.add('sh');
+  }
   record(ok,el,beh); showFb(ok,q,el,beh);
   document.getElementById('bnxt').style.display='block';
   document.getElementById('bsk').style.display='none';
@@ -2623,6 +2628,9 @@ function record(ok,el,beh){
   trackAnswerLog(ok,el,beh,reactRes,probaRes,q,idx,qi);
   trackReactLog(ok,q.d,beh,reactRes,q,idx);
   trackRevision(ok,el,beh,idx,q);
+  if(!ok&&typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.archiveError){
+    PPLSessionFiches.archiveError({q,idx,ok:false,el,beh,reactScore:reactRes.score,mode});
+  }
   save();
   trackProbaSnapshot();
   trackDiversity(q,idx);
@@ -2690,6 +2698,16 @@ function fmtProbaBreakdown(res){
 }
 
 function showFb(ok,q,el,beh){
+  if(mode==='exam'){
+    document.getElementById('fb').innerHTML=`
+      <div class="fb fb-exam fb-brief">
+        <div class="fb-hd">
+          <span class="fb-st">Réponse enregistrée · ${el.toFixed(1)}s</span>
+        </div>
+        <p class="fb-end-hint">Corrections et explications à la fin de la session →</p>
+      </div>`;
+    return;
+  }
   const idx=Q.indexOf(q);
   const res=calcProba(ok,el,q.d,sesHist.slice(0,-1),beh,{q,idx,qi,total:queue.length});
   const p=res.p,pc=probaClass(p);
@@ -2749,7 +2767,7 @@ function renderSessionRecapHTML(sData){
   }).join('');
   return`<div class="session-recap">
     <h3>📋 Résumé détaillé de la session</h3>
-    <p class="session-recap-sub">${errCount} erreur${errCount>1?'s':''} · ${sData.length-errCount} correcte${sData.length-errCount>1?'s':''} — explications complètes ci-dessous · <a href="fiches.html?session=1" class="session-recap-link">Consulter dans Fiches →</a></p>
+    <p class="session-recap-sub">${errCount} erreur${errCount>1?'s':''} · ${sData.length-errCount} correcte${sData.length-errCount>1?'s':''} — archivé dans Fiches · <a href="fiches.html?session=1" class="session-recap-link">Résumés de session →</a> · <a href="fiches.html?errors=1" class="session-recap-link">Fiches erreur →</a></p>
     <div class="recap-list">${items}</div>
   </div>`;
 }
@@ -2767,9 +2785,6 @@ function finish(){
 
 function buildResult(){
   const total=sData.length;
-  if(typeof PPLSessionFiches!=='undefined'&&total>0){
-    PPLSessionFiches.archive(sData,{mode});
-  }
   const ok=sData.filter(d=>d.ok).length;
   const pct=total>0?Math.round(ok/total*100):0;
 
@@ -2809,6 +2824,20 @@ function buildResult(){
   // Anneau SVG
   const circ=2*Math.PI*60, off=circ*(1-pct/100);
   const rc=pct>=75?'#34d3a8':pct>=50?'#f0b040':'#f06060';
+
+  if(typeof PPLSessionFiches!=='undefined'&&total>0){
+    PPLSessionFiches.archive(sData,{
+      mode,
+      ok,
+      total,
+      pct,
+      errCount: total-ok,
+      pass,
+      avgReactScore,
+      avgMastery,
+      examP: examSim.reliable&&examSim.examP!=null?examSim.examP:null,
+    });
+  }
 
   // Stats par difficulté
   const difs={};
