@@ -1148,7 +1148,7 @@ function renderBehCompact(beh,logEntry){
 function renderErrorUltraHTML(f,opts){
   const q=f.sampleQ,chosenIdx=f.chosenIdx??-1,entry=f.entry;
   const beh=opts.beh||entry?.lastBeh;
-  const logEntry=opts.logEntry||getLastAnswerLogForIdx(Q.indexOf(q));
+  const logEntry=opts.logEntry||getLastAnswerLogForIdx(qIdx(q));
   const isWrong=chosenIdx>=0&&chosenIdx!==q.a;
   const repeat=entry?.wrongChoices?.[chosenIdx]||0;
   const wrongTrap=isWrong?analyzeTraps(q,chosenIdx).find(t=>t.i===chosenIdx):null;
@@ -1192,13 +1192,13 @@ function renderTopicFicheHTML(ref,opts={}){
   const mCol=f.mastery.pct>=65?'var(--green)':f.mastery.pct>=40?'var(--amber)':'var(--red)';
   const acc=f.topicStats.n?Math.round(f.topicStats.accuracy*100):'—';
   const cov=f.topicStats.n?Math.round(f.topicStats.coverage*100):0;
-  const qIdx=opts.sampleQ?Q.indexOf(opts.sampleQ):-1;
+  const sampleIdx=opts.sampleQ?qIdx(opts.sampleQ):-1;
   let formulasBlock='';
   if(typeof getFormulasForQuestion==='function'&&typeof renderFicheFormulasSection==='function'){
     const fh=renderFicheFormulasSection(f.formulas,f.worked,f.essentials,f.module);
     if(fh) formulasBlock=`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div><div class="fiche-block-bd">${fh}</div></div>`;
-  }else if(qIdx>=0){
-    formulasBlock=`<div class="fiche-block fiche-formulas-lazy" data-fiche-formulas-q="${qIdx}" data-fiche-mod="${f.module}">
+  }else if(sampleIdx>=0){
+    formulasBlock=`<div class="fiche-block fiche-formulas-lazy" data-fiche-formulas-q="${sampleIdx}" data-fiche-mod="${f.module}">
       <div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div>
       <div class="fiche-block-bd"><div class="fiche-formulas-slot"><div class="fiche-lazy-spin">Chargement formules…</div></div></div>
     </div>`;
@@ -1454,6 +1454,10 @@ function summarizeKey(text){
 }
 
 function clearAllStorage(){
+  if(window.PPLSettings&&typeof PPLSettings.wipeAllPplStorage==='function'){
+    PPLSettings.wipeAllPplStorage({ keepSettings:true, keepAuth:true });
+    return;
+  }
   PPL_STORAGE_KEYS.forEach(k=>lsRemove(k));
   try{
     for(let i=localStorage.length-1;i>=0;i--){
@@ -1462,6 +1466,16 @@ function clearAllStorage(){
     }
   }catch(e){}
   if(window.PPLStorage) PPLStorage.flushNow();
+}
+
+function resetAllMemory(){
+  hist={};
+  weak=new Set();
+  revLog={entries:{}};
+  reactLog={history:[]};
+  probaLog={snapshots:[]};
+  diversityLog={recent:[],seenIdx:{}};
+  answerLog={items:[]};
 }
 
 function resetSessionState(){
@@ -1500,7 +1514,7 @@ function isStruggle(ok,beh){
 }
 
 function renderDeepFicheHTML(q,entry,chosenIdx,beh,logEntry){
-  const idx=Q.indexOf(q);
+  const idx=qIdx(q);
   const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
   const log=logEntry||getLastAnswerLogForIdx(idx>=0?idx:undefined);
   if(typeof renderQuestionErrorFicheHTML==='function'){
@@ -2482,7 +2496,7 @@ function fmtProbaBreakdown(res){
 }
 
 function showFb(ok,q,el,beh){
-  const idx=Q.indexOf(q);
+  const idx=qIdx(q);
   const res=calcProba(ok,el,q.d,sesHist.slice(0,-1),beh,{q,idx,qi,total:queue.length});
   const p=res.p,pc=probaClass(p);
   const examSim=simulateExamReadiness();
@@ -2532,7 +2546,7 @@ function renderSessionRecapHTML(sData){
   const errCount=sData.filter(d=>!d.ok).length;
   const items=sData.map((d,i)=>{
     const q=d.q;
-    const idx=d.idx??Q.indexOf(q);
+    const idx=d.idx??qIdx(q);
     const chosenIdx=d.beh?.chosenIdx??-1;
     const open=!d.ok?' open':'';
     const statsHref=`stats.html?i=${idx>=0?idx:''}`;
@@ -2723,25 +2737,31 @@ function buildResult(){
 }
 
 function resetAll(){
-  if(!confirm('Réinitialiser TOUT ?\n\n• Historique & scores\n• Erreurs & points faibles\n• Fiches d\'erreur archivées\n• Fiches SM-2 & révisions\n• Résumés de session\n• Temps de réaction & probabilités\n• Confiance globale & snapshots\n• Diversité / variantes vues\n• Paramètres session (mode, module, nombre)')) return;
+  if(!confirm(
+    'Réinitialisation COMPLÈTE ?\n\n'
+    +'• Historique, scores, erreurs & points faibles\n'
+    +'• Fiches d\'erreur & révisions SM-2\n'
+    +'• Temps de réaction & probabilités\n'
+    +'• Journal détaillé & diversité\n'
+    +'• Paramètres, thème & confidentialité\n'
+    +'• Code d\'accès (à ressaisir)\n\n'
+    +'L\'application sera rechargée à zéro.'
+  )) return;
   resetSessionState();
-  hist={};
-  weak=new Set();
-  revLog={entries:{}};
-  reactLog={history:[]};
-  probaLog={snapshots:[]};
-  diversityLog={recent:[],seenIdx:{}};
+  resetAllMemory();
   if(typeof PPLSessionFiches!=='undefined'){
     if(PPLSessionFiches.clearErrors) PPLSessionFiches.clearErrors();
     if(PPLSessionFiches.clear) PPLSessionFiches.clear();
   }
+  if(window.PPLSettings&&typeof PPLSettings.factoryReset==='function'){
+    PPLSettings.factoryReset();
+    return;
+  }
   clearAllStorage();
-  save();
-  saveReact();
-  saveProbaLog();
-  saveDiversityLog();
+  try{localStorage.removeItem('ppl4settings');}catch(e){}
+  try{localStorage.removeItem('ppl4gate');}catch(e){}
   resetUIDefaults();
-  goHome();
+  location.reload();
 }
 
 function handleDeepLink(){
@@ -2790,6 +2810,11 @@ window.addEventListener('ppl-settings-changed',()=>{
   if(document.getElementById('sq')?.classList.contains('on')){
     if(!answered) startTimer();
     else scheduleAutoAdvance();
+    const showT=getSettings().showTimer!==false;
+    const tb=document.getElementById('tb');
+    const reactBox=document.getElementById('react-live');
+    if(tb) tb.style.display=showT?'':'none';
+    if(reactBox) reactBox.style.display=showT?'':'none';
   }
   if(document.getElementById('react-live')&&reactLiveOn) updateReactLive();
 });

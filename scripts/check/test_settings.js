@@ -111,5 +111,25 @@ assert(saved.showTimer === false, 'save showTimer');
 assert(saved.shuffleOptions === true, 'save shuffleOptions');
 assert(saved.autoAdvance === '2', 'save autoAdvance');
 
+const BOOL_TOGGLE_KEYS = [
+  'animations', 'glass', 'glow', 'grid', 'showTimer', 'confirmSkip', 'showProbaTags',
+  'shuffleOptions', 'reduceMotion', 'largeTouch', 'highContrast',
+];
+
+reset();
+api.setCurrent(api.sanitize({ ...api.PRIVACY_PRESETS.full.patch, privacyConsentAt: Date.now() }));
+BOOL_TOGGLE_KEYS.forEach((key) => {
+  api.save({ [key]: true });
+  assert(api.getCurrent()[key] === true, 'toggle ON ' + key);
+  api.save({ [key]: false });
+  assert(api.getCurrent()[key] === false, 'toggle OFF ' + key);
+});
+
+reset();
+api.setCurrent(api.sanitize({ ...api.PRIVACY_PRESETS.full.patch, privacyConsentAt: Date.now() }));
+api.save({ privateSession: false, saveProgress: true, saveReaction: false });
+assert(api.getCurrent().saveProgress === true, 'saveProgress activable hors mode privé');
+assert(api.getCurrent().saveReaction === false, 'saveReaction désactivable hors mode privé');
+
 console.log('\n' + passed + ' OK · ' + failed + ' échec(s)');
 process.exit(failed > 0 ? 1 : 0);

@@ -9,7 +9,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-font-smoothing:antialiased}
-body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--t1);font-family:var(--font-display,'Outfit','DM Sans',system-ui,sans-serif);min-height:100vh;overflow-x:hidden}
 .noise{position:fixed;inset:0;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:9999}
 .glows{position:fixed;inset:0;pointer-events:none;z-index:0}
 .g1{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(91,138,240,.06) 0%,transparent 70%);top:-100px;right:-100px;border-radius:50%}

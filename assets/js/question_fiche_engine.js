@@ -1,6 +1,6 @@
 /**
  * Fiches ultra-détaillées par question — affichées en cas d'erreur.
- * Banque pré-générée : question_fiches_bank.js (lazy-load).
+ * Banque pré-générée par module (lazy-load Q_FICHES_C/A/M/R).
  */
 (function (global) {
   'use strict';
@@ -170,9 +170,51 @@
     };
   }
 
+  function expandCompactFiche(c, q, chosenIdx) {
+    if (!c) return null;
+    if (c.v !== 2 || !Array.isArray(c.ow)) return c;
+    chosenIdx = chosenIdx == null ? -1 : chosenIdx;
+    return {
+      e: c.e,
+      w: c.w,
+      k: c.k,
+      m: c.m,
+      t: c.t,
+      s: c.s,
+      r: c.r,
+      mod: c.mod || q.m,
+      o: q.o.map((text, i) => ({
+        l: String.fromCharCode(65 + i),
+        ok: i === q.a,
+        chosen: chosenIdx === i,
+        t: text,
+        w: c.ow[i] || '',
+      })),
+    };
+  }
+
+  function getChunkFiche(idx, q) {
+    const mod = q.m;
+    const bucket = global['Q_FICHES_' + mod];
+    if (!bucket) return null;
+    const raw = bucket[idx];
+    if (!raw) return null;
+    return expandCompactFiche(raw, q, -1);
+  }
+
+  function resolveQIdx(q, idx) {
+    if (idx != null && idx >= 0) return idx;
+    if (typeof qIdx === 'function') return qIdx(q);
+    if (typeof Q !== 'undefined' && Array.isArray(Q)) return Q.indexOf(q);
+    return -1;
+  }
+
   function getQuestionFiche(idx, q, chosenIdx) {
     chosenIdx = chosenIdx == null ? -1 : chosenIdx;
-    if (typeof Q_FICHES !== 'undefined' && Array.isArray(Q_FICHES) && Q_FICHES[idx] && chosenIdx < 0) {
+    if (chosenIdx >= 0) return buildQuestionErrorFiche(q, chosenIdx);
+    const chunk = getChunkFiche(idx, q);
+    if (chunk) return chunk;
+    if (typeof Q_FICHES !== 'undefined' && Array.isArray(Q_FICHES) && Q_FICHES[idx]) {
       return Q_FICHES[idx];
     }
     return buildQuestionErrorFiche(q, chosenIdx);
@@ -188,14 +230,39 @@
     if (b.wrongHoverCount != null) rows.push(['Temps sur mauvaises options', Math.round((b.wrongDwellRatio || 0) * 100) + '%']);
     if (logEntry?.reactScore != null) rows.push(['Score réaction', logEntry.reactScore + '%']);
     if (!rows.length) return '';
-    return '<div class="err-beh-grid">' + rows.map(([k, v]) =>
-      '<div class="err-beh-it"><span>' + esc(k) + '</span><strong>' + esc(v) + '</strong></div>'
+    return '<div class="fiche-pro-beh">' + rows.map(([k, v]) =>
+      '<div class="fiche-pro-beh-it"><span>' + esc(k) + '</span><strong>' + esc(v) + '</strong></div>'
     ).join('') + '</div>';
+  }
+
+  function renderOptRow(o) {
+    const cls = 'fiche-pro-opt'
+      + (o.ok ? ' fiche-pro-opt--ok' : '')
+      + (o.chosen ? ' fiche-pro-opt--chosen' : '');
+    const badge = o.ok
+      ? '<span class="fiche-pro-opt-badge fiche-pro-opt-badge--ok">Correcte</span>'
+      : (o.chosen ? '<span class="fiche-pro-opt-badge fiche-pro-opt-badge--ko">Ta réponse</span>' : '');
+    return '<div class="' + cls + '">'
+      + '<span class="fiche-pro-opt-l">' + esc(o.l) + '</span>'
+      + '<div class="fiche-pro-opt-body">'
+      + '<div class="fiche-pro-opt-txt">' + esc(o.t) + badge + '</div>'
+      + '<div class="fiche-pro-opt-why">' + esc(o.w) + '</div>'
+      + '</div></div>';
+  }
+
+  function renderCard(icon, iconMod, title, body) {
+    return '<section class="fiche-pro-card">'
+      + '<div class="fiche-pro-card-hd">'
+      + '<span class="fiche-pro-card-icon' + (iconMod ? ' fiche-pro-card-icon--' + iconMod : '') + '">' + icon + '</span>'
+      + '<h4 class="fiche-pro-card-title">' + esc(title) + '</h4>'
+      + '</div>'
+      + '<div class="fiche-pro-card-bd">' + body + '</div>'
+      + '</section>';
   }
 
   function renderQuestionErrorFicheHTML(q, opts) {
     opts = opts || {};
-    const idx = opts.idx != null ? opts.idx : (typeof Q !== 'undefined' ? Q.indexOf(q) : -1);
+    const idx = opts.idx != null ? opts.idx : resolveQIdx(q, -1);
     const chosenIdx = opts.chosenIdx != null ? opts.chosenIdx : -1;
     const entry = opts.entry;
     const beh = opts.beh || entry?.lastBeh;
@@ -204,77 +271,73 @@
     const isWrong = chosenIdx >= 0 && chosenIdx !== q.a;
     const repeat = isWrong ? (entry?.wrongChoices?.[chosenIdx] || 0) : 0;
 
-    const optRows = (f.o || []).map((o) =>
-      '<div class="err-opt-row' + (o.ok ? ' err-opt-ok' : '') + (o.chosen ? ' err-opt-chosen' : '') + '">' +
-      '<span class="err-opt-l">' + esc(o.l) + '</span>' +
-      '<div class="err-opt-body">' +
-      '<div class="err-opt-txt">' + esc(o.t) + (o.ok ? ' ✓' : '') + (o.chosen && !o.ok ? ' ✗ (ta réponse)' : '') + '</div>' +
-      '<div class="err-opt-why">' + esc(o.w) + '</div>' +
-      '</div></div>'
-    ).join('');
+    const tags = [
+      '<span class="bd ' + modClass(f.mod || q.m) + '">' + esc(modStr(f.mod || q.m)) + '</span>',
+      repeat > 1 ? '<span class="fiche-pro-tag fiche-pro-tag--warn">Même erreur ×' + repeat + '</span>' : '',
+      (entry?.failCount || 0) > 1 ? '<span class="fiche-pro-tag fiche-pro-tag--warn">' + entry.failCount + ' erreurs</span>' : '',
+    ].filter(Boolean).join('');
 
+    const compareHtml = isWrong
+      ? '<div class="fiche-pro-compare">'
+        + '<div class="fiche-pro-ans fiche-pro-ans--wrong"><strong>Ta réponse</strong>' + esc(q.o[chosenIdx]) + '</div>'
+        + '<div class="fiche-pro-ans fiche-pro-ans--right"><strong>Bonne réponse</strong>' + esc(q.o[q.a]) + '</div>'
+        + '</div>'
+      : '';
+
+    const optRows = (f.o || []).map(renderOptRow).join('');
     const retainHtml = (f.k || []).map((b) => '<li>' + esc(b) + '</li>').join('');
     const stepsHtml = (f.s || []).map((s) => '<li>' + esc(s) + '</li>').join('');
     const behHtml = renderBehCompact(beh, logEntry);
 
-    return '<div class="q-fiche-ultra fiche-error-ultra">' +
-      '<div class="err-ultra-hd">' +
-      '<span class="err-ultra-badge">📚 Fiche complète</span>' +
-      '<span class="bd ' + modClass(f.mod || q.m) + '">' + esc(modStr(f.mod || q.m)) + '</span>' +
-      (repeat > 1 ? '<span class="err-ultra-badge warn">Même erreur ' + repeat + '×</span>' : '') +
-      ((entry?.failCount || 0) > 1 ? '<span class="err-ultra-badge warn">' + entry.failCount + ' erreurs sur cette question</span>' : '') +
-      '</div>' +
-      '<div class="q-fiche-question">' + esc(q.q) + '</div>' +
-      (isWrong
-        ? '<div class="err-ultra-ans">' +
-          '<div class="err-ultra-wrong">✗ Ta réponse : <strong>' + esc(q.o[chosenIdx]) + '</strong></div>' +
-          '<div class="err-ultra-correct">✓ Bonne réponse : <strong>' + esc(q.o[q.a]) + '</strong></div>' +
-          '</div>'
-        : '') +
-      '<div class="fiche-block err-block">' +
-      '<div class="fiche-block-hd"><span class="fiche-block-ico">💡</span> En une phrase</div>' +
-      '<div class="fiche-block-bd"><p class="q-fiche-essentiel">' + esc(f.e) + '</p></div></div>' +
-      '<div class="fiche-block err-block">' +
-      '<div class="fiche-block-hd"><span class="fiche-block-ico">✓</span> Pourquoi c\'est la bonne réponse</div>' +
-      '<div class="fiche-block-bd"><p class="q-fiche-why">' + esc(f.w) + '</p></div></div>' +
-      '<div class="fiche-block err-block">' +
-      '<div class="fiche-block-hd"><span class="fiche-block-ico">🔍</span> Les 4 options expliquées simplement</div>' +
-      '<div class="fiche-block-bd"><div class="err-opt-list">' + optRows + '</div></div></div>' +
-      '<div class="fiche-block err-block">' +
-      '<div class="fiche-block-hd"><span class="fiche-block-ico">📌</span> À retenir pour l\'examen</div>' +
-      '<div class="fiche-block-bd"><ul class="q-fiche-retain">' + retainHtml + '</ul></div></div>' +
-      (f.m
-        ? '<div class="fiche-block err-block">' +
-          '<div class="fiche-block-hd"><span class="fiche-block-ico">🧠</span> Astuce mémo</div>' +
-          '<div class="fiche-block-bd"><p class="fiche-mnemo">' + esc(f.m) + '</p></div></div>'
-        : '') +
-      '<div class="fiche-block err-block">' +
-      '<div class="fiche-block-hd"><span class="fiche-block-ico">🎓</span> Conseil examen</div>' +
-      '<div class="fiche-block-bd"><p class="fiche-exam-tip">' + esc(f.t) + '</p></div></div>' +
-      '<div class="fiche-block err-block">' +
-      '<div class="fiche-block-hd"><span class="fiche-block-ico">📝</span> Plan de révision en ' + (f.s || []).length + ' étapes</div>' +
-      '<div class="fiche-block-bd"><ol class="err-action-plan">' + stepsHtml + '</ol></div></div>' +
-      (behHtml
-        ? '<div class="fiche-block err-block">' +
-          '<div class="fiche-block-hd"><span class="fiche-block-ico">📊</span> Ton comportement sur cette question</div>' +
-          '<div class="fiche-block-bd">' + behHtml + '</div></div>'
-        : '') +
-      '<div class="q-fiche-ref">📖 Thème : <strong>' + esc(f.r || q.r) + '</strong></div>' +
-      '</div>';
+    const behBlock = behHtml
+      ? renderCard('◷', '', 'Comportement', behHtml)
+      : '';
+
+    return '<article class="fiche-pro q-fiche-ultra fiche-error-ultra">'
+      + '<header class="fiche-pro-head">'
+      + '<div class="fiche-pro-top"><span class="fiche-pro-kicker">Fiche de révision</span>'
+      + '<div class="fiche-pro-tags">' + tags + '</div></div>'
+      + '<p class="fiche-pro-q q-fiche-question">' + esc(q.q) + '</p>'
+      + compareHtml
+      + '</header>'
+      + '<div class="fiche-pro-lead">'
+      + '<span class="fiche-pro-lead-label">L\'essentiel</span>'
+      + '<p class="q-fiche-essentiel">' + esc(f.e) + '</p>'
+      + '</div>'
+      + '<div class="fiche-pro-body">'
+      + renderCard('✓', 'ok', 'Pourquoi c\'est la bonne réponse', '<p class="q-fiche-why">' + esc(f.w) + '</p>')
+      + renderCard('AB', '', 'Les 4 options expliquées', '<div class="fiche-pro-opts err-opt-list">' + optRows + '</div>')
+      + renderCard('•', '', 'À retenir pour l\'examen', '<ul class="fiche-pro-list q-fiche-retain">' + retainHtml + '</ul>')
+      + (f.m ? renderCard('★', 'tip', 'Astuce mémo', '<div class="fiche-pro-highlight fiche-pro-highlight--memo fiche-mnemo">' + esc(f.m) + '</div>') : '')
+      + renderCard('→', 'tip', 'Conseil examen', '<div class="fiche-pro-highlight fiche-pro-highlight--exam fiche-exam-tip">' + esc(f.t) + '</div>')
+      + renderCard('≡', '', 'Plan de révision — ' + (f.s || []).length + ' étapes', '<ol class="fiche-pro-list fiche-pro-list--steps err-action-plan">' + stepsHtml + '</ol>')
+      + behBlock
+      + '</div>'
+      + '<footer class="fiche-pro-foot q-fiche-ref">Thème : <strong>' + esc(f.r || q.r) + '</strong></footer>'
+      + '</article>';
   }
 
   function hydrateErrorFicheSlot(slot, q, opts) {
     if (!slot || !q) return;
+    const idx = opts && opts.idx != null ? opts.idx : resolveQIdx(q, -1);
     const render = function () {
       slot.innerHTML = renderQuestionErrorFicheHTML(q, opts);
     };
+    const mod = q.m;
+    if (global.PPLQuestionFicheLazy && global.PPLQuestionFicheLazy.isModLoaded
+      && global.PPLQuestionFicheLazy.isModLoaded(mod)) {
+      render();
+      return;
+    }
     if (typeof Q_FICHES !== 'undefined' && Array.isArray(Q_FICHES)) {
       render();
       return;
     }
     const lazy = global.PPLQuestionFicheLazy;
-    if (lazy && typeof lazy.ensureBank === 'function') {
-      lazy.ensureBank().then(render).catch(render);
+    if (lazy && typeof lazy.ensureBankForQuestion === 'function') {
+      lazy.ensureBankForQuestion(q, idx).then(render).catch(render);
+    } else if (lazy && typeof lazy.ensureBank === 'function') {
+      lazy.ensureBank(mod).then(render).catch(render);
     } else {
       render();
     }

@@ -1,5 +1,5 @@
 /**
- * Génère assets/js/question_fiches_bank.js — une fiche par question (1324).
+ * Génère les fiches erreur par module (C/A/M/R) — format compact v2.
  * Usage : node scripts/build/build_question_fiches.js
  */
 'use strict';
@@ -7,11 +7,12 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const { buildQuestionErrorFiche } = require('./question_fiche_lib');
+const { buildQuestionErrorFiche, compactFiche } = require('./question_fiche_lib');
 
 const ROOT = path.join(__dirname, '..', '..');
 const BANK_IN = path.join(ROOT, 'assets', 'js', 'questions_bank.js');
-const BANK_OUT = path.join(ROOT, 'assets', 'js', 'question_fiches_bank.js');
+const OUT_DIR = path.join(ROOT, 'assets', 'js');
+const MODS = ['C', 'A', 'M', 'R'];
 
 const code = fs.readFileSync(BANK_IN, 'utf8');
 const ctx = { console };
@@ -23,16 +24,42 @@ if (!Array.isArray(Q) || !Q.length) {
   process.exit(1);
 }
 
-const fiches = Q.map((q) => buildQuestionErrorFiche(q, -1));
+const byMod = { C: {}, A: {}, M: {}, R: {} };
+const counts = { C: 0, A: 0, M: 0, R: 0 };
 
-const out = [
-  '// Fiches erreur par question — généré par scripts/build/build_question_fiches.js',
-  '// Ne pas éditer à la main. Relancer : npm run fiches:build',
-  'const Q_FICHE_META=' + JSON.stringify({ total: fiches.length, version: 1 }) + ';',
-  'const Q_FICHES=' + JSON.stringify(fiches) + ';',
+Q.forEach((q, idx) => {
+  const mod = q.m;
+  if (!byMod[mod]) return;
+  byMod[mod][idx] = compactFiche(buildQuestionErrorFiche(q, -1));
+  counts[mod] += 1;
+});
+
+const metaOut = path.join(OUT_DIR, 'question_fiches_meta.js');
+const metaJs = [
+  '// Métadonnées banque fiches — généré par scripts/build/build_question_fiches.js',
+  'const Q_FICHE_BANK_META=' + JSON.stringify({ version: 2, total: Q.length, mods: counts }) + ';',
   '',
 ].join('\n');
+fs.writeFileSync(metaOut, metaJs, 'utf8');
 
-fs.writeFileSync(BANK_OUT, out, 'utf8');
-const kb = (Buffer.byteLength(out) / 1024).toFixed(1);
-console.log('OK — ' + fiches.length + ' fiches → ' + BANK_OUT + ' (' + kb + ' Ko)');
+let totalKb = Buffer.byteLength(metaJs) / 1024;
+const legacy = path.join(OUT_DIR, 'question_fiches_bank.js');
+if (fs.existsSync(legacy)) {
+  fs.unlinkSync(legacy);
+  console.log('Supprimé (legacy) : question_fiches_bank.js');
+}
+
+MODS.forEach((mod) => {
+  const outPath = path.join(OUT_DIR, `question_fiches_${mod}.js`);
+  const body = [
+    `// Fiches erreur module ${mod} — généré par scripts/build/build_question_fiches.js`,
+    `const Q_FICHES_${mod}=` + JSON.stringify(byMod[mod]) + ';',
+    '',
+  ].join('\n');
+  fs.writeFileSync(outPath, body, 'utf8');
+  const kb = Buffer.byteLength(body) / 1024;
+  totalKb += kb;
+  console.log(`  ${mod} : ${counts[mod]} fiches → ${kb.toFixed(1)} Ko`);
+});
+
+console.log('OK — ' + Q.length + ' fiches · total ~' + totalKb.toFixed(1) + ' Ko (4 chunks)');

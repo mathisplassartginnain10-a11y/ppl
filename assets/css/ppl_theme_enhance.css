@@ -2,7 +2,7 @@
    PPL QUIZ — Design System Ultra (couche premium)
    ═══════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Polices chargées via <link> dans les pages HTML (preconnect + display=swap). */
 
 :root {
   --font-display: 'Outfit', 'DM Sans', system-ui, sans-serif;

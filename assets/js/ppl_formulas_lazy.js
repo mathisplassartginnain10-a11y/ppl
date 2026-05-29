@@ -1,18 +1,27 @@
 (function (global) {
   'use strict';
 
+  function cacheVer() {
+    const meta = document.querySelector('meta[name="ppl-cache-version"]');
+    if (meta && meta.content) return meta.content;
+    const probe = document.querySelector('script[src*="ppl_settings"],script[src*="ppl_formulas_lazy"]');
+    const m = probe && probe.src && probe.src.match(/[?&]v=([^&]+)/);
+    return (m && m[1]) || '20260530e';
+  }
+
   let _loadPromise = null;
 
   function ensureFormulasEngine() {
     if (typeof getFormulasForQuestion === 'function') return Promise.resolve();
     if (_loadPromise) return _loadPromise;
+    const ver = cacheVer();
     _loadPromise = new Promise((resolve, reject) => {
       const bank = document.createElement('script');
-      bank.src = 'assets/js/formulas_bank.js?v=20260528d';
+      bank.src = 'assets/js/formulas_bank.js?v=' + ver;
       bank.async = true;
       bank.onload = () => {
         const eng = document.createElement('script');
-        eng.src = 'assets/js/formulas_engine.js?v=20260528e';
+        eng.src = 'assets/js/formulas_engine.js?v=' + ver;
         eng.async = true;
         eng.onload = () => resolve();
         eng.onerror = reject;
@@ -49,7 +58,7 @@
     });
   }
 
-  global.PPLFormulasLazy = { ensureFormulasEngine, hydrateFicheFormulaSlots };
+  global.PPLFormulasLazy = { ensureFormulasEngine, hydrateFicheFormulaSlots, cacheVer };
 })(typeof window !== 'undefined' ? window : this);
 
 (function (global) {
@@ -58,9 +67,12 @@
   function ensureFicheEnrich() {
     if (typeof renderFicheReferenceHTML === 'function') return Promise.resolve();
     if (_enrichPromise) return _enrichPromise;
+    const ver = global.PPLFormulasLazy && global.PPLFormulasLazy.cacheVer
+      ? global.PPLFormulasLazy.cacheVer()
+      : '20260530e';
     _enrichPromise = new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = 'assets/js/fiche_enrich.js?v=20260528q';
+      s.src = 'assets/js/fiche_enrich.js?v=' + ver;
       s.async = true;
       s.onload = () => resolve();
       s.onerror = reject;
@@ -73,20 +85,49 @@
 
 (function (global) {
   'use strict';
-  let _qfPromise = null;
-  function ensureBank() {
-    if (typeof Q_FICHES !== 'undefined' && Array.isArray(Q_FICHES)) return Promise.resolve();
-    if (_qfPromise) return _qfPromise;
-    const ver = document.querySelector('script[src*="question_fiche_engine"]')?.src?.match(/[?&]v=([^&]+)/)?.[1] || '20260530a';
-    _qfPromise = new Promise((resolve, reject) => {
+
+  const _loaded = {};
+  const _pending = {};
+
+  function cacheVer() {
+    if (global.PPLFormulasLazy && global.PPLFormulasLazy.cacheVer) {
+      return global.PPLFormulasLazy.cacheVer();
+    }
+    return '20260530e';
+  }
+
+  function isModLoaded(mod) {
+    return !!_loaded[mod] || typeof global['Q_FICHES_' + mod] !== 'undefined';
+  }
+
+  function ensureBank(mod) {
+    if (!mod || !/^[CAMR]$/.test(mod)) return Promise.resolve();
+    if (isModLoaded(mod)) {
+      _loaded[mod] = true;
+      return Promise.resolve();
+    }
+    if (_pending[mod]) return _pending[mod];
+    _pending[mod] = new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = 'assets/js/question_fiches_bank.js?v=' + ver;
+      s.src = 'assets/js/question_fiches_' + mod + '.js?v=' + cacheVer();
       s.async = true;
-      s.onload = () => resolve();
+      s.onload = () => {
+        _loaded[mod] = true;
+        resolve();
+      };
       s.onerror = reject;
       document.head.appendChild(s);
     });
-    return _qfPromise;
+    return _pending[mod];
   }
-  global.PPLQuestionFicheLazy = { ensureBank };
+
+  function ensureBankForQuestion(q, idx) {
+    let mod = q && q.m;
+    if (!mod && typeof Q !== 'undefined' && idx != null && idx >= 0 && Q[idx]) {
+      mod = Q[idx].m;
+    }
+    return mod ? ensureBank(mod) : Promise.resolve();
+  }
+
+  global.PPLQuestionFicheLazy = { ensureBank, ensureBankForQuestion, isModLoaded, cacheVer };
 })(typeof window !== 'undefined' ? window : this);

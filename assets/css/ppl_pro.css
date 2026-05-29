@@ -1,0 +1,417 @@
+/* ═══════════════════════════════════════════════════════════
+   PPL Quiz — Finition professionnelle (couche globale)
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ring: 0 0 0 2px var(--bg), 0 0 0 4px color-mix(in srgb, var(--acc) 55%, transparent);
+  --surface-1: color-mix(in srgb, var(--s1) 88%, transparent);
+  --surface-2: color-mix(in srgb, var(--s2) 92%, transparent);
+}
+
+/* Typographie & base */
+body {
+  font-family: var(--font-display, 'Outfit', 'DM Sans', system-ui, sans-serif);
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--acc) 35%, transparent);
+  color: var(--t1);
+}
+
+*:focus { outline: none; }
+*:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* Scrollbar discrète */
+html { scrollbar-gutter: stable; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--t3) 40%, transparent);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--acc) 50%, transparent);
+  background-clip: padding-box;
+}
+
+/* ─── Header premium ─── */
+.app-shell .app-header {
+  margin: -2rem -1.25rem 2rem;
+  padding: 0.65rem 1.25rem;
+  gap: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--glass-border) 80%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 4%, transparent) inset,
+    0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.app-brand-icon {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.app-brand-text {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.app-nav {
+  padding: 3px;
+  background: color-mix(in srgb, var(--s2) 65%, transparent);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  gap: 2px;
+}
+
+.app-nav-link {
+  padding: 0.42rem 0.75rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 9px;
+  border: 1px solid transparent;
+}
+
+.app-nav-link.on {
+  color: var(--t1);
+  background: color-mix(in srgb, var(--acc) 18%, var(--s2));
+  border-color: color-mix(in srgb, var(--acc) 35%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--acc) 15%, transparent);
+}
+
+.app-header-actions .app-settings-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--b1);
+  background: color-mix(in srgb, var(--s2) 80%, transparent);
+  color: var(--t2);
+  box-shadow: none;
+}
+
+.app-header-actions .app-settings-btn:hover {
+  color: var(--acc);
+  border-color: color-mix(in srgb, var(--acc) 40%, transparent);
+  background: color-mix(in srgb, var(--acc) 10%, var(--s2));
+  transform: none;
+}
+
+.app-header-actions .app-settings-btn:hover svg {
+  transform: rotate(45deg);
+}
+
+/* ─── Hero & accroche ─── */
+.home-top .pill {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+}
+
+.home-top .sub {
+  font-size: 14px;
+  color: color-mix(in srgb, var(--t2) 95%, var(--t1));
+  max-width: 540px;
+}
+
+/* ─── Panneaux & cartes ─── */
+.panel {
+  border-radius: 16px;
+  border-color: color-mix(in srgb, var(--glass-border) 90%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 3%, transparent) inset,
+    var(--shadow-sm);
+}
+
+.panel-head h2 {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--t2) 90%, var(--t1));
+}
+
+.mc {
+  border-radius: 14px;
+  transition: border-color 0.2s var(--ease-smooth), background 0.2s, transform 0.2s var(--ease-spring), box-shadow 0.2s;
+}
+
+.mc:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mc.on {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--acc) 40%, transparent),
+    0 8px 28px color-mix(in srgb, var(--acc) 12%, transparent);
+}
+
+.hc {
+  border-radius: 16px;
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.22s, border-color 0.2s;
+}
+
+.hc:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Quiz ─── */
+.qtop {
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-1);
+  border: 1px solid var(--b1);
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--b1);
+}
+
+.qcard {
+  border-radius: 18px;
+  padding: 1.65rem 1.5rem;
+}
+
+.qtext {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--t1) 98%, #fff);
+}
+
+.opt {
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.opt:hover:not(:disabled) {
+  transform: translateX(3px);
+}
+
+.olet {
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+/* Feedback */
+.fb {
+  border-radius: 14px;
+  border: 1px solid var(--b1);
+  overflow: hidden;
+}
+
+.fb.ok {
+  border-color: color-mix(in srgb, var(--green) 30%, transparent);
+  background: color-mix(in srgb, var(--green) 6%, var(--s1));
+}
+
+.fb.ko {
+  border-color: color-mix(in srgb, var(--red) 28%, transparent);
+  background: color-mix(in srgb, var(--red) 5%, var(--s1));
+}
+
+.fb-hd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.proba-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  padding: 3px 9px;
+  border: 1px solid transparent;
+}
+
+.proba-tag.ph { border-color: color-mix(in srgb, var(--green) 35%, transparent); }
+.proba-tag.pm { border-color: color-mix(in srgb, var(--amber) 35%, transparent); }
+.proba-tag.pl { border-color: color-mix(in srgb, var(--red) 35%, transparent); }
+
+/* Boutons principaux */
+.btn-go,
+.btn-nxt {
+  border-radius: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--acc) 25%, transparent);
+}
+
+.btn-go:hover,
+.btn-nxt:hover {
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--acc) 35%, transparent);
+}
+
+.btn-sec,
+.btn-end,
+.btn-sk {
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* KPI */
+.kpi-c {
+  border-radius: 14px;
+  transition: transform 0.2s var(--ease-spring), border-color 0.2s;
+}
+
+.kpi-c:hover {
+  transform: translateY(-1px);
+  border-color: var(--b2);
+}
+
+.kpi-v {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Résultats session */
+.session-recap h3,
+.recap-item summary {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.recap-item {
+  border-radius: 12px;
+  border: 1px solid var(--b1);
+  overflow: hidden;
+}
+
+/* Pages ressources */
+.resource-top {
+  border-radius: 16px;
+}
+
+.resource-top h2,
+.fiches-top-text h2 {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.btn-back {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.btn-back:hover { opacity: 1; }
+
+/* Fiches erreur — voir ppl_fiches_pro.css */
+
+/* Consentement */
+.set-consent-card {
+  border-radius: 20px;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, #fff 5%, transparent) inset;
+}
+
+.set-consent-hd h2 {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+/* Paramètres panneau */
+.set-panel {
+  border-radius: 0;
+  box-shadow:
+    -16px 0 48px rgba(0, 0, 0, 0.35),
+    0 0 0 1px color-mix(in srgb, #fff 4%, transparent) inset;
+}
+
+.set-tabs {
+  background: color-mix(in srgb, var(--s1) 50%, transparent);
+  border-bottom: 1px solid var(--b1);
+  padding: 0.4rem 0.65rem;
+}
+
+.set-tab {
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.set-tab.on {
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--acc) 12%, transparent);
+}
+
+.set-preset {
+  border-radius: 14px;
+  transition: border-color 0.18s, background 0.18s, transform 0.18s var(--ease-spring);
+}
+
+.set-preset:hover {
+  transform: translateX(2px);
+}
+
+.set-toggle-row {
+  border-radius: 14px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.set-toggle-row:hover {
+  border-color: var(--b2);
+  background: color-mix(in srgb, var(--s2) 50%, var(--s1));
+}
+
+.set-status-badge {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Badges module */
+.bd {
+  border-radius: 6px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .app-shell .app-header {
+    margin-bottom: 1.5rem;
+    padding: 0.55rem 1rem;
+  }
+
+  .app-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .app-nav-link {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem 0.35rem;
+    font-size: 10px;
+  }
+}
+
+/* Thèmes clairs */
+html[data-theme='paper'] .app-nav,
+html[data-theme='sand'] .app-nav,
+html[data-theme='mint'] .app-nav,
+html[data-theme='coral'] .app-nav,
+html[data-theme='arctic'] .app-nav {
+  background: color-mix(in srgb, var(--s2) 90%, #fff);
+}
+
+html[data-anim='off'] *,
+html[data-anim='off'] *::before,
+html[data-anim='off'] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}

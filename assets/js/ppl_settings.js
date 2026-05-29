@@ -697,19 +697,58 @@
     return { bytes, keys, label: (bytes / (1024 * 1024)).toFixed(2) + ' Mo' };
   }
 
+  function wipeAllPplStorage(opts) {
+    const keepSettings = opts?.keepSettings === true;
+    const keepAuth = opts?.keepAuth === true;
+    if (global.PPLStorage && typeof global.PPLStorage.flushNow === 'function') {
+      global.PPLStorage.flushNow();
+    }
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (!k || !k.startsWith('ppl4')) continue;
+        if (keepSettings && k === STORAGE_KEY) continue;
+        if (keepAuth && k === 'ppl4gate') continue;
+        try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
+        if (global.PPLStorage && typeof global.PPLStorage.remove === 'function') {
+          global.PPLStorage.remove(k);
+        }
+      }
+    } catch (e) { /* ignore */ }
+    try {
+      for (let i = sessionStorage.length - 1; i >= 0; i--) {
+        const k = sessionStorage.key(i);
+        if (k && k.startsWith('ppl4')) {
+          try { sessionStorage.removeItem(k); } catch (e) { /* ignore */ }
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+
   function eraseUserData(opts) {
     const keepSettings = opts?.keepSettings !== false;
-    DATA_KEYS.forEach((k) => {
-      try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
-    });
+    wipeAllPplStorage({ keepSettings, keepAuth: true });
     if (!keepSettings) {
-      try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
       current = sanitize(DEFAULTS);
       apply(current);
     }
     try {
-      window.dispatchEvent(new CustomEvent('ppl-data-erased', { detail: { keepSettings } }));
+      window.dispatchEvent(new CustomEvent('ppl-data-erased', { detail: { keepSettings, full: false } }));
     } catch (e) { /* ignore */ }
+  }
+
+  function factoryReset(opts) {
+    wipeAllPplStorage({ keepSettings: false, keepAuth: false });
+    current = sanitize(DEFAULTS);
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+    apply(current);
+    try {
+      window.dispatchEvent(new CustomEvent('ppl-data-erased', { detail: { keepSettings: false, full: true } }));
+      window.dispatchEvent(new CustomEvent('ppl-full-reset', { detail: {} }));
+    } catch (e) { /* ignore */ }
+    if (opts?.reload !== false) {
+      location.reload();
+    }
   }
 
   function exportUserData() {
@@ -813,7 +852,20 @@
 
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta && theme.meta) meta.setAttribute('content', theme.meta);
-    ensureDecorations();
+    if (document.body) syncDecorations();
+  }
+
+  function syncDecorations() {
+    if (!document.body) return;
+    document.querySelectorAll('.grid-overlay, .glows, .noise').forEach((el) => el.remove());
+    if (!current.glow && !current.grid) return;
+    let html = '';
+    if (current.grid) html += '<div class="grid-overlay" aria-hidden="true"></div>';
+    if (current.glow) {
+      html += '<div class="glows" aria-hidden="true"><div class="g1"></div><div class="g2"></div></div>';
+    }
+    html += '<div class="noise" aria-hidden="true"></div>';
+    document.body.insertAdjacentHTML('afterbegin', html);
   }
 
   function esc(s) {
@@ -931,11 +983,16 @@
     overlay.querySelectorAll('[data-set-density]').forEach((btn) => {
       btn.classList.toggle('on', btn.dataset.setDensity === current.density);
     });
-    overlay.querySelectorAll('[data-set-auto-advance]').forEach((btn) => {
-      btn.classList.toggle('on', btn.dataset.setAutoAdvance === current.autoAdvance);
-    });
     overlay.querySelectorAll('[data-set-retention]').forEach((btn) => {
       btn.classList.toggle('on', btn.dataset.setRetention === current.retention);
+      const isSession = btn.dataset.setRetention === 'session';
+      const disabled = current.privateSession && !isSession;
+      btn.disabled = disabled;
+      btn.classList.toggle('set-chip--disabled', disabled);
+      btn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+    });
+    overlay.querySelectorAll('[data-set-auto-advance]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setAutoAdvance === String(current.autoAdvance));
     });
     overlay.querySelectorAll('[data-set-toggle]').forEach((input) => {
       const key = input.dataset.setToggle;
@@ -943,8 +1000,12 @@
       const isPrivacy = PRIVACY_KEYS.includes(key);
       const disabled = isPrivacy && current.privateSession && key !== 'privateSession';
       input.disabled = disabled;
+      input.setAttribute('aria-checked', input.checked ? 'true' : 'false');
       const row = input.closest('.set-toggle-row');
-      if (row) row.classList.toggle('set-toggle-row--off', disabled);
+      if (row) {
+        row.classList.toggle('set-toggle-row--off', disabled);
+        row.classList.toggle('set-toggle-row--on', !!current[key] && !disabled);
+      }
     });
     overlay.querySelectorAll('[data-set-theme-filter]').forEach((btn) => {
       btn.classList.toggle('on', btn.dataset.setThemeFilter === themeFilter);
@@ -981,11 +1042,6 @@
   function refreshThemeGrid() {
     const slot = document.getElementById('set-theme-grid-slot');
     if (slot) slot.innerHTML = filteredThemeCards();
-    const overlay = document.getElementById('set-overlay');
-    if (!overlay) return;
-    overlay.querySelectorAll('[data-set-theme]').forEach((btn) => {
-      btn.addEventListener('click', () => save({ theme: btn.dataset.setTheme }));
-    });
     updatePanelControls();
   }
 
@@ -1187,6 +1243,7 @@
         <header class="set-panel-hd">
           <div class="set-panel-hd-main">
             <h2 id="set-title">Paramètres</h2>
+            <p class="set-panel-sub">Personnalisez l'apparence, le quiz et vos données</p>
             <div id="set-status-slot">${panelStatusHTML()}</div>
           </div>
           <button type="button" class="set-close" data-set-close aria-label="Fermer">✕</button>
@@ -1304,9 +1361,10 @@
               <div class="set-action-row">
                 <button type="button" class="set-action-btn" data-set-privacy-review>🔐 Revoir le choix confidentialité</button>
                 <button type="button" class="set-action-btn" data-set-export>📤 Exporter mes données (${esc(sz.label)})</button>
-                <button type="button" class="set-action-btn set-action-btn--danger" data-set-erase>🗑 Effacer toutes les données</button>
+                <button type="button" class="set-action-btn set-action-btn--danger" data-set-erase>🗑 Effacer les données du quiz</button>
+                <button type="button" class="set-action-btn set-action-btn--danger" data-set-factory-reset>↺ Réinitialisation complète</button>
               </div>
-              <p class="set-privacy-foot">Export JSON lisible · effacement irréversible (paramètres conservés).</p>
+              <p class="set-privacy-foot">Export JSON · effacement quiz (paramètres conservés) · réinitialisation complète = tout remettre à zéro.</p>
             </section>
           </div>
         </div>
@@ -1318,6 +1376,11 @@
   }
 
   function open() {
+    if (!hasPrivacyConsent()) {
+      openPrivacyConsent();
+      return;
+    }
+    ensureSettingsPanel();
     const overlay = document.getElementById('set-overlay');
     if (!overlay) return;
     const themeInFilter = themeFilter === 'all'
@@ -1375,71 +1438,66 @@
     const overlay = document.getElementById('set-overlay');
     if (!overlay) return;
 
-    overlay.querySelectorAll('[data-set-close]').forEach((el) => {
-      el.addEventListener('click', close);
-    });
+    if (overlay._pplSetClick) {
+      overlay.removeEventListener('click', overlay._pplSetClick);
+      overlay.removeEventListener('change', overlay._pplSetChange);
+    }
 
-    overlay.querySelectorAll('[data-set-tab]').forEach((btn) => {
-      btn.addEventListener('click', () => switchTab(btn.dataset.setTab));
-    });
-
-    overlay.querySelectorAll('[data-set-theme-filter]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        themeFilter = btn.dataset.setThemeFilter;
+    overlay._pplSetClick = (e) => {
+      if (e.target.closest('[data-set-close]')) {
+        close();
+        return;
+      }
+      const tab = e.target.closest('[data-set-tab]');
+      if (tab) {
+        switchTab(tab.dataset.setTab);
+        return;
+      }
+      const filterBtn = e.target.closest('[data-set-theme-filter]');
+      if (filterBtn) {
+        themeFilter = filterBtn.dataset.setThemeFilter;
         refreshThemeGrid();
-      });
-    });
-
-    overlay.querySelectorAll('[data-privacy-preset]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const preset = PRIVACY_PRESETS[btn.dataset.privacyPreset];
+        return;
+      }
+      const presetBtn = e.target.closest('[data-privacy-preset]');
+      if (presetBtn) {
+        const preset = PRIVACY_PRESETS[presetBtn.dataset.privacyPreset];
         if (preset) save(applyPrivacyPatch(preset.patch));
-      });
-    });
-
-    overlay.querySelectorAll('[data-set-theme]').forEach((btn) => {
-      btn.addEventListener('click', () => save({ theme: btn.dataset.setTheme }));
-    });
-
-    overlay.querySelectorAll('[data-set-accent]').forEach((btn) => {
-      btn.addEventListener('click', () => save({ accent: btn.dataset.setAccent }));
-    });
-
-    overlay.querySelectorAll('[data-set-font-size]').forEach((btn) => {
-      btn.addEventListener('click', () => save({ fontSize: btn.dataset.setFontSize }));
-    });
-
-    overlay.querySelectorAll('[data-set-font]').forEach((btn) => {
-      btn.addEventListener('click', () => save({ font: btn.dataset.setFont }));
-    });
-
-    overlay.querySelectorAll('[data-set-density]').forEach((btn) => {
-      btn.addEventListener('click', () => save({ density: btn.dataset.setDensity }));
-    });
-
-    overlay.querySelectorAll('[data-set-toggle]').forEach((input) => {
-      input.addEventListener('change', () => {
-        const key = input.dataset.setToggle;
-        const patch = { [key]: input.checked };
-        if (key === 'privateSession') {
-          if (input.checked) {
-            Object.assign(patch, PRIVACY_PRESETS.private.patch);
-          } else {
-            patch.clearOnExit = false;
-            if (current.retention === 'session') patch.retention = 'forever';
-          }
-        }
-        save(patch);
-      });
-    });
-
-    overlay.querySelectorAll('[data-set-auto-advance]').forEach((btn) => {
-      btn.addEventListener('click', () => save({ autoAdvance: btn.dataset.setAutoAdvance }));
-    });
-
-    overlay.querySelectorAll('[data-set-retention]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const val = btn.dataset.setRetention;
+        return;
+      }
+      const themeBtn = e.target.closest('[data-set-theme]');
+      if (themeBtn) {
+        save({ theme: themeBtn.dataset.setTheme });
+        return;
+      }
+      const accentBtnEl = e.target.closest('[data-set-accent]');
+      if (accentBtnEl) {
+        save({ accent: accentBtnEl.dataset.setAccent });
+        return;
+      }
+      const fontSizeBtn = e.target.closest('[data-set-font-size]');
+      if (fontSizeBtn) {
+        save({ fontSize: fontSizeBtn.dataset.setFontSize });
+        return;
+      }
+      const fontBtn = e.target.closest('[data-set-font]');
+      if (fontBtn) {
+        save({ font: fontBtn.dataset.setFont });
+        return;
+      }
+      const densityBtn = e.target.closest('[data-set-density]');
+      if (densityBtn) {
+        save({ density: densityBtn.dataset.setDensity });
+        return;
+      }
+      const autoBtn = e.target.closest('[data-set-auto-advance]');
+      if (autoBtn) {
+        save({ autoAdvance: autoBtn.dataset.setAutoAdvance });
+        return;
+      }
+      const retentionBtn = e.target.closest('[data-set-retention]');
+      if (retentionBtn && !retentionBtn.disabled) {
+        const val = retentionBtn.dataset.setRetention;
         if (val === 'session') {
           save(applyPrivacyPatch(PRIVACY_PRESETS.private.patch));
         } else {
@@ -1450,28 +1508,43 @@
           }
           save(patch);
         }
-      });
-    });
-
-    const exportBtn = overlay.querySelector('[data-set-export]');
-    if (exportBtn) exportBtn.addEventListener('click', exportUserData);
-
-    const privacyReview = overlay.querySelector('[data-set-privacy-review]');
-    if (privacyReview) privacyReview.addEventListener('click', openPrivacyConsent);
-
-    const eraseBtn = overlay.querySelector('[data-set-erase]');
-    if (eraseBtn) {
-      eraseBtn.addEventListener('click', () => {
-        if (confirm('Effacer TOUTES les données du quiz (historique, stats, fiches, réactions) ?\n\nLes paramètres d\'apparence seront conservés.')) {
+        return;
+      }
+      if (e.target.closest('[data-set-export]')) {
+        exportUserData();
+        return;
+      }
+      if (e.target.closest('[data-set-privacy-review]')) {
+        openPrivacyConsent();
+        return;
+      }
+      if (e.target.closest('[data-set-erase]')) {
+        if (confirm(
+          'Effacer toutes les données du quiz ?\n\n'
+          + '• Historique, scores, erreurs\n'
+          + '• Fiches, révisions, réactions\n'
+          + '• Journal détaillé & probabilités\n\n'
+          + 'Les paramètres d\'apparence seront conservés.'
+        )) {
           eraseUserData({ keepSettings: true });
-          alert('Données effacées. Recharge la page pour repartir à zéro.');
+          location.reload();
         }
-      });
-    }
-
-    const reset = overlay.querySelector('[data-set-reset]');
-    if (reset) {
-      reset.addEventListener('click', () => {
+        return;
+      }
+      if (e.target.closest('[data-set-factory-reset]')) {
+        if (confirm(
+          'Réinitialisation COMPLÈTE ?\n\n'
+          + '• Toutes les données du quiz\n'
+          + '• Paramètres & thème\n'
+          + '• Choix de confidentialité\n'
+          + '• Code d\'accès (à ressaisir)\n\n'
+          + 'Action irréversible. L\'application sera rechargée.'
+        )) {
+          factoryReset();
+        }
+        return;
+      }
+      if (e.target.closest('[data-set-reset]')) {
         if (confirm('Réinitialiser uniquement l\'apparence (thème, couleurs, effets) ?')) {
           const kept = {
             saveProgress: current.saveProgress,
@@ -1494,26 +1567,38 @@
           };
           apply({ ...DEFAULTS, ...kept });
           current = sanitize({ ...DEFAULTS, ...kept });
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(current)); } catch (e) { /* ignore */ }
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(current)); } catch (err) { /* ignore */ }
           updatePanelControls();
           try {
             window.dispatchEvent(new CustomEvent('ppl-settings-changed', { detail: { ...current } }));
-          } catch (e) { /* ignore */ }
+          } catch (err) { /* ignore */ }
         }
-      });
-    }
+      }
+    };
 
+    overlay._pplSetChange = (e) => {
+      const input = e.target.closest('[data-set-toggle]');
+      if (!input || input.disabled) return;
+      const key = input.dataset.setToggle;
+      const patch = { [key]: input.checked };
+      if (key === 'privateSession') {
+        if (input.checked) {
+          Object.assign(patch, PRIVACY_PRESETS.private.patch);
+        } else {
+          patch.clearOnExit = false;
+          if (current.retention === 'session') patch.retention = 'forever';
+        }
+      }
+      save(patch);
+    };
+
+    overlay.addEventListener('click', overlay._pplSetClick);
+    overlay.addEventListener('change', overlay._pplSetChange);
     bindKeydown();
   }
 
   function ensureDecorations() {
-    if (!current.glow && !current.grid) return;
-    if (!document.querySelector('.grid-overlay')) {
-      document.body.insertAdjacentHTML('afterbegin',
-        '<div class="grid-overlay" aria-hidden="true"></div>'
-        + '<div class="glows" aria-hidden="true"><div class="g1"></div><div class="g2"></div></div>'
-        + '<div class="noise" aria-hidden="true"></div>');
-    }
+    syncDecorations();
   }
 
   let keydownBound = false;
@@ -1531,32 +1616,46 @@
     keydownBound = true;
   }
 
-  function mountUI() {
-    ensureDecorations();
-    if (document.getElementById('set-overlay')) return;
-
+  function mountSettingsButton() {
     const header = document.querySelector('.app-header');
-    if (header && !document.getElementById('app-settings-btn')) {
-      const actions = document.createElement('div');
-      actions.className = 'app-header-actions';
-      actions.innerHTML = '<button type="button" class="app-settings-btn" id="app-settings-btn" aria-label="Paramètres" title="Paramètres">'
-        + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-        + '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>'
-        + '<circle cx="12" cy="12" r="3"/>'
-        + '</svg></button>';
-      header.appendChild(actions);
-      document.getElementById('app-settings-btn').addEventListener('click', open);
-    }
+    if (!header || document.getElementById('app-settings-btn')) return;
+    const actions = document.createElement('div');
+    actions.className = 'app-header-actions';
+    actions.innerHTML = '<button type="button" class="app-settings-btn" id="app-settings-btn" aria-label="Paramètres" title="Paramètres">'
+      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>'
+      + '<circle cx="12" cy="12" r="3"/>'
+      + '</svg></button>';
+    header.appendChild(actions);
+    document.getElementById('app-settings-btn').addEventListener('click', () => {
+      if (!hasPrivacyConsent()) openPrivacyConsent();
+      else open();
+    });
+  }
 
+  function ensureSettingsPanel() {
+    if (document.getElementById('set-overlay')) return;
     document.body.insertAdjacentHTML('beforeend', panelHTML());
     bindPanelEvents();
+    switchTab(activeTab);
+  }
+
+  function mountUI() {
+    ensureDecorations();
+    mountSettingsButton();
+    ensureSettingsPanel();
   }
 
   function init() {
     current = load();
-    apply(current);
+    try {
+      apply(current);
+    } catch (e) {
+      console.error('[PPL Settings] apply:', e);
+    }
     setupClearOnExit();
     const onReady = () => {
+      mountSettingsButton();
       if (!hasPrivacyConsent()) {
         mountConsentGate();
       } else {
@@ -1574,7 +1673,7 @@
 
   global.PPLSettings = {
     load, get, save, apply, open, close, canPersist, hasPrivacyConsent, openPrivacyConsent,
-    exportUserData, eraseUserData, getDataSize, purgeRetention, sanitize,
+    exportUserData, eraseUserData, factoryReset, wipeAllPplStorage, getDataSize, purgeRetention, sanitize,
     DEFAULTS, THEMES, ACCENTS, DATA_KEYS,
   };
 

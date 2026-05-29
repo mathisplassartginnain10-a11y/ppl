@@ -274,13 +274,14 @@ function render(){
     const priv=document.documentElement.dataset.private==='on';
     clearBtn.hidden=priv;
     clearBtn.addEventListener('click',()=>{
-      if(confirm('Effacer tout l’historique des stats détaillées ?')){
+      if(confirm('Effacer tout l\'historique des stats détaillées ?\n\nToutes les données du quiz seront supprimées (paramètres conservés).')){
         if(window.PPLSettings&&PPLSettings.eraseUserData){
           PPLSettings.eraseUserData({keepSettings:true});
+          location.reload();
         }else{
           localStorage.removeItem('ppl4answers');
+          render();
         }
-        render();
       }
     });
   }

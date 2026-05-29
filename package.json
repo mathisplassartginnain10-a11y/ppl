@@ -9,7 +9,9 @@
     "questions:build": "python scripts/build/build_questions.py",
     "formulas:build": "python scripts/build/build_formulas.py",
     "fiches:build": "node scripts/build/build_question_fiches.js",
+    "build:all": "npm run questions:build && npm run formulas:build && npm run fiches:build && npm run cache:sync",
     "check:qcm": "node scripts/check/audit_qcm.js",
+    "check:qcm:full": "node scripts/check/audit_qcm_full.js",
     "test:settings": "node scripts/check/test_settings.js"
   }
 }

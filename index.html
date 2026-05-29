@@ -2,25 +2,30 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="ppl-cache-version" content="20260530g">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>PPL Quiz Ultra Complet</title>
-<link rel="stylesheet" href="assets/css/ppl_theme.css?v=20260530a">
-<link rel="stylesheet" href="assets/css/ppl_theme_enhance.css?v=20260530a">
-<link rel="stylesheet" href="assets/css/ppl_mobile.css?v=20260530a">
-<link rel="stylesheet" href="assets/css/ppl_auth.css?v=20260530a">
-<link rel="stylesheet" href="assets/css/ppl_perf.css?v=20260530a">
-<link rel="stylesheet" href="assets/css/ppl_settings.css?v=20260530a">
-<script src="assets/js/ppl_settings.js?v=20260530a"></script>
-<script src="assets/js/ppl_storage.js?v=20260530a"></script>
-<script src="assets/js/ppl_auth.js?v=20260530a"></script>
-<script src="assets/js/ppl_session_fiches.js?v=20260530a"></script>
-<script src="assets/js/ppl_module_host.js?v=20260530a"></script>
+<title>PPL Quiz — Préparation examen théorique</title>
+<link rel="stylesheet" href="assets/css/ppl_theme.css?v=20260530g">
+<link rel="stylesheet" href="assets/css/ppl_theme_enhance.css?v=20260530g">
+<link rel="stylesheet" href="assets/css/ppl_mobile.css?v=20260530g">
+<link rel="stylesheet" href="assets/css/ppl_auth.css?v=20260530g">
+<link rel="stylesheet" href="assets/css/ppl_perf.css?v=20260530g">
+<link rel="stylesheet" href="assets/css/ppl_settings.css?v=20260530g">
+<link rel="stylesheet" href="assets/css/ppl_pro.css?v=20260530g">
+<link rel="stylesheet" href="assets/css/ppl_fiches_pro.css?v=20260530g">
+<script src="assets/js/ppl_settings.js?v=20260530g"></script>
+<script src="assets/js/ppl_storage.js?v=20260530g"></script>
+<script src="assets/js/ppl_auth.js?v=20260530g"></script>
+<script src="assets/js/ppl_module_host.js?v=20260530g"></script>
 </head>
 <body>
 <div class="wrap app-shell">
@@ -36,13 +41,13 @@
 
 <div id="sh" class="screen on">
   <div class="home-top">
-    <div class="pill"><span class="dot-pulse"></span>Examen théorique PPL / LAPL</div>
-    <h1>Quiz PPL <em>Avion</em></h1>
-    <p class="sub" id="h-sub">Banque complète Aérogligli · simulateur binomial examen (64 Q, 75%/épreuve) · maîtrise bayésienne · réaction prioritaire.</p>
+    <div class="pill"><span class="dot-pulse"></span>Préparation PPL / LAPL</div>
+    <h1>Quiz théorique <em>Avion</em></h1>
+    <p class="sub" id="h-sub">1 324 questions · probabilité d'examen · révision intelligente · fiches détaillées à chaque erreur.</p>
   </div>
   <div class="bank-hero" id="bank-hero">
     <div class="bank-hero-n" id="bank-hero-n">—</div>
-    <div class="bank-hero-l">questions uniques · qualité & diversité</div>
+    <div class="bank-hero-l">questions uniques · qualité vérifiée</div>
     <div class="bank-hero-mod" id="bank-hero-mod"></div>
   </div>
   <section class="panel panel-stats">
@@ -126,7 +131,7 @@
     </div>
   </div>
   <button class="btn-go" onclick="launch()">▶ Commencer</button>
-  <button class="btn-sec" onclick="resetAll()">Réinitialiser tout</button>
+  <button class="btn-sec" onclick="resetAll()">↺ Réinitialisation complète</button>
   <div class="mod-pills">
     <div class="mp mp-total"><span class="mp-n">📚 Banque totale</span><span class="mp-c" id="cnt-all">—</span></div>
     <div class="mp"><span class="mp-n">🎙 Communications</span><span class="mp-c" id="cnt-c">—</span></div>
@@ -176,11 +181,12 @@
 </div>
 
 </div>
-<script src="assets/js/questions_bank.js?v=20260530a" defer></script>
-<script src="assets/js/formulas_meta.js?v=20260530a" defer></script>
-<script src="assets/js/topics_utils.js?v=20260530a" defer></script>
-<script src="assets/js/ppl_formulas_lazy.js?v=20260530a" defer></script>
-<script src="assets/js/question_fiche_engine.js?v=20260530a" defer></script>
-<script src="assets/js/ppl_quiz_engine.js?v=20260530a" defer></script>
+<script src="assets/js/questions_bank.js?v=20260530g" defer></script>
+<script src="assets/js/formulas_meta.js?v=20260530g" defer></script>
+<script src="assets/js/topics_utils.js?v=20260530g" defer></script>
+<script src="assets/js/ppl_formulas_lazy.js?v=20260530g" defer></script>
+<script src="assets/js/question_fiche_engine.js?v=20260530g" defer></script>
+<script src="assets/js/ppl_session_fiches.js?v=20260530g" defer></script>
+<script src="assets/js/ppl_quiz_engine.js?v=20260530g" defer></script>
 </body>
 </html>

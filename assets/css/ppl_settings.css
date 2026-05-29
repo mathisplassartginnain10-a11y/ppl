@@ -114,6 +114,13 @@ body.set-open {
   letter-spacing: -0.02em;
 }
 
+.set-panel-sub {
+  font-size: 12px;
+  color: var(--t3);
+  margin: 0 0 0.35rem;
+  line-height: 1.45;
+}
+
 .set-panel-hd p {
   font-size: 12px;
   color: var(--t3);
@@ -333,7 +340,25 @@ body.set-open {
 
 .set-toggle-row--off {
   opacity: 0.45;
+}
+
+.set-toggle-row--off .set-toggle {
+  cursor: not-allowed;
+}
+
+.set-toggle-row--off:not(:has(.set-toggle:disabled)) {
   pointer-events: none;
+}
+
+.set-chip--disabled,
+.set-chip:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.set-toggle-row--on .set-toggle-track {
+  border-color: color-mix(in srgb, var(--acc) 45%, var(--b2));
 }
 
 .set-close {

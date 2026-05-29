@@ -165,8 +165,25 @@ function buildQuestionErrorFiche(q, chosenIdx) {
   };
 }
 
+/** Format compact v2 — ow = textes « pourquoi » par option (sans dupliquer q.o). */
+function compactFiche(f) {
+  return {
+    v: 2,
+    e: f.e,
+    w: f.w,
+    r: f.r,
+    mod: f.mod,
+    m: f.m || '',
+    t: f.t,
+    k: f.k,
+    s: f.s,
+    ow: f.o.map((o) => o.w),
+  };
+}
+
 module.exports = {
   buildQuestionErrorFiche,
+  compactFiche,
   firstSentence,
   modLabel,
 };
