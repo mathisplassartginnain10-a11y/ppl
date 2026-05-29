@@ -1920,6 +1920,9 @@ select:focus, input.cfg-num:focus {
 .fiche-formulas-compact .fiche-formula{padding:.45rem .55rem;margin-bottom:4px}
 
 .fb-brief .fb-key{font-weight:500;color:var(--t1)}
+.fb-brief .fb-exp-full{font-size:13px;line-height:1.55;color:var(--t2);margin-top:.35rem}
+.proba-tag-muted{color:var(--t3);background:rgba(100,130,255,.08);border:1px solid var(--b1)}
+.fb-hd .proba-tag{flex-shrink:0}
 .fb-ans{font-size:12px;line-height:1.45;margin:.35rem 0;padding:.35rem .5rem;border-radius:6px}
 .fb-ans.fb-wrong{background:rgba(240,96,96,.08);border:1px solid rgba(240,96,96,.25);color:#fca5a5}
 .fb-ans.fb-correct{background:rgba(52,211,168,.08);border:1px solid rgba(52,211,168,.25);color:#a7f3d0}

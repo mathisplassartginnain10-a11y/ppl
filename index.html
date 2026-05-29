@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260529b">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260529e">
+<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260529f">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260529e">
 <link rel="stylesheet" href="ppl_auth.css?v=20260529a">
 <link rel="stylesheet" href="ppl_perf.css?v=20260529e">
@@ -2576,7 +2576,7 @@ function autoTO(){
   stopReactLive();
   const q=queue[qi];
   document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
-  if(mode!=='exam') document.getElementById('o'+q.a).classList.add('sh');
+  document.getElementById('o'+q.a).classList.add('sh');
   const el=(Date.now()-t0)/1000;
   const beh=QBehavior.snapshot(-1,q.a);
   record(false,el,beh); showFb(false,q,el,beh);
@@ -2594,12 +2594,8 @@ function doAns(i){
   const ok=i===q.a;
   const beh=QBehavior.snapshot(i,q.a);
   document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
-  if(mode==='exam'){
-    document.getElementById('o'+i).classList.add('picked');
-  }else{
-    document.getElementById('o'+i).classList.add(ok?'ok':'ko');
-    if(!ok) document.getElementById('o'+q.a).classList.add('sh');
-  }
+  document.getElementById('o'+i).classList.add(ok?'ok':'ko');
+  if(!ok) document.getElementById('o'+q.a).classList.add('sh');
   record(ok,el,beh); showFb(ok,q,el,beh);
   document.getElementById('bnxt').style.display='block';
   document.getElementById('bsk').style.display='none';
@@ -2686,29 +2682,24 @@ function fmtProbaBreakdown(res){
 }
 
 function showFb(ok,q,el,beh){
-  if(mode==='exam'){
-    document.getElementById('fb').innerHTML=`
-      <div class="fb fb-exam fb-brief">
-        <div class="fb-hd">
-          <span class="fb-st">Réponse enregistrée · ${el.toFixed(1)}s</span>
-        </div>
-        <p class="fb-end-hint">Corrections et explications à la fin de la session →</p>
-      </div>`;
-    return;
-  }
   const idx=Q.indexOf(q);
   const res=calcProba(ok,el,q.d,sesHist.slice(0,-1),beh,{q,idx,qi,total:queue.length});
   const p=res.p,pc=probaClass(p);
+  const examSim=simulateExamReadiness();
+  const examTag=examSim.reliable&&examSim.examP!=null
+    ?`<span class="proba-tag ${probaClass(examSim.examP)}">P(examen) ${examSim.examP}%</span>`
+    :`<span class="proba-tag proba-tag-muted">P(examen) · ${examSim.totalT||0}/${EXAM_MIN_ANSWERS_GLOBAL} rép.</span>`;
   const tlim={1:12,2:22,3:38,4:55}[q.d];
   const r=el/tlim;
   const tl=r<0.35?'⚡ Très rapide':r<0.7?'✓ Rapide':r<1.1?'◎ Normal':'○ Long';
   const chosenIdx=beh?.chosenIdx??-1;
   const lastEntry=answerLog.items[answerLog.items.length-1];
   const statsHref=`stats.html?i=${idx>=0?idx:''}&t=${lastEntry?.t||Date.now()}`;
-  const ansBlock=!ok&&chosenIdx>=0
-    ?`<div class="fb-ans fb-wrong">✗ Ta réponse : ${esc(q.o[chosenIdx])}</div>
-       <div class="fb-ans fb-correct">✓ Bonne réponse : ${esc(q.o[q.a])}</div>`
-    :'';
+  let ansBlock='';
+  if(!ok){
+    if(chosenIdx>=0) ansBlock+=`<div class="fb-ans fb-wrong">✗ Ta réponse : ${esc(q.o[chosenIdx])}</div>`;
+    ansBlock+=`<div class="fb-ans fb-correct">✓ Bonne réponse : ${esc(q.o[q.a])}</div>`;
+  }
 
   document.getElementById('fb').innerHTML=`
     <div class="fb ${ok?'ok':'ko'} fb-brief">
@@ -2716,9 +2707,10 @@ function showFb(ok,q,el,beh){
         <span class="fb-st">${ok?'✓ Correct':'✗ Incorrect'} · ${el.toFixed(1)}s · ${tl}</span>
         <span class="proba-tag ${probaClass(res.reactScore||50)}">Réaction ${res.reactScore||50}%</span>
         <span class="proba-tag ${pc}">Maîtrise ${p}%</span>
+        ${examTag}
       </div>
       ${ansBlock}
-      <div class="fb-txt fb-key">${summarizeKey(q.e)}</div>
+      <div class="fb-txt fb-exp-full">${esc(q.e)}</div>
       <div class="fb-ref">📌 ${q.r}</div>
       <p class="fb-end-hint">Résumé complet à la fin de la session →</p>
       <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées de cette réponse →</a>
