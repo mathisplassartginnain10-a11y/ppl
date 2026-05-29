@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="ppl_auth.css?v=20260529a">
 <link rel="stylesheet" href="ppl_perf.css?v=20260529e">
 <script src="ppl_auth.js?v=20260529a"></script>
-<script src="ppl_session_fiches.js?v=20260529d"></script>
+<script src="ppl_session_fiches.js?v=20260529g"></script>
 </head>
 <body>
 <div class="wrap app-shell">
@@ -173,7 +173,7 @@
 </div>
 
 </div>
-<script src="questions_bank.js?v=20260528p"></script>
+<script src="questions_bank.js?v=20260528q"></script>
 <script>
 (function(){
   const meta=typeof Q_BANK_META!=='undefined'?Q_BANK_META:null;
@@ -192,7 +192,7 @@
 <script src="formulas_bank.js?v=20260528d"></script>
 <script src="formulas_engine.js?v=20260528d"></script>
 <script src="topics_utils.js?v=20260528e"></script>
-<script src="fiche_enrich.js?v=20260528p"></script>
+<script src="fiche_enrich.js?v=20260528q"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // MOTEUR PROBABILITÉ AVANCÉ + TRACKING COMPORTEMENTAL
@@ -222,11 +222,10 @@ const QBehavior={
       this.lastX=e.clientX;this.lastY=e.clientY;
       if(now-this.lastEvt>35){
         this.moves++;
-        if(!this.firstInteract) this.firstInteract=now;
         this.lastEvt=now;
       }
     };
-    this._onScroll=()=>{this.scrollCount++;if(!this.firstInteract) this.firstInteract=Date.now();};
+    this._onScroll=()=>{this.scrollCount++;};
     this._onVis=()=>{
       if(document.hidden){this.blurCount++;this._blurAt=Date.now();}
       else if(this._blurAt){this.idleMs+=Date.now()-this._blurAt;this._blurAt=null;}
@@ -261,7 +260,6 @@ const QBehavior={
   hoverEnter(i){
     const now=Date.now();
     if(!this.optsEnter) this.optsEnter=now;
-    if(!this.firstInteract) this.firstInteract=now;
     if(this.currentHover!=null&&this.currentHover!==i) this.hoverSwitches++;
     if(this.prevHover===i&&this.lastHoverLeave&&now-this.lastHoverLeave<800) this.vacillations++;
     this.currentHover=i;
@@ -278,9 +276,18 @@ const QBehavior={
     const now=Date.now();
     if(this.currentHover!=null) this.hoverLeave(this.currentHover);
     const totalMs=now-this.t0;
-    const reactionMs=this.firstInteract?(this.firstInteract-this.t0):totalMs;
-    const decisionMs=this.firstInteract?(now-this.firstInteract):0;
-    const readMs=this.optsEnter?(this.optsEnter-this.t0):reactionMs;
+    const clickMs=totalMs;
+    const optsMs=this.optsEnter?(this.optsEnter-this.t0):null;
+    const readMs=optsMs!=null?optsMs:Math.round(clickMs*0.65);
+    const reactionMs=optsMs!=null?(now-this.optsEnter):clickMs;
+    let decisionMs=reactionMs;
+    if(chosenIdx>=0){
+      const h=this.hovers[chosenIdx];
+      if(h){
+        const dwell=h.ms+(h.enter?now-h.enter:0);
+        if(dwell>0) decisionMs=dwell;
+      }
+    }
     let wrongHoverCount=0,hoveredWrongMs=0,dwellChosen=0,maxWrongDwell=0,longestWrongIdx=-1;
     const dwellPerOpt={};
     Object.entries(this.hovers).forEach(([idx,h])=>{
@@ -536,64 +543,74 @@ function passProbFromCounts(m,ok,t){
 
 /* ── Moteur réaction — facteur #1 ── */
 const REACT_PROFILE={
-  1:{reactSweet:[1.0,4.5],reactWarn:[0.35,8],decideSweet:[0.3,5],readMin:0.5},
-  2:{reactSweet:[1.5,6],reactWarn:[0.4,11],decideSweet:[0.5,7],readMin:0.8},
-  3:{reactSweet:[2.2,8],reactWarn:[0.5,16],decideSweet:[0.8,10],readMin:1.2},
-  4:{reactSweet:[3,10],reactWarn:[0.6,22],decideSweet:[1,14],readMin:1.5},
+  1:{reactSweet:[2,22],reactWarn:[0.8,50],decideSweet:[0.3,20],readMin:0.25},
+  2:{reactSweet:[3,35],reactWarn:[1,65],decideSweet:[0.4,28],readMin:0.4},
+  3:{reactSweet:[4,45],reactWarn:[1.2,80],decideSweet:[0.5,38],readMin:0.6},
+  4:{reactSweet:[5,55],reactWarn:[1.5,95],decideSweet:[0.6,48],readMin:0.8},
 };
 
 function reactionEngine(correct,diff,beh){
-  if(!beh) return {score:50,bonus:0,tags:[],label:'—',tier:'na',phase:{read:0,react:0,decide:0,total:0},confIdx:50,reactSweet:[1.5,6]};
+  if(!beh) return {score:50,bonus:0,tags:[],label:'—',tier:'na',phase:{read:0,react:0,decide:0,total:0},confIdx:50,reactSweet:[3,35]};
   const prof=REACT_PROFILE[diff]||REACT_PROFILE[2];
-  const react=beh.reactionSec||0,decide=beh.decisionSec||0,read=beh.readSec||0;
+  const total=(beh.totalMs||0)/1000||((beh.readSec||0)+(beh.reactionSec||0));
+  const choose=beh.reactionSec||0,decide=beh.decisionSec||0,read=beh.readSec||0;
   const [rLo,rHi]=prof.reactSweet,[rMin,rMax]=prof.reactWarn;
   const [dLo,dHi]=prof.decideSweet;
   const tags=[]; let score=52;
 
-  if(react>=rLo&&react<=rHi){
-    const mid=(rLo+rHi)/2,dist=Math.abs(react-mid)/Math.max(0.01,(rHi-rLo)/2);
+  if(total>=rLo&&total<=rHi){
+    const mid=(rLo+rHi)/2,dist=Math.abs(total-mid)/Math.max(0.01,(rHi-rLo)/2);
     score=88+Math.round(12*(1-Math.min(1,dist)));
     tags.push('réaction optimale');
-  }else if(react<rMin){
-    score=Math.max(4,22-Math.round((rMin-react)*25));
-    tags.push('impulsif');
-  }else if(react<rLo){
-    score=42+Math.round((react-rMin)/(rLo-rMin)*38);
+  }else if(total<rMin){
+    score=Math.max(28,52-Math.round((rMin-total)*6));
+    tags.push('très rapide');
+  }else if(total<rLo){
+    score=74+Math.round((total-rMin)/(rLo-rMin)*14);
     tags.push('réaction rapide');
-  }else if(react<=rMax){
-    score=58-Math.round(((react-rHi)/(rMax-rHi))*32);
+  }else if(total<=rMax){
+    score=62-Math.round(((total-rHi)/(rMax-rHi))*22);
     tags.push('réaction lente');
   }else{
-    score=Math.max(6,24-Math.round((react-rMax)*2.5));
+    score=Math.max(22,48-Math.round((total-rMax)*1.2));
     tags.push('sur-analyse');
   }
 
   if(decide>=dLo&&decide<=dHi){
-    if(correct) score=Math.min(98,score+7);
-    else if(decide>dHi*0.8) score=Math.max(8,score-4);
-  }else if(decide<0.7){
-    score=Math.max(5,score-14);
-    if(!tags.includes('impulsif')) tags.push('clic précipité');
-  }else if(decide>dHi*1.4){
-    score=Math.max(10,score-11);
+    if(correct) score=Math.min(98,score+6);
+  }else if(decide<0.4&&!correct){
+    score=Math.max(18,score-8);
+    tags.push('clic précipité');
+  }else if(decide>dHi*1.6&&!correct){
+    score=Math.max(18,score-8);
     tags.push('hésitation prolongée');
-  }
-
-  if(read<prof.readMin){
-    score=Math.max(4,score-14);
-    tags.push('lecture insuffisante');
-  }else if(read>=prof.readMin&&read<=9){
+  }else if(decide<dLo&&correct&&total>=rLo){
     score=Math.min(98,score+4);
+    tags.push('décision assurée');
   }
 
-  if(correct&&score>=78) tags.push('réflexe sûr');
-  if(!correct&&(react<rMin||decide<0.8)) score=Math.max(3,score-8);
+  if(read<prof.readMin&&total<rLo*0.6){
+    score=Math.max(22,score-8);
+    tags.push('lecture courte');
+  }else if(read>=prof.readMin){
+    score=Math.min(98,score+3);
+  }
 
-  score=Math.max(2,Math.min(98,Math.round(score)));
+  if(correct){
+    score=Math.min(98,score+4);
+    if(total>=rMin&&total<=rMax) score=Math.max(score,78);
+    if(total>=rLo&&total<=rHi) score=Math.max(score,90);
+    if(score>=78) tags.push('réflexe sûr');
+  }else{
+    score=Math.max(28,score-14);
+    if(total<rMin||decide<0.35) score=Math.max(18,score-8);
+  }
+
+  score=Math.max(15,Math.min(98,Math.round(score)));
   const bonus=Math.max(-40,Math.min(40,Math.round((score-52)*0.82)));
   const tier=score>=82?'optimal':score>=64?'good':score>=42?'warn':'bad';
   const label={optimal:'Réaction optimale — rythme examen',good:'Réaction correcte',warn:'Réaction à calibrer',bad:'Réaction problématique',na:'—'}[tier];
-  return {score,bonus,tags,label,tier,phase:{read,react,decide,total:react+decide},confIdx:score,reactSweet:prof.reactSweet};
+  return {score,bonus,tags,label,tier,phase:{read,react:choose,decide,total},confIdx:score,reactSweet:prof.reactSweet};
 }
 
 let reactInt=null,curQDiff=2;
@@ -604,23 +621,22 @@ function updateReactLive(){
   const lblEl=box.querySelector('.rl-lbl');
   const prof=REACT_PROFILE[curQDiff]||REACT_PROFILE[2];
   const [rLo,rHi]=prof.reactSweet,[rMin,rMax]=prof.reactWarn;
-  if(!QBehavior.firstInteract){
-    const sec=(Date.now()-QBehavior.t0)/1000;
+  const totalSec=(Date.now()-QBehavior.t0)/1000;
+  if(!QBehavior.optsEnter){
     lblEl.textContent='Lecture';
-    valEl.textContent=sec<10?sec.toFixed(1)+'s':Math.round(sec)+'s';
+    valEl.textContent=totalSec<10?totalSec.toFixed(1)+'s':Math.round(totalSec)+'s';
     let cls='read';
-    if(sec>=prof.readMin&&sec<=rHi*1.2) cls='good';
-    else if(sec>rMax) cls='warn';
+    if(totalSec>=prof.readMin&&totalSec<=rHi*0.5) cls='good';
+    else if(totalSec>rMax) cls='warn';
     box.className='react-live '+cls;
   }else{
-    const react=(QBehavior.firstInteract-QBehavior.t0)/1000;
-    const decide=(Date.now()-QBehavior.firstInteract)/1000;
-    lblEl.textContent='Réact. '+react.toFixed(1)+'s';
-    valEl.textContent=decide.toFixed(1)+'s';
+    const choose=(Date.now()-QBehavior.optsEnter)/1000;
+    lblEl.textContent='Choix '+totalSec.toFixed(1)+'s';
+    valEl.textContent=choose.toFixed(1)+'s';
     let cls='wait';
-    if(react>=rLo&&react<=rHi) cls='good';
-    else if(react<rMin) cls='bad';
-    else if(react<=rMax) cls='warn';
+    if(totalSec>=rLo&&totalSec<=rHi) cls='good';
+    else if(totalSec<rMin) cls='warn';
+    else if(totalSec<=rMax) cls='warn';
     else cls='bad';
     box.className='react-live '+cls;
   }
@@ -642,7 +658,7 @@ function getReactStats(src){
   return {
     n:src.length,avgScore,avgReact,
     optimal:src.filter(h=>h.tier==='optimal').length,
-    impulsive:src.filter(h=>(h.tags||[]).includes('impulsif')).length,
+    impulsive:src.filter(h=>(h.tags||[]).includes('très rapide')||(h.tags||[]).includes('impulsif')).length,
     slow:src.filter(h=>(h.tags||[]).includes('réaction lente')||(h.tags||[]).includes('sur-analyse')).length
   };
 }
@@ -702,7 +718,7 @@ function buildReactDash(){
   el.innerHTML=`<div class="react-dash">
     <div class="react-dash-hd">
       <div><h2>⚡ Temps de réaction — facteur #1</h2>
-        <div style="font-size:11px;color:var(--t3);margin-top:2px">Fenêtre idéale niveau moyen : ${sweet[0]}–${sweet[1]}s avant la 1<sup>re</sup> interaction · ${st.n} mesures</div></div>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px">Fenêtre idéale niveau moyen : ${sweet[0]}–${sweet[1]}s (temps total question) · ${st.n} mesures</div></div>
       <span class="rev-pill ok">Score moy. ${st.avgScore}%</span>
     </div>
     <div class="react-stat-grid">
@@ -1137,7 +1153,8 @@ function buildRevisionActionPlan(q,entry,f,beh){
   steps.push('Enchaîner 3 questions du thème « '+q.r+' » sans correction.');
   if(entry?.sm2) steps.push('Prochaine révision SM-2 : dans '+entry.sm2.interval+' jour'+(entry.sm2.interval>1?'s':'')+'.');
   if(beh?.wrongHoverCount>=2) steps.push('À l\'examen : éliminer 2 options pièges avant de valider.');
-  if(beh?.reactionSec<1.5) steps.push('Ralentir : minimum 5 s de lecture sur les questions difficiles.');
+  const totalSec=beh?.totalMs?beh.totalMs/1000:((beh?.readSec||0)+(beh?.reactionSec||0));
+  if(totalSec>0&&totalSec<2.5) steps.push('Prends le temps de lire : vise 3–35 s par question (niveau moyen).');
   return steps;
 }
 
@@ -1589,7 +1606,7 @@ function isStruggle(ok,beh){
   if(!beh) return false;
   return beh.hoverSwitches>=3||beh.wrongHoverCount>=2||beh.hoveredWrongMs>2500||
     beh.vacillations>=2||beh.wrongDwellRatio>0.5||
-    (!ok&&beh.reactionSec<1.2)||(!ok&&beh.decisionSec<2&&beh.hoverSwitches<=1)||
+    (!ok&&(beh.totalMs||0)<2500)||(!ok&&beh.decisionSec<2&&beh.hoverSwitches<=1)||
     (ok&&beh.wrongHoverCount>=2);
 }
 
@@ -1611,7 +1628,8 @@ function learnObjectives(q,beh,ok,entry,chosenIdx){
     if(beh.hoverSwitches>=3) items.push('Comportement : hésitation marquée — élimine 2 options évidentes avant de choisir.');
     if(beh.wrongHoverCount>=2) items.push('Comportement : tu as exploré des pièges — étudie la section « Analyse des pièges » ci-dessous.');
     if(beh.vacillations>=2) items.push('Comportement : allers-retours entre options — note la règle sur papier avant de re-tenter.');
-    if(!ok&&beh.reactionSec<1.5) items.push('Comportement : réponse trop rapide — minimum 5 s de lecture sur les questions difficiles.');
+    const tot=beh.totalMs?beh.totalMs/1000:0;
+    if(!ok&&tot>0&&tot<2.5) items.push('Comportement : réponse très rapide — prends 3–10 s pour lire avant de cliquer.');
     if(!ok&&beh.decisionSec>15) items.push('Comportement : longue réflexion mais erreur — la notion n\'est pas acquise, relis les points clés.');
     if(beh.longestWrongIdx>=0&&beh.longestWrongIdx!==q.a) items.push(`Piège le plus attractif : option ${String.fromCharCode(65+beh.longestWrongIdx)} — ${esc(q.o[beh.longestWrongIdx])}`);
   }
@@ -2645,7 +2663,8 @@ function fmtReactHero(reactRes,beh){
   if(!reactRes||!beh) return '';
   const col=probaColor(reactRes.score);
   const circ=2*Math.PI*28,off=circ*(1-reactRes.score/100);
-  const sweet=reactRes.reactSweet||[1.5,6];
+  const sweet=reactRes.reactSweet||[3,35];
+  const totalSec=beh.totalMs?beh.totalMs/1000:((beh.readSec||0)+(beh.reactionSec||0));
   return`<div class="react-hero">
     <div class="react-ring">
       <svg width="72" height="72" viewBox="0 0 72 72">
@@ -2657,11 +2676,11 @@ function fmtReactHero(reactRes,beh){
     </div>
     <div class="react-hero-txt">
       <strong>${reactRes.label}</strong>
-      Fenêtre idéale (niv. ${sweet[0]}–${sweet[1]}s) · ${(reactRes.tags||[]).join(' · ')||'—'}
+      Fenêtre idéale ${sweet[0]}–${sweet[1]}s (temps total) · ${(reactRes.tags||[]).join(' · ')||'—'}
       <div class="react-phases">
         <div class="react-ph"><em>Lecture</em><span>${(beh.readSec||0).toFixed(1)}s</span></div>
-        <div class="react-ph"><em>Réaction</em><span>${(beh.reactionSec||0).toFixed(1)}s</span></div>
-        <div class="react-ph"><em>Décision</em><span>${(beh.decisionSec||0).toFixed(1)}s</span></div>
+        <div class="react-ph"><em>Choix</em><span>${(beh.reactionSec||0).toFixed(1)}s</span></div>
+        <div class="react-ph"><em>Total</em><span>${totalSec.toFixed(1)}s</span></div>
       </div>
     </div>
   </div>`;
@@ -2790,7 +2809,7 @@ function buildResult(){
     return `<div class="ph-bar" style="height:${h}px;background:${col};opacity:${d.ok?1:.45}" title="Q${i+1}: réact. ${(d.beh?.reactionSec||0).toFixed(1)}s · score ${rs}"></div>`;
   }).join('');
   const reactOpt=sData.filter(d=>(d.reactScore||0)>=82).length;
-  const reactImp=sData.filter(d=>(d.reactRes?.tags||[]).includes('impulsif')||(d.beh?.reactionSec||99)<0.5).length;
+  const reactImp=sData.filter(d=>(d.reactRes?.tags||[]).includes('très rapide')||(d.reactRes?.tags||[]).includes('impulsif')||(d.beh?.totalMs||99999)<800).length;
   const avgDecide=total?sData.reduce((s,d)=>s+(d.beh?.decisionSec||0),0)/total:0;
   const avgReact=total?sData.reduce((s,d)=>s+(d.beh?.reactionSec||0),0)/total:0;
   const avgHovers=total?sData.reduce((s,d)=>s+(d.beh?.hoverSwitches||0),0)/total:0;
@@ -2893,7 +2912,7 @@ function buildResult(){
 }
 
 function resetAll(){
-  if(!confirm('Réinitialiser TOUT ?\n\n• Historique & scores\n• Erreurs & points faibles\n• Fiches SM-2 & révisions\n• Fiches de fin de session\n• Temps de réaction & probabilités\n• Confiance globale & snapshots\n• Diversité / variantes vues\n• Paramètres session (mode, module, nombre)')) return;
+  if(!confirm('Réinitialiser TOUT ?\n\n• Historique & scores\n• Erreurs & points faibles\n• Fiches d\'erreur archivées\n• Fiches SM-2 & révisions\n• Résumés de session\n• Temps de réaction & probabilités\n• Confiance globale & snapshots\n• Diversité / variantes vues\n• Paramètres session (mode, module, nombre)')) return;
   resetSessionState();
   hist={};
   weak=new Set();
@@ -2901,6 +2920,10 @@ function resetAll(){
   reactLog={history:[]};
   probaLog={snapshots:[]};
   diversityLog={recent:[],seenIdx:{}};
+  if(typeof PPLSessionFiches!=='undefined'){
+    if(PPLSessionFiches.clearErrors) PPLSessionFiches.clearErrors();
+    if(PPLSessionFiches.clear) PPLSessionFiches.clear();
+  }
   clearAllStorage();
   save();
   saveReact();

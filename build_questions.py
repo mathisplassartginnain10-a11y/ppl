@@ -1098,6 +1098,229 @@ def gen_meteo_metar_taf_decode():
     return qs
 
 
+def gen_meteo_sigmet_bulletins():
+    """SIGMET, AIRMET, GAMET, bulletins météo et briefing pilote."""
+    qs = []
+
+    def add(d, question, correct, wrongs, expl, ref):
+        opts, a = shuffle_opts(correct, wrongs)
+        qs.append(q("M", d, question, opts, a, expl, ref))
+
+    # ── SIGMET ──
+    SIGMET = [
+        ("Qu'est-ce qu'un SIGMET ?",
+         "Bulletin d'information météorologique significative (phénomènes dangereux)",
+         ["Prévision aérodrome 9 h", "Carte vent/température par FL", "Observation spéciale SPECI"],
+         "SIGMET = Significant Meteorological Information — alerte phénomènes dangereux pour tous les aéronefs.",
+         "SIGMET - définition", 2),
+        ("Un SIGMET concerne principalement :",
+         "Des phénomènes météo dangereux pour la navigation aérienne",
+         ["Des conditions météo légères uniquement", "La prévision locale d'un aérodrome", "Le trafic au sol"],
+         "SIGMET = niveau d'alerte élevé (vs AIRMET = modéré).", "SIGMET - définition", 2),
+        ("Validité typique d'un SIGMET :",
+         "4 heures", ["1 heure", "6 heures", "9 heures"],
+         "SIGMET valide 4 h (renouvelable). AIRMET = 6 h.", "SIGMET - validité", 2),
+        ("Qui émet les SIGMET en France métropolitaine ?",
+         "Le centre météorologique régional (ex. Brest MWO)",
+         ["Chaque tour de contrôle", "L'exploitant de l'aérodrome", "Le pilote via FPL"],
+         "MWO = Meteorological Watch Office — surveillance continue.", "SIGMET - émission", 2),
+        ("Sur les cartes et documents OACI, SIGMET s'abrège souvent :",
+         "WS", ["WA", "SA", "WC"],
+         "WS = SIGMET · WA = AIRMET.", "SIGMET - codes", 2),
+        ("Phénomène pouvant faire l'objet d'un SIGMET :",
+         "Orages violents / CB masqués ou en ligne",
+         ["Bruine légère", "Vent 8 kt au sol", "Ciel FEW040"],
+         "CB, turbulence sévère, givrage sévère, cendres volcaniques, cyclone tropical…", "SIGMET - phénomènes", 2),
+        ("Turbulence sévère dans un SIGMET signifie :",
+         "Turbulence pouvant provoquer une perte de maîtrise momentanée",
+         ["Légères secousses en croisière", "Turbulence uniquement au sol", "Turbulence modérée en montagne"],
+         "Sévère = danger structurel / contrôle — contourner la zone.", "SIGMET - phénomènes", 3),
+        ("Givrage sévère dans un SIGMET :",
+         "Accumulation rapide de glace dangereuse pour le vol",
+         ["Givrage léger carburateur", "Rosée au sol", "Givrage modéré prévu AIRMET"],
+         "Givrage sévère = risque perte de portance / puissance.", "SIGMET - phénomènes", 3),
+        ("Cendres volcaniques dans un SIGMET :",
+         "Zone à éviter absolument — danger moteur et visibilité",
+         ["Poussière légère en surface", "Brume sèche locale", "Orage isolé"],
+         "Cendres = SIGMET prioritaire — pas de traversée.", "SIGMET - phénomènes", 3),
+        ("Tempête de sable ou poussière (SS/DS) en SIGMET :",
+         "Visibilité fortement réduite sur grande étendue",
+         ["Brume matinale locale", "Pluie fine", "Vent de 15 kt seul"],
+         "SS/DS = phénomène significatif type SIGMET.", "SIGMET - phénomènes", 3),
+        ("Action pilote VFR face à un SIGMET actif sur la route :",
+         "Modifier la route / altitude / reporter le vol",
+         ["Ignorer si METAR local CAVOK", "Continuer — SIGMET = prévision vague", "SIGMET remplace le NOTAM"],
+         "SIGMET = danger réel ou prévu — intégrer au briefing et à la décision.", "SIGMET - exploitation", 3),
+        ("Un SIGMET est annulé ou remplacé par :",
+         "Un nouveau SIGMET (séquence actualisée)",
+         ["Un METAR SPECI", "Un TAF AMD seul", "Un message ATIS"],
+         "Suivi des bulletins WS pendant le vol (si équipé) ou au sol.", "SIGMET - validité", 3),
+    ]
+    for question, correct, wrongs, expl, ref, diff in SIGMET:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    # ── AIRMET ──
+    AIRMET = [
+        ("Qu'est-ce qu'un AIRMET ?",
+         "Bulletin météo pour phénomènes modérés (aéronefs légers / VFR)",
+         ["Prévision TAF 9 h", "Carte TEMSI seule", "Observation METAR corrigée"],
+         "AIRMET = Airman's Meteorological Information — niveau modéré.", "AIRMET - définition", 2),
+        ("AIRMET vs SIGMET — différence principale :",
+         "AIRMET = modéré · SIGMET = sévère/dangereux",
+         ["AIRMET = aérodrome · SIGMET = régional", "Identiques", "AIRMET remplace le TAF"],
+         "Deux niveaux d'alerte complémentaires au briefing.", "AIRMET - définition", 2),
+        ("Validité typique d'un AIRMET :",
+         "6 heures", ["4 heures", "9 heures", "30 minutes"],
+         "AIRMET = 6 h · SIGMET = 4 h.", "AIRMET - validité", 2),
+        ("Sur documents OACI, AIRMET s'abrège souvent :",
+         "WA", ["WS", "SA", "WC"],
+         "WA = AIRMET · WS = SIGMET.", "AIRMET - codes", 2),
+        ("Phénomène typique d'un AIRMET :",
+         "Turbulence modérée en montagne",
+         ["Cyclone tropical", "Cendres volcaniques", "Orage violent masqué"],
+         "Modéré : givrage modéré, turbulence modérée, brouillard étendu, ondes orographiques.", "AIRMET - phénomènes", 2),
+        ("Givrage modéré en AIRMET :",
+         "Givrage perceptible nécessitant vigilance et stratégie de sortie",
+         ["Givrage sévère structurel", "Givrage uniquement au sol", "Pas d'impact sur VFR"],
+         "Modéré = sortie possible si équipement / altitude adaptés.", "AIRMET - phénomènes", 2),
+        ("Brouillard ou brume étendue en AIRMET :",
+         "Visibilité réduite sur zone large — impact VFR",
+         ["Brouillard local < 1 km seulement", "Phénomène réservé IFR", "Équivalent CAVOK"],
+         "AIRMET visibilité = planifier déroutement ou report.", "AIRMET - phénomènes", 2),
+        ("Ondes orographiques (mountain waves) en AIRMET :",
+         "Turbulence modérée / rotors en aval de relief",
+         ["Courant-jet haute altitude seul", "Brise de mer", "Anticyclone"],
+         "Ondes de lee = fréquentes AIRMET montagne.", "AIRMET - phénomènes", 3),
+        ("Briefing VFR : utilité de l'AIRMET ?",
+         "Anticiper gênes modérées sur la route (turbulence, visibilité, givrage)",
+         ["Remplacer METAR et TAF", "Obligatoire uniquement IFR", "Inutile si TEMSI consultée"],
+         "Complète TAF/METAR/TEMSI pour la navigation en route.", "AIRMET - exploitation", 2),
+    ]
+    for question, correct, wrongs, expl, ref, diff in AIRMET:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    # ── GAMET & bulletins complémentaires ──
+    BULLETINS = [
+        ("Le GAMET est :",
+         "Prévision météo de la basse et moyenne altitude (zone / FIR)",
+         ["Observation instantanée aérodrome", "Bulletin orage SIGMET", "Carte WINTEM seule"],
+         "GAMET = area forecast bas niveau — utile VFR longue distance.", "GAMET - définition", 2),
+        ("GAMET vs TAF — différence ?",
+         "GAMET = zone étendue bas niveau · TAF = un aérodrome précis",
+         ["Identiques", "GAMET remplace METAR", "TAF = uniquement nuit"],
+         "GAMET pour route · TAF pour départ/arrivée/escale.", "GAMET - définition", 2),
+        ("Ordre logique briefing météo VFR avant vol :",
+         "Synoptique (TEMSI) → route (GAMET/AIRMET/SIGMET) → aérodromes (TAF/METAR)",
+         ["METAR seul suffit", "TAF uniquement", "SIGMET remplace tout"],
+         "Du général au local — croiser toutes les sources.", "Briefing météo", 2),
+        ("ATIS fournit :",
+         "Information météo et piste en continu sur fréquence dédiée",
+         ["SIGMET régional", "Prévision 9 h TAF", "Carte WINTEM"],
+         "ATIS = observation + info piste · enregistrement bouclé.", "ATIS - définition", 2),
+        ("Vent ATIS vs vent METAR — référence direction :",
+         "ATIS = Nord magnétique · METAR = Nord vrai",
+         ["Les deux Nord vrai", "Les deux magnétique", "ATIS = Nord piste"],
+         "Piège classique examen : METAR/TAF vent = vrai ; radio sol = magnétique.", "ATIS vs METAR", 2),
+        ("VOLMET :",
+         "Diffusion radio des METAR de plusieurs aérodromes",
+         ["Prévision SIGMET", "Carte TEMSI", "TAF amendé"],
+         "VOLMET = veille météo en route (HF/VHF selon zone).", "VOLMET", 3),
+        ("Tendance METAR « BECMG 1416 5000 BR » signifie :",
+         "Évolution progressive vers visi 5000 m et brume entre 14h et 16h UTC",
+         ["Fluctuation temporaire 30 min", "Changement brutal FM", "Pas de changement NOSIG"],
+         "Tendance METAR : BECMG/TEMPO/NOSIG — ne pas confondre avec codes TAF identiques.", "METAR - tendance", 3),
+        ("Tendance METAR « TEMPO 1214 3000 RA » :",
+         "Fluctuation temporaire possible 12h–14h UTC (visi 3000 m, pluie)",
+         ["Changement permanent", "Probabilité 30%", "Annulation METAR"],
+         "TEMPO en tendance = possible mais pas certain sur la période.", "METAR - tendance", 3),
+        ("WS SIGMET et WA AIRMET dans un briefing papier/digital :",
+         "À consulter pour la navigation en route et le choix d'itinéraire",
+         ["Uniquement pour vol IFR haute altitude", "Remplacent les NOTAM", "Obsolètes si TAF récent"],
+         "Bulletins régionaux complémentaires au TAF local.", "Briefing météo", 2),
+        ("Phénomène SIGMET mais pas AIRMET typique :",
+         "Cyclone tropical", ["Turbulence modérée", "Brouillard étendu", "Givrage modéré"],
+         "Sévère → SIGMET · modéré → AIRMET.", "SIGMET vs AIRMET", 3),
+        ("Phénomène AIRMET mais pas SIGMET typique :",
+         "Brume étendue visibilité modérée", ["Cendres volcaniques", "Orage violent masqué", "Givrage sévère"],
+         "Hiérarchie danger : SIGMET > AIRMET > TEMPO TAF.", "SIGMET vs AIRMET", 3),
+    ]
+    for question, correct, wrongs, expl, ref, diff in BULLETINS:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    # ── Scénarios intégration briefing ──
+    SCENARIOS = [
+        ("METAR départ CAVOK · SIGMET CB sur route · décision prudente ?",
+         "Contourner la zone SIGMET ou reporter",
+         ["Décoller — METAR local prime", "Ignorer SIGMET de nuit", "TAF seul fait foi"],
+         "Conditions locales bonnes ≠ route sûre si SIGMET actif.", "Briefing météo", 3),
+        ("AIRMET turbulence modérée montagne · METAR destination CAVOK :",
+         "Prévoir secousses en croisière malgré bonnes conditions à l'arrivée",
+         ["Annuler obligatoirement", "AIRMET sans effet si CAVOK", "Descendre sous 500 ft"],
+         "Phénomènes en route ≠ conditions aérodrome.", "Briefing météo", 3),
+        ("TAF TEMPO TSRA + SIGMET CB même secteur :",
+         "Renforce le risque orageux — vigilance maximale",
+         ["Seul le TAF compte", "SIGMET annule le TAF", "Contradiction — ignorer les deux"],
+         "Convergence des sources = risque élevé.", "METAR/TAF/SIGMET", 3),
+        ("SPECI dégradation + pas de SIGMET encore publié :",
+         "Rester vigilant — SIGMET peut suivre si phénomène s'étend",
+         ["SPECI remplace SIGMET", "Aucune action", "Annuler TAF automatiquement"],
+         "Observation précède parfois le bulletin régional.", "Briefing météo", 3),
+        ("GAMET prévoit brouillard matinal · METAR 06h CAVOK :",
+         "Surveiller évolution — GAMET zone peut concerner le matin",
+         ["GAMET obsolète si METAR bon", "Décoller sans contrôle", "GAMET remplace TAF"],
+         "Prévision zone vs observation ponctuelle.", "GAMET - exploitation", 3),
+    ]
+    for question, correct, wrongs, expl, ref, diff in SCENARIOS:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    # ── Décodage METAR/TAF supplémentaire ──
+    EXTRA_DECODE = [
+        ("METAR 1500 mètres directionnels 0800m — interprétation ?",
+         "Visibilité directionnelle réduite dans une direction",
+         ["Visibilité 800 m partout", "Erreur de saisie obligatoire", "Vent 080°"],
+         "Visi directionnelle si < 1500 m ou < 50 % dominante et < 5000 m.", "METAR - visibilité", 3),
+        ("Groupe RMK dans METAR :",
+         "Remarques complémentaires (non standard OACI strict)",
+         ["Rafales obligatoires", "QNH de secours", "Code SIGMET"],
+         "RMK = infos additionnelles (ex. pression station, nuages secondaires).", "METAR - compléments", 3),
+        ("METAR NIL ou absence de METAR :",
+         "Pas d'observation disponible — utiliser TAF et sources voisines",
+         ["Conditions CAVOK implicites", "Aérodrome fermé automatiquement", "Remplacer par SPECI"],
+         "Pas de METAR ≠ bonnes conditions.", "METAR - exploitation", 2),
+        ("TAF PROB40 sans TEMPO :",
+         "40% de probabilité modérée du phénomène décrit sur la période",
+         ["Certitude 40%", "Vent 40 kt", "Validité 40 min"],
+         "PROB40 peut qualifier BECMG ou conditions isolées.", "TAF - PROB", 3),
+        ("TAF « 2715/2803 » — fin de validité ?",
+         "28 à 03h UTC", ["27 à 15h", "28 à 15h", "3 h de validité"],
+         "JJhh/JJhh : jour/heure début et fin UTC.", "TAF - validité", 3),
+        ("Wind shear en METAR (groupe WS) :",
+         "Cisaillement de vent signalé (décollage/atterrissage)",
+         ["Vent surface seul", "Rafales 30 kt", "Orage au voisinage"],
+         "WS = wind shear — danger approche/départ.", "METAR - compléments", 3),
+        ("Code RED dans METAR (aérodrome) :",
+         "Piste/contamination significative (selon norme locale publiée)",
+         ["Orage", "SIGMET actif", "TAF annulé"],
+         "RE = recent · RED peut signaler contamination piste (contexte aéroport).", "METAR - compléments", 3),
+        ("Décodage « 24010KT 24015G25KT 200V280 » :",
+         "Vent 240°/10 kt, rafales 25 kt, direction variable entre 200° et 280°",
+         ["Deux vents simultanés", "Erreur — un seul groupe vent", "Vent 240–280 kt"],
+         "Groupe vent étendu : moyenne, rafales, plage de variation.", "METAR - vent", 3),
+        ("« NSC » vs absence groupe nuages en METAR :",
+         "NSC = explicitement pas de nuage significatif",
+         ["8 octas couvert", "CAVOK automatique", "Nuages non observés AUTO"],
+         "NSC explicite ; AUTO peut omettre nuages non détectés.", "METAR - nuages", 2),
+        ("TAF « INTER » (certains aérodromes OACI) équivaut conceptuellement à :",
+         "Fluctuations temporaires (proche TEMPO)",
+         ["Changement permanent FM", "Annulation", "SIGMET"],
+         "INTER = intermittent — variante régionale proche TEMPO.", "TAF - codes", 3),
+    ]
+    for question, correct, wrongs, expl, ref, diff in EXTRA_DECODE:
+        add(diff, question, correct, wrongs, expl, ref)
+
+    return qs
+
+
 # ─── RÉGLEMENTATION ─────────────────────────────────────────────
 def gen_reg():
     qs = []
@@ -1643,6 +1866,7 @@ def main():
     bank.extend(gen_meteo())
     bank.extend(gen_meteo_symbols_advanced())
     bank.extend(gen_meteo_metar_taf_decode())
+    bank.extend(gen_meteo_sigmet_bulletins())
     bank.extend(gen_reg())
     bank.extend(gen_bulk_meteo())
     bank.extend(gen_bulk_reg())

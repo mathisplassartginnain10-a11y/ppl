@@ -14,6 +14,25 @@
     weak: 'Points faibles',
   };
 
+  function safeEsc(s) {
+    if (typeof esc === 'function') return esc(s);
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function safeModStr(m) {
+    if (typeof modStr === 'function') return modStr(m);
+    return { C: 'Communications', A: 'Aéronef', M: 'Météorologie', R: 'Réglementation' }[m] || String(m || '—');
+  }
+
+  function safeModClass(m) {
+    if (typeof modClass === 'function') return modClass(m);
+    return { C: 'bd-comm', A: 'bd-aero', M: 'bd-met', R: 'bd-reg' }[m] || '';
+  }
+
   function load() {
     try {
       sessionFiches = JSON.parse(localStorage.getItem(KEY) || '{"sessions":[]}');
@@ -196,7 +215,7 @@
     var summTitle = typeof summarizeKey === 'function'
       ? summarizeKey(q.q)
       : String(q.q || '').slice(0, 80);
-    var modLabel = typeof modStr === 'function' ? modStr(q.m) : item.mod;
+    var modLabel = safeModStr(q.m);
     var deepHtml = '';
     if (!item.ok && typeof renderDeepFicheHTML === 'function') {
       deepHtml = renderDeepFicheHTML(q, entry, chosenIdx, beh, logEntry);
@@ -206,18 +225,18 @@
       '<summary>' +
       '<span class="recap-num">Q' + (i + 1) + '</span>' +
       '<span class="recap-icon">' + (item.ok ? '✓' : '✗') + '</span>' +
-      '<span class="recap-mod">' + esc(modLabel) + '</span>' +
-      '<span class="recap-title">' + esc(summTitle) + '</span>' +
+      '<span class="recap-mod">' + safeEsc(modLabel) + '</span>' +
+      '<span class="recap-title">' + safeEsc(summTitle) + '</span>' +
       '<span class="recap-meta">' + item.el.toFixed(1) + 's</span>' +
       '</summary>' +
       '<div class="recap-body">' +
-      '<p class="recap-question">' + esc(q.q) + '</p>' +
+      '<p class="recap-question">' + safeEsc(q.q) + '</p>' +
       (!item.ok && chosenIdx >= 0
-        ? '<p class="recap-wrong">✗ Ta réponse : <strong>' + esc(q.o[chosenIdx]) + '</strong></p>'
+        ? '<p class="recap-wrong">✗ Ta réponse : <strong>' + safeEsc(q.o[chosenIdx]) + '</strong></p>'
         : '') +
-      '<p class="recap-correct">✓ Bonne réponse : <strong>' + esc(q.o[q.a]) + '</strong></p>' +
-      '<div class="recap-exp">' + esc(q.e) + '</div>' +
-      '<div class="recap-ref">📌 ' + esc(q.r) + '</div>' +
+      '<p class="recap-correct">✓ Bonne réponse : <strong>' + safeEsc(q.o[q.a]) + '</strong></p>' +
+      '<div class="recap-exp">' + safeEsc(q.e) + '</div>' +
+      '<div class="recap-ref">📌 ' + safeEsc(q.r) + '</div>' +
       deepHtml +
       '<a href="' + statsHref + '" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées →</a>' +
       '</div></details>';
@@ -239,14 +258,14 @@
 
     return '<div class="session-fiche-ok">' +
       '<div class="session-fiche-ok-hd">' +
-      '<span class="bd ' + modClass(q.m) + '">' + modStr(q.m) + '</span>' +
+      '<span class="bd ' + safeModClass(q.m) + '">' + safeModStr(q.m) + '</span>' +
       '<span class="recap-icon">✓</span> Correct · ' + item.el.toFixed(1) + 's' +
       (item.reactScore != null ? ' · réaction ' + item.reactScore + '%' : '') +
       '</div>' +
-      '<p class="recap-question">' + esc(q.q) + '</p>' +
-      '<p class="recap-correct">✓ ' + esc(q.o[q.a]) + '</p>' +
-      '<div class="recap-exp">' + esc(summ) + '</div>' +
-      '<div class="recap-ref">📌 ' + esc(q.r) + '</div>' +
+      '<p class="recap-question">' + safeEsc(q.q) + '</p>' +
+      '<p class="recap-correct">✓ ' + safeEsc(q.o[q.a]) + '</p>' +
+      '<div class="recap-exp">' + safeEsc(summ) + '</div>' +
+      '<div class="recap-ref">📌 ' + safeEsc(q.r) + '</div>' +
       (typeof renderTopicFicheHTML === 'function'
         ? '<details class="fiche-theme-expand"><summary>📚 Fiche thème complète</summary><div class="fiche-theme-expand-bd">' +
           renderTopicFicheHTML(q.r, { sampleQ: q, entry: entry, showFoot: false, compact: true }) +
@@ -289,7 +308,7 @@
           '<span class="session-fiche-meta">' + sess.pct + '% · ' + sess.ok + '/' + sess.total +
           ' · ' + errN + ' erreur' + (errN > 1 ? 's' : '') + passLabel + reactLabel + '</span>' +
           '</div>' +
-          '<span class="bd">' + esc(modeLabel) + '</span>' +
+          '<span class="bd">' + safeEsc(modeLabel) + '</span>' +
           '</summary>' +
           '<div class="session-recap session-recap-stored-bd">' +
           '<p class="session-recap-sub">Résumé détaillé archivé — mêmes explications qu\'à la fin du quiz.</p>' +
@@ -316,13 +335,13 @@
     }
 
     return '<div class="session-fiche-ok">' +
-      '<p class="recap-question">' + esc(q.q) + '</p>' +
+      '<p class="recap-question">' + safeEsc(q.q) + '</p>' +
       (chosenIdx >= 0
-        ? '<p class="recap-wrong">✗ Ta réponse : <strong>' + esc(q.o[chosenIdx]) + '</strong></p>'
+        ? '<p class="recap-wrong">✗ Ta réponse : <strong>' + safeEsc(q.o[chosenIdx]) + '</strong></p>'
         : '') +
-      '<p class="recap-correct">✓ Bonne réponse : <strong>' + esc(q.o[q.a]) + '</strong></p>' +
-      '<div class="recap-exp">' + esc(q.e) + '</div>' +
-      '<div class="recap-ref">📌 ' + esc(q.r) + '</div>' +
+      '<p class="recap-correct">✓ Bonne réponse : <strong>' + safeEsc(q.o[q.a]) + '</strong></p>' +
+      '<div class="recap-exp">' + safeEsc(q.e) + '</div>' +
+      '<div class="recap-ref">📌 ' + safeEsc(q.r) + '</div>' +
       '</div>';
   }
 
@@ -349,14 +368,14 @@
           '<summary>' +
           '<span class="recap-num">#' + (items.length - i) + '</span>' +
           '<span class="recap-icon">✗</span>' +
-          '<span class="bd ' + modClass(item.mod) + '">' + modStr(item.mod) + '</span>' +
-          '<span class="recap-title">' + esc(title.length > 90 ? title.slice(0, 87) + '…' : title) + '</span>' +
+          '<span class="bd ' + safeModClass(item.mod) + '">' + safeModStr(item.mod) + '</span>' +
+          '<span class="recap-title">' + safeEsc(title.length > 90 ? title.slice(0, 87) + '…' : title) + '</span>' +
           '<span class="recap-meta">' + fmtSessionDate(item.t) + ' · ' + item.el.toFixed(1) + 's</span>' +
           '</summary>' +
           '<div class="session-fiche-body">' +
           '<div class="error-fiche-meta">' +
-          '<span class="bd">' + esc(modeLabel) + '</span>' +
-          '<span class="error-fiche-ref">📌 ' + esc(item.ref || '') + '</span>' +
+          '<span class="bd">' + safeEsc(modeLabel) + '</span>' +
+          '<span class="error-fiche-ref">📌 ' + safeEsc(item.ref || '') + '</span>' +
           (item.idx != null
             ? '<a href="index.html?q=' + item.idx + '" class="fiche-link-btn">Refaire cette question →</a>'
             : '') +
@@ -370,7 +389,9 @@
 
   function clearAll() {
     sessionFiches = { sessions: [] };
+    errorFiches = { items: [] };
     save();
+    saveErrors();
   }
 
   function clearErrors() {

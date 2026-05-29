@@ -160,6 +160,18 @@
       <p class="fiche-ref-note">TAF : vent = groupe 5 (≠ METAR groupe 4). Croiser TAF + METAR + SPECI.</p>`,
     },
     {
+      keys: ['sigmet', 'airmet', 'gamet', 'volmet', 'atis', 'briefing météo', 'ws ', 'wa '],
+      title: 'SIGMET · AIRMET · GAMET — bulletins route',
+      body: `<ul class="fiche-ref-list">
+        <li><strong>SIGMET (WS)</strong> : phénomènes <strong>dangereux</strong> — CB violents, turbulence/givrage <strong>sévères</strong>, cendres volcaniques, cyclone… Validité ~4 h</li>
+        <li><strong>AIRMET (WA)</strong> : phénomènes <strong>modérés</strong> — turbulence/givrage modérés, brume étendue, ondes orographiques… Validité ~6 h</li>
+        <li><strong>GAMET</strong> : prévision <strong>zone</strong> basse/moyenne altitude (route VFR) — complète le TAF (aérodrome)</li>
+        <li>Briefing : <strong>TEMSI</strong> (synoptique) → <strong>GAMET + SIGMET/AIRMET</strong> (route) → <strong>TAF/METAR/SPECI</strong> (aérodromes)</li>
+        <li><strong>ATIS</strong> = info piste + météo locale (vent en <strong>magnétique</strong>) · <strong>VOLMET</strong> = METAR de plusieurs aérodromes en radio</li>
+        <li>Conditions locales CAVOK n'annulent pas un <strong>SIGMET</strong> sur la route — toujours croiser les sources</li>
+      </ul>`,
+    },
+    {
       keys: ['metar - analyse', 'metar/taf', 'plafond', 'décodage'],
       title: 'Analyse METAR/TAF pour le pilote VFR',
       body: `<ul class="fiche-ref-list">

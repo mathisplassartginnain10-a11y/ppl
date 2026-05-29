@@ -1954,7 +1954,8 @@ select:focus, input.cfg-num:focus {
 .session-recap-stored>summary.session-recap-summary::-webkit-details-marker{display:none}
 .session-recap-stored-bd{padding:0 .85rem .85rem}
 .fiches-session-banner{display:block;margin-bottom:.85rem;padding:.75rem 1rem;border-radius:var(--r2);background:rgba(91,138,240,.1);border:1px solid rgba(91,138,240,.28);color:var(--t1);font-size:13px;text-decoration:none;transition:background .15s,border-color .15s}
-.fiches-session-banner:hover{background:rgba(91,138,240,.16);border-color:rgba(91,138,240,.4)}
+.fiches-error-banner{background:rgba(240,96,96,.1);border-color:rgba(240,96,96,.28)}
+.fiches-error-banner:hover{background:rgba(240,96,96,.16);border-color:rgba(240,96,96,.4)}
 .session-fiche-ok-hd{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:.45rem;font-size:11px}
 .error-fiche-list{margin-top:.5rem}
 .error-fiche-card{margin-bottom:8px}
