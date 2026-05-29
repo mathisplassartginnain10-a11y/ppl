@@ -101,6 +101,45 @@
     });
   }
 
+  var EYE_OPEN =
+    '<svg class="ppl-gate-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+    '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>' +
+    '<circle cx="12" cy="12" r="3"/>' +
+    '</svg>';
+  var EYE_CLOSED =
+    '<svg class="ppl-gate-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+    '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>' +
+    '<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>' +
+    '<line x1="1" y1="1" x2="23" y2="23"/>' +
+    '</svg>';
+
+  function playSuccessAndEnter(gate) {
+    registerSuccess();
+    stopTick();
+
+    gate.classList.add('ppl-gate-success');
+    gate.innerHTML =
+      '<div class="ppl-gate-card is-success">' +
+      '<div class="ppl-gate-success-anim">' +
+      '<div class="ppl-gate-check" aria-hidden="true">' +
+      '<svg viewBox="0 0 52 52"><circle class="ppl-gate-check-circle" cx="26" cy="26" r="24"/>' +
+      '<path class="ppl-gate-check-mark" d="M14 27l8 8 16-16"/></svg>' +
+      '</div>' +
+      '<p class="ppl-gate-success-title">Accès autorisé</p>' +
+      '<p class="ppl-gate-success-sub">Bienvenue à bord ✈</p>' +
+      '</div>' +
+      '</div>';
+
+    setTimeout(function () {
+      gate.classList.add('is-leaving');
+      document.documentElement.classList.remove('ppl-gated');
+      setTimeout(function () {
+        gate.innerHTML = '';
+        gate.className = '';
+      }, 650);
+    }, 1500);
+  }
+
   if (needsGate()) {
     document.documentElement.classList.add('ppl-gated');
   }
@@ -137,7 +176,12 @@
         ? '<form id="ppl-gate-form" autocomplete="off">' +
           '<div class="ppl-gate-field">' +
           '<label for="ppl-gate-code">Code d\'accès</label>' +
+          '<div class="ppl-gate-input-wrap">' +
           '<input id="ppl-gate-code" type="password" inputmode="text" autocapitalize="characters" autocomplete="off" placeholder="••••••••" maxlength="32">' +
+          '<button type="button" class="ppl-gate-toggle" id="ppl-gate-toggle" aria-label="Afficher le code" aria-pressed="false" title="Afficher le code">' +
+          EYE_OPEN +
+          '</button>' +
+          '</div>' +
           '</div>' +
           '<button type="submit" class="ppl-gate-btn">Accéder</button>' +
           '</form>' +
@@ -155,7 +199,20 @@
     if (!blocked) {
       var form = document.getElementById('ppl-gate-form');
       var input = document.getElementById('ppl-gate-code');
+      var toggle = document.getElementById('ppl-gate-toggle');
       var msg = document.getElementById('ppl-gate-msg');
+
+      if (toggle && input) {
+        toggle.addEventListener('click', function () {
+          var show = input.type === 'password';
+          input.type = show ? 'text' : 'password';
+          toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+          toggle.setAttribute('aria-label', show ? 'Masquer le code' : 'Afficher le code');
+          toggle.setAttribute('title', show ? 'Masquer le code' : 'Afficher le code');
+          toggle.innerHTML = show ? EYE_CLOSED : EYE_OPEN;
+          input.focus();
+        });
+      }
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -171,10 +228,7 @@
           return;
         }
         if (val === CODE.toUpperCase()) {
-          registerSuccess();
-          document.documentElement.classList.remove('ppl-gated');
-          gate.innerHTML = '';
-          stopTick();
+          playSuccessAndEnter(gate);
           return;
         }
         registerFail();

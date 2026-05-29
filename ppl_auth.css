@@ -67,6 +67,16 @@ html.ppl-gated #ppl-gate {
   text-align: left;
 }
 
+.ppl-gate-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ppl-gate-input-wrap input {
+  padding-right: 2.75rem;
+}
+
 .ppl-gate-field label {
   display: block;
   font-size: 10px;
@@ -100,6 +110,42 @@ html.ppl-gated #ppl-gate {
 .ppl-gate-field input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.ppl-gate-toggle {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--t3, #4a5278);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 0.15s, background 0.15s;
+}
+
+.ppl-gate-toggle:hover {
+  color: var(--t1, #eef0f8);
+  background: rgba(91, 138, 240, 0.12);
+}
+
+.ppl-gate-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(91, 138, 240, 0.35);
+}
+
+.ppl-gate-eye {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .ppl-gate-btn {
@@ -170,6 +216,128 @@ html.ppl-gated #ppl-gate {
   color: var(--t3, #4a5278);
   margin-top: 0.65rem;
   font-family: 'DM Mono', monospace;
+}
+
+/* Animation après connexion réussie */
+#ppl-gate.ppl-gate-success {
+  background: rgba(8, 11, 18, 0.98);
+}
+
+#ppl-gate.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.65s ease;
+}
+
+.ppl-gate-card.is-success {
+  border-color: rgba(52, 211, 168, 0.45);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 48px rgba(52, 211, 168, 0.18);
+  animation: ppl-gate-card-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ppl-gate-success-anim {
+  padding: 0.5rem 0 0.25rem;
+  animation: ppl-gate-fade-up 0.5s ease 0.1s both;
+}
+
+.ppl-gate-check {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1rem;
+}
+
+.ppl-gate-check svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ppl-gate-check-circle {
+  fill: none;
+  stroke: rgba(52, 211, 168, 0.25);
+  stroke-width: 2;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: ppl-gate-circle-draw 0.55s ease forwards;
+}
+
+.ppl-gate-check-mark {
+  fill: none;
+  stroke: var(--green, #34d3a8);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: ppl-gate-check-draw 0.4s ease 0.45s forwards;
+}
+
+.ppl-gate-success-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--green, #34d3a8);
+  letter-spacing: -0.02em;
+}
+
+.ppl-gate-success-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--t2, #8b93b8);
+}
+
+@keyframes ppl-gate-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes ppl-gate-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ppl-gate-circle-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ppl-gate-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ppl-gate-card.is-success,
+  .ppl-gate-success-anim,
+  .ppl-gate-check-circle,
+  .ppl-gate-check-mark,
+  #ppl-gate.is-leaving {
+    animation: none;
+    transition: none;
+  }
+
+  #ppl-gate.is-leaving {
+    opacity: 0;
+  }
+
+  .ppl-gate-check-circle,
+  .ppl-gate-check-mark {
+    stroke-dashoffset: 0;
+  }
 }
 
 @media (max-width: 640px) {

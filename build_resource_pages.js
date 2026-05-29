@@ -155,7 +155,7 @@ const fichesHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="ppl_theme_enhance.css?v=20260528s">
 <link rel="stylesheet" href="ppl_resources.css?v=20260528s">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
-<link rel="stylesheet" href="ppl_auth.css?v=20260528n">
+<link rel="stylesheet" href="ppl_auth.css?v=20260529a">
 <link rel="preload" href="docs/Meshy_AI_Elixir_Aircraft_Conce_0528193216_texture.glb" as="fetch" crossorigin>
 <script type="importmap">
 {
@@ -166,7 +166,7 @@ const fichesHtml = `<!DOCTYPE html>
 }
 </script>
 <link rel="stylesheet" href="ppl_plane_bg.css?v=20260528w">
-<script src="ppl_auth.js?v=20260528n"></script>
+<script src="ppl_auth.js?v=20260529a"></script>
 <script src="ppl_plane_bg.js?v=20260528w" defer></script>
 </head>
 <body class="fiches-page">
