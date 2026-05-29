@@ -1,0 +1,15 @@
+{
+  "name": "ppl-quiz",
+  "private": true,
+  "description": "Quiz PPL — GitHub Pages",
+  "scripts": {
+    "verify": "node scripts/check/verify_assets.js",
+    "cache:sync": "node scripts/build/sync_cache_versions.js",
+    "cache:bump": "node scripts/build/sync_cache_versions.js",
+    "questions:build": "python scripts/build/build_questions.py",
+    "formulas:build": "python scripts/build/build_formulas.py",
+    "fiches:build": "node scripts/build/build_question_fiches.js",
+    "check:qcm": "node scripts/check/audit_qcm.js",
+    "test:settings": "node scripts/check/test_settings.js"
+  }
+}

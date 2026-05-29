@@ -2,6 +2,19 @@
 (function () {
   'use strict';
 
+  let _refToIdxs = null;
+
+  function ensureTopicIndex() {
+    if (_refToIdxs || typeof Q === 'undefined') return _refToIdxs;
+    _refToIdxs = new Map();
+    Q.forEach((q, i) => {
+      const r = q.r || 'Autre';
+      if (!_refToIdxs.has(r)) _refToIdxs.set(r, []);
+      _refToIdxs.get(r).push(i);
+    });
+    return _refToIdxs;
+  }
+
   function norm(s) {
     return String(s || '')
       .toLowerCase()
@@ -25,6 +38,8 @@
 
   function getTopicQuestionIndices(ref) {
     if (typeof Q === 'undefined' || !ref) return [];
+    const index = ensureTopicIndex();
+    if (index && index.has(ref)) return index.get(ref).slice();
     const out = [];
     Q.forEach((q, i) => {
       if (matchTopic(q.r, ref)) out.push(i);
@@ -38,6 +53,8 @@
 
   function resolveTopicRef(ref) {
     if (typeof Q === 'undefined' || !ref) return ref;
+    const index = ensureTopicIndex();
+    if (index && index.has(ref)) return ref;
     const exact = Q.find((q) => q.r === ref);
     if (exact) return exact.r;
     const idx = getTopicQuestionIndices(ref)[0];

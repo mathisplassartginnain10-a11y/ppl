@@ -358,6 +358,9 @@ function renderDeepFicheHTML(q,entry,chosenIdx,beh,logEntry,deepOpts={}){
   const idx=Q.indexOf(q);
   const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
   const log=logEntry||getLastAnswerLogForIdx(idx>=0?idx:undefined);
+  if(typeof renderQuestionErrorFicheHTML==='function'){
+    return renderQuestionErrorFicheHTML(q,{idx,chosenIdx:ci,beh:beh||entry?.lastBeh,entry,logEntry:log});
+  }
   return renderTopicFicheSimple(q.r,{
     sampleQ:q,entry,chosenIdx:ci,mode:'error',showFoot:true,
     beh:beh||entry?.lastBeh,logEntry:log,minimal:!!deepOpts.minimal
@@ -1124,8 +1127,14 @@ function handleFicheDeepLink(){
       const idx=parseInt(card.dataset.ficheIdx,10);
       const bd=card.querySelector('.fiche-card-bd');
       if(wantFull&&bd&&ref&&Q[idx]){
-        bd.innerHTML=renderTopicFicheHTML(ref,{sampleQ:Q[idx],entry:revLog.entries?.[idx],showFoot:true,full:true});
-        card.dataset.lazy='0';
+        const renderFull=()=>{
+          bd.innerHTML=renderTopicFicheHTML(ref,{sampleQ:Q[idx],entry:revLog.entries?.[idx],showFoot:true,full:true});
+          card.dataset.lazy='0';
+          if(window.PPLFormulasLazy) PPLFormulasLazy.hydrateFicheFormulaSlots(bd);
+        };
+        if(window.PPLFicheEnrichLazy){
+          PPLFicheEnrichLazy.ensureFicheEnrich().then(renderFull).catch(renderFull);
+        }else renderFull();
       }else{
         hydrateFicheCard(card);
       }
@@ -1149,6 +1158,7 @@ function bootFichesPage(){
   window.addEventListener('ppl-privacy-consent',run,{once:true});
 }
 bootFichesPage();
+if(window.PPLModuleHost) PPLModuleHost.emit('onAppReady',{page:'fiches'});
 window.addEventListener('ppl-data-erased',()=>location.reload());
 window.addEventListener('ppl-settings-changed',()=>buildFichesPanel());
 window.addEventListener('ppl-privacy-consent',()=>buildFichesPanel());

@@ -51,3 +51,42 @@
 
   global.PPLFormulasLazy = { ensureFormulasEngine, hydrateFicheFormulaSlots };
 })(typeof window !== 'undefined' ? window : this);
+
+(function (global) {
+  'use strict';
+  let _enrichPromise = null;
+  function ensureFicheEnrich() {
+    if (typeof renderFicheReferenceHTML === 'function') return Promise.resolve();
+    if (_enrichPromise) return _enrichPromise;
+    _enrichPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'assets/js/fiche_enrich.js?v=20260528q';
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return _enrichPromise;
+  }
+  global.PPLFicheEnrichLazy = { ensureFicheEnrich };
+})(typeof window !== 'undefined' ? window : this);
+
+(function (global) {
+  'use strict';
+  let _qfPromise = null;
+  function ensureBank() {
+    if (typeof Q_FICHES !== 'undefined' && Array.isArray(Q_FICHES)) return Promise.resolve();
+    if (_qfPromise) return _qfPromise;
+    const ver = document.querySelector('script[src*="question_fiche_engine"]')?.src?.match(/[?&]v=([^&]+)/)?.[1] || '20260530a';
+    _qfPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'assets/js/question_fiches_bank.js?v=' + ver;
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return _qfPromise;
+  }
+  global.PPLQuestionFicheLazy = { ensureBank };
+})(typeof window !== 'undefined' ? window : this);

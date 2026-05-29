@@ -500,11 +500,76 @@
 
   const FONT_SIZES = { compact: '14px', normal: '16px', large: '18px' };
   const DENSITY = { compact: '0.88', comfort: '1', spacious: '1.12' };
+  const BOOL_KEYS = [
+    'animations', 'glass', 'glow', 'grid', 'showTimer', 'confirmSkip', 'showProbaTags',
+    'shuffleOptions', 'reduceMotion', 'largeTouch', 'highContrast',
+    'saveProgress', 'saveReaction', 'saveBehavior', 'saveDetailedLog',
+    'saveProbaSnapshots', 'privateSession', 'clearOnExit',
+  ];
+  const AUTO_ADVANCE_VALUES = new Set(['off', '2', '4']);
+  const FONT_VALUES = new Set(['outfit', 'system', 'mono']);
 
   const PRIVACY_KEYS = [
     'privateSession', 'saveProgress', 'saveReaction', 'saveBehavior',
     'saveDetailedLog', 'saveProbaSnapshots', 'clearOnExit', 'retention',
   ];
+
+  const LIGHT_THEMES = new Set(['paper', 'sand', 'mint', 'coral', 'arctic']);
+
+  const TABS = [
+    { id: 'appearance', label: 'Apparence', icon: '🎨' },
+    { id: 'quiz', label: 'Quiz', icon: '✈' },
+    { id: 'a11y', label: 'Accessibilité', icon: '♿' },
+    { id: 'privacy', label: 'Données', icon: '🔒' },
+  ];
+
+  const PRIVACY_PRESETS = {
+    private: {
+      label: 'Privé',
+      icon: '🔒',
+      desc: 'Aucune sauvegarde',
+      patch: {
+        privateSession: true,
+        saveProgress: false,
+        saveReaction: false,
+        saveBehavior: false,
+        saveDetailedLog: false,
+        saveProbaSnapshots: false,
+        clearOnExit: true,
+        retention: 'session',
+      },
+    },
+    balanced: {
+      label: 'Équilibré',
+      icon: '⚖️',
+      desc: 'Progression sans comportement',
+      patch: {
+        privateSession: false,
+        saveProgress: true,
+        saveReaction: true,
+        saveBehavior: false,
+        saveDetailedLog: true,
+        saveProbaSnapshots: false,
+        clearOnExit: false,
+        retention: '90d',
+      },
+    },
+    full: {
+      label: 'Complet',
+      icon: '📊',
+      desc: 'Toutes les stats locales',
+      patch: {
+        privateSession: false,
+        saveProgress: true,
+        saveReaction: true,
+        saveBehavior: true,
+        saveDetailedLog: true,
+        saveProbaSnapshots: true,
+        clearOnExit: false,
+        retention: 'forever',
+      },
+    },
+  };
 
   let current = { ...DEFAULTS };
   let panelOpen = false;
@@ -512,19 +577,55 @@
   let consentReview = false;
   let uiMounted = false;
   let consentDraft = null;
+  let activeTab = 'appearance';
+  let themeFilter = 'all';
+
+  function sanitize(raw) {
+    const s = { ...DEFAULTS, ...(raw && typeof raw === 'object' ? raw : {}) };
+    if (!THEMES[s.theme]) s.theme = DEFAULTS.theme;
+    if (!ACCENTS[s.accent]) s.accent = DEFAULTS.accent;
+    if (!FONT_SIZES[s.fontSize]) s.fontSize = DEFAULTS.fontSize;
+    if (!Object.prototype.hasOwnProperty.call(DENSITY, s.density)) s.density = DEFAULTS.density;
+    if (!FONT_VALUES.has(s.font)) s.font = DEFAULTS.font;
+    if (!AUTO_ADVANCE_VALUES.has(String(s.autoAdvance))) s.autoAdvance = DEFAULTS.autoAdvance;
+    if (!Object.prototype.hasOwnProperty.call(RETENTION_DAYS, s.retention)) s.retention = DEFAULTS.retention;
+    BOOL_KEYS.forEach((k) => { s[k] = !!s[k]; });
+    if (s.privateSession) {
+      s.saveProgress = false;
+      s.saveReaction = false;
+      s.saveBehavior = false;
+      s.saveDetailedLog = false;
+      s.saveProbaSnapshots = false;
+      s.clearOnExit = true;
+      if (s.retention !== 'session') s.retention = 'session';
+    }
+    return s;
+  }
 
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { ...DEFAULTS };
-      return { ...DEFAULTS, ...JSON.parse(raw) };
+      if (!raw) return sanitize(DEFAULTS);
+      return sanitize(JSON.parse(raw));
     } catch (e) {
-      return { ...DEFAULTS };
+      return sanitize(DEFAULTS);
     }
   }
 
+  function get() {
+    return { ...current };
+  }
+
   function save(next) {
-    current = { ...current, ...next };
+    const prevPrivate = current.privateSession;
+    const patch = next && typeof next === 'object' ? next : {};
+    current = sanitize({ ...current, ...patch });
+
+    if (prevPrivate && patch.privateSession === false) {
+      current.clearOnExit = false;
+      if (current.retention === 'session') current.retention = 'forever';
+    }
+
     if (current.privateSession) {
       current.saveProgress = false;
       current.saveReaction = false;
@@ -533,11 +634,13 @@
       current.saveProbaSnapshots = false;
       current.clearOnExit = true;
     }
+
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
     } catch (e) { /* ignore */ }
     apply(current);
-    syncPanelUI();
+    updatePanelControls();
+    if ('retention' in patch) purgeRetention();
     try {
       window.dispatchEvent(new CustomEvent('ppl-settings-changed', { detail: { ...current } }));
     } catch (e) { /* ignore */ }
@@ -601,7 +704,7 @@
     });
     if (!keepSettings) {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
-      current = { ...DEFAULTS };
+      current = sanitize(DEFAULTS);
       apply(current);
     }
     try {
@@ -672,7 +775,7 @@
   }
 
   function apply(s) {
-    current = { ...DEFAULTS, ...s };
+    current = sanitize(s);
     const root = document.documentElement;
     const theme = THEMES[current.theme] || THEMES.midnight;
     const accent = ACCENTS[current.accent] || ACCENTS.blue;
@@ -710,6 +813,7 @@
 
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta && theme.meta) meta.setAttribute('content', theme.meta);
+    ensureDecorations();
   }
 
   function esc(s) {
@@ -738,6 +842,153 @@
     ).join('');
   }
 
+  function filterThemes() {
+    return Object.entries(THEMES).filter(([id]) => {
+      if (themeFilter === 'dark') return !LIGHT_THEMES.has(id);
+      if (themeFilter === 'light') return LIGHT_THEMES.has(id);
+      return true;
+    });
+  }
+
+  function filteredThemeCards() {
+    return filterThemes().map(([id, t]) => themeCard(id, t)).join('');
+  }
+
+  function tabsHTML() {
+    return TABS.map((tab) =>
+      `<button type="button" class="set-tab${activeTab === tab.id ? ' on' : ''}" data-set-tab="${tab.id}" aria-selected="${activeTab === tab.id}">`
+      + `<span class="set-tab-ico" aria-hidden="true">${tab.icon}</span>`
+      + `<span class="set-tab-lbl">${esc(tab.label)}</span></button>`
+    ).join('');
+  }
+
+  function panelStatusHTML() {
+    const theme = THEMES[current.theme] || THEMES.midnight;
+    const accent = ACCENTS[current.accent] || ACCENTS.blue;
+    const priv = current.privateSession
+      ? '<span class="set-status-badge set-status-badge--warn">Mode privé</span>'
+      : (hasPrivacyConsent()
+        ? '<span class="set-status-badge set-status-badge--ok">Données actives</span>'
+        : '<span class="set-status-badge">Consentement en attente</span>');
+    return `<div class="set-status-row">
+      <span class="set-status-theme">${esc(theme.icon)} ${esc(theme.label)}</span>
+      <span class="set-status-accent" style="--sw:${accent.swatch}" title="${esc(accent.label)}"></span>
+      ${priv}
+    </div>`;
+  }
+
+  function privacyPresetsHTML(draft, attrPrefix) {
+    const src = draft || current;
+    const dataAttr = attrPrefix || 'data-privacy-preset';
+    return `<div class="set-presets">
+      ${Object.entries(PRIVACY_PRESETS).map(([id, p]) => {
+        const active = Object.entries(p.patch).every(([k, v]) => src[k] === v);
+        return `<button type="button" class="set-preset${active ? ' on' : ''}" ${dataAttr}="${id}">
+          <span class="set-preset-ico">${p.icon}</span>
+          <span class="set-preset-body">
+            <strong>${esc(p.label)}</strong>
+            <span>${esc(p.desc)}</span>
+          </span>
+        </button>`;
+      }).join('')}
+    </div>`;
+  }
+
+  function applyPrivacyPatch(patch, target) {
+    const next = { ...(target || current), ...patch };
+    if (next.privateSession) {
+      next.saveProgress = false;
+      next.saveReaction = false;
+      next.saveBehavior = false;
+      next.saveDetailedLog = false;
+      next.saveProbaSnapshots = false;
+      next.clearOnExit = true;
+    }
+    return next;
+  }
+
+  function updatePanelHeaderStatus() {
+    const slot = document.getElementById('set-status-slot');
+    if (slot) slot.innerHTML = panelStatusHTML();
+  }
+
+  function updatePanelControls() {
+    const overlay = document.getElementById('set-overlay');
+    if (!overlay) return;
+
+    overlay.querySelectorAll('[data-set-theme]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setTheme === current.theme);
+    });
+    overlay.querySelectorAll('[data-set-accent]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setAccent === current.accent);
+    });
+    overlay.querySelectorAll('[data-set-font-size]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setFontSize === current.fontSize);
+    });
+    overlay.querySelectorAll('[data-set-font]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setFont === current.font);
+    });
+    overlay.querySelectorAll('[data-set-density]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setDensity === current.density);
+    });
+    overlay.querySelectorAll('[data-set-auto-advance]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setAutoAdvance === current.autoAdvance);
+    });
+    overlay.querySelectorAll('[data-set-retention]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setRetention === current.retention);
+    });
+    overlay.querySelectorAll('[data-set-toggle]').forEach((input) => {
+      const key = input.dataset.setToggle;
+      input.checked = !!current[key];
+      const isPrivacy = PRIVACY_KEYS.includes(key);
+      const disabled = isPrivacy && current.privateSession && key !== 'privateSession';
+      input.disabled = disabled;
+      const row = input.closest('.set-toggle-row');
+      if (row) row.classList.toggle('set-toggle-row--off', disabled);
+    });
+    overlay.querySelectorAll('[data-set-theme-filter]').forEach((btn) => {
+      btn.classList.toggle('on', btn.dataset.setThemeFilter === themeFilter);
+    });
+    overlay.querySelectorAll('[data-privacy-preset]').forEach((btn) => {
+      const preset = PRIVACY_PRESETS[btn.dataset.privacyPreset];
+      const active = preset && Object.entries(preset.patch).every(([k, v]) => current[k] === v);
+      btn.classList.toggle('on', active);
+    });
+    const sizeLabel = overlay.querySelector('[data-set-size-label]');
+    const sizeKeys = overlay.querySelector('[data-set-size-keys]');
+    if (sizeLabel || sizeKeys) {
+      const sz = getDataSize();
+      if (sizeLabel) sizeLabel.textContent = sz.label;
+      if (sizeKeys) sizeKeys.textContent = String(sz.keys);
+    }
+    updatePanelHeaderStatus();
+  }
+
+  function switchTab(tabId) {
+    activeTab = tabId;
+    const overlay = document.getElementById('set-overlay');
+    if (!overlay) return;
+    overlay.querySelectorAll('[data-set-tab]').forEach((btn) => {
+      const on = btn.dataset.setTab === tabId;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    overlay.querySelectorAll('[data-set-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.setPanel !== tabId;
+    });
+  }
+
+  function refreshThemeGrid() {
+    const slot = document.getElementById('set-theme-grid-slot');
+    if (slot) slot.innerHTML = filteredThemeCards();
+    const overlay = document.getElementById('set-overlay');
+    if (!overlay) return;
+    overlay.querySelectorAll('[data-set-theme]').forEach((btn) => {
+      btn.addEventListener('click', () => save({ theme: btn.dataset.setTheme }));
+    });
+    updatePanelControls();
+  }
+
   function toggleRow(key, label, desc) {
     const on = current[key];
     return `<label class="set-toggle-row">
@@ -749,9 +1000,9 @@
 
   function dataSizeHTML() {
     const sz = getDataSize();
-    return `<div class="set-privacy-note">
+    return `<div class="set-privacy-note" data-set-data-size>
       <strong>🔒 Données locales uniquement</strong>
-      <p>Tout reste sur cet appareil (localStorage). Aucun envoi vers un serveur. Taille actuelle : <em>${esc(sz.label)}</em> · ${sz.keys} jeu${sz.keys > 1 ? 'x' : ''} de données.</p>
+      <p>Tout reste sur cet appareil (localStorage). Aucun envoi vers un serveur. Taille actuelle : <em data-set-size-label>${esc(sz.label)}</em> · <span data-set-size-keys>${sz.keys}</span> jeu${sz.keys > 1 ? 'x' : ''} de données.</p>
     </div>`;
   }
 
@@ -779,6 +1030,8 @@
             <strong>🔒 100 % local · aucun serveur</strong>
             <p>Scores, réactions, journal de réponses et fiches d'erreur ne quittent jamais votre navigateur. Vous pouvez modifier ou effacer ces choix à tout moment dans Paramètres.</p>
           </div>
+          <p class="set-chip-label">Choisissez un profil ou personnalisez</p>
+          ${privacyPresetsHTML(draft, 'data-consent-preset')}
           <div class="set-toggles set-consent-toggles">
             ${consentToggleRow('privateSession', 'Mode privé', 'Aucune sauvegarde — session éphémère uniquement', draft)}
             ${consentToggleRow('saveProgress', 'Historique & progression', 'Scores, erreurs, révisions SM-2', draft)}
@@ -840,18 +1093,29 @@
     if (!overlay || !consentDraft) return;
     if (!keydownBound) bindKeydown();
 
+    overlay.querySelectorAll('[data-consent-preset]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const preset = PRIVACY_PRESETS[btn.dataset.consentPreset];
+        if (preset) {
+          consentDraft = applyPrivacyPatch(preset.patch, consentDraft);
+          syncConsentUI();
+        }
+      });
+    });
+
     overlay.querySelectorAll('[data-consent-toggle]').forEach((input) => {
       input.addEventListener('change', () => {
         const key = input.dataset.consentToggle;
-        consentDraft[key] = input.checked;
-        if (key === 'privateSession' && input.checked) {
-          consentDraft.saveProgress = false;
-          consentDraft.saveReaction = false;
-          consentDraft.saveBehavior = false;
-          consentDraft.saveDetailedLog = false;
-          consentDraft.saveProbaSnapshots = false;
-          consentDraft.clearOnExit = true;
-          consentDraft.retention = 'session';
+        if (key === 'privateSession') {
+          if (input.checked) {
+            consentDraft = applyPrivacyPatch(PRIVACY_PRESETS.private.patch, consentDraft);
+          } else {
+            consentDraft.privateSession = false;
+            consentDraft.clearOnExit = false;
+            if (consentDraft.retention === 'session') consentDraft.retention = 'forever';
+          }
+        } else {
+          consentDraft[key] = input.checked;
         }
         syncConsentUI();
       });
@@ -859,15 +1123,15 @@
 
     overlay.querySelectorAll('[data-set-retention]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        consentDraft.retention = btn.dataset.setRetention;
-        if (consentDraft.retention === 'session') {
-          consentDraft.privateSession = true;
-          consentDraft.saveProgress = false;
-          consentDraft.saveReaction = false;
-          consentDraft.saveBehavior = false;
-          consentDraft.saveDetailedLog = false;
-          consentDraft.saveProbaSnapshots = false;
-          consentDraft.clearOnExit = true;
+        const val = btn.dataset.setRetention;
+        if (val === 'session') {
+          consentDraft = applyPrivacyPatch(PRIVACY_PRESETS.private.patch, consentDraft);
+        } else {
+          consentDraft.retention = val;
+          if (consentDraft.privateSession) {
+            consentDraft.privateSession = false;
+            consentDraft.clearOnExit = false;
+          }
         }
         syncConsentUI();
       });
@@ -876,32 +1140,14 @@
     const decline = overlay.querySelector('[data-consent-decline]');
     if (decline) {
       decline.addEventListener('click', () => {
-        finishConsent({
-          privateSession: true,
-          saveProgress: false,
-          saveReaction: false,
-          saveBehavior: false,
-          saveDetailedLog: false,
-          saveProbaSnapshots: false,
-          clearOnExit: true,
-          retention: 'session',
-        });
+        finishConsent({ ...PRIVACY_PRESETS.private.patch });
       });
     }
 
     const accept = overlay.querySelector('[data-consent-accept]');
     if (accept) {
       accept.addEventListener('click', () => {
-        finishConsent({
-          privateSession: false,
-          saveProgress: true,
-          saveReaction: true,
-          saveBehavior: true,
-          saveDetailedLog: true,
-          saveProbaSnapshots: true,
-          clearOnExit: false,
-          retention: 'forever',
-        });
+        finishConsent({ ...PRIVACY_PRESETS.full.patch });
       });
     }
 
@@ -934,83 +1180,135 @@
   }
 
   function panelHTML() {
+    const sz = getDataSize();
     return `<div class="set-overlay" id="set-overlay" hidden>
       <div class="set-backdrop" data-set-close></div>
       <aside class="set-panel" id="set-panel" role="dialog" aria-labelledby="set-title" aria-modal="true" tabindex="-1">
         <header class="set-panel-hd">
-          <div>
+          <div class="set-panel-hd-main">
             <h2 id="set-title">Paramètres</h2>
-            <p>Apparence · quiz · confidentialité</p>
+            <div id="set-status-slot">${panelStatusHTML()}</div>
           </div>
           <button type="button" class="set-close" data-set-close aria-label="Fermer">✕</button>
         </header>
+        <nav class="set-tabs" role="tablist" aria-label="Sections des paramètres">${tabsHTML()}</nav>
         <div class="set-panel-body">
-          <section class="set-section">
-            <h3>Thème <span class="set-count">${Object.keys(THEMES).length}</span></h3>
-            <div class="set-theme-grid">${Object.entries(THEMES).map(([id, t]) => themeCard(id, t)).join('')}</div>
-          </section>
-          <section class="set-section">
-            <h3>Couleur d'accent <span class="set-count">${Object.keys(ACCENTS).length}</span></h3>
-            <div class="set-accent-row">${Object.entries(ACCENTS).map(([id, a]) => accentBtn(id, a)).join('')}</div>
-          </section>
-          <section class="set-section">
-            <h3>Typographie</h3>
-            <div class="set-chip-row">${chipGroup('fontSize', { compact: 'Compact', normal: 'Normal', large: 'Grand' }, current.fontSize)}</div>
-            <div class="set-chip-row set-chip-row--sub">${chipGroup('font', { outfit: 'Outfit', system: 'Système', mono: 'Mono' }, current.font)}</div>
-          </section>
-          <section class="set-section">
-            <h3>Mise en page</h3>
-            <div class="set-chip-row">${chipGroup('density', { compact: 'Serré', comfort: 'Confort', spacious: 'Aéré' }, current.density)}</div>
-          </section>
-          <section class="set-section">
-            <h3>Effets visuels</h3>
-            <div class="set-toggles">
-              ${toggleRow('animations', 'Animations', 'Transitions et micro-mouvements')}
-              ${toggleRow('glass', 'Verre dépoli', 'Flou sur en-tête et cartes')}
-              ${toggleRow('glow', 'Lueurs', 'Halos de couleur en arrière-plan')}
-              ${toggleRow('grid', 'Grille', 'Motif discret sur le fond')}
-            </div>
-          </section>
-          <section class="set-section">
-            <h3>Quiz</h3>
-            <div class="set-toggles">
-              ${toggleRow('showTimer', 'Chronomètre', 'Afficher le temps par question')}
-              ${toggleRow('confirmSkip', 'Confirmer « Passer »', 'Éviter les skips accidentels')}
-              ${toggleRow('showProbaTags', 'Badges probabilité', 'Réaction, thème et P(examen) après chaque réponse')}
-              ${toggleRow('shuffleOptions', 'Mélanger les options', 'Ordre aléatoire des réponses A–D')}
-            </div>
-            <p class="set-chip-label">Passage auto après réponse</p>
-            <div class="set-chip-row">${chipGroup('autoAdvance', { off: 'Non', '2': '2 s', '4': '4 s' }, current.autoAdvance)}</div>
-          </section>
-          <section class="set-section">
-            <h3>Accessibilité</h3>
-            <div class="set-toggles">
-              ${toggleRow('reduceMotion', 'Réduire les mouvements', 'Désactive animations et effets dynamiques')}
-              ${toggleRow('largeTouch', 'Grandes zones tactiles', 'Boutons et options plus faciles à toucher')}
-              ${toggleRow('highContrast', 'Contraste renforcé', 'Textes et bordures plus lisibles')}
-            </div>
-          </section>
-          <section class="set-section set-section--privacy">
-            <h3>Données &amp; confidentialité</h3>
-            ${dataSizeHTML()}
-            <div class="set-toggles">
-              ${toggleRow('privateSession', 'Mode privé', 'Aucune sauvegarde — session éphémère uniquement')}
-              ${toggleRow('saveProgress', 'Historique & progression', 'Scores, erreurs, révisions SM-2')}
-              ${toggleRow('saveReaction', 'Temps de réaction', 'Mesures de rapidité par question')}
-              ${toggleRow('saveBehavior', 'Comportement souris', 'Survols, hésitations, parcours curseur')}
-              ${toggleRow('saveDetailedLog', 'Journal détaillé', 'Réponses complètes pour Stats et fiches')}
-              ${toggleRow('saveProbaSnapshots', 'Snapshots P(examen)', 'Historique de probabilité d\'examen')}
-              ${toggleRow('clearOnExit', 'Effacer à la fermeture', 'Supprime les données à la fermeture de l\'onglet')}
-            </div>
-            <p class="set-chip-label">Conservation des données</p>
-            <div class="set-chip-row">${chipGroup('retention', { forever: 'Toujours', '90d': '90 jours', '30d': '30 jours', session: 'Session' }, current.retention)}</div>
-            <div class="set-action-row">
-              <button type="button" class="set-action-btn" data-set-privacy-review>🔐 Revoir le choix confidentialité</button>
-              <button type="button" class="set-action-btn" data-set-export>📤 Exporter mes données</button>
-              <button type="button" class="set-action-btn set-action-btn--danger" data-set-erase>🗑 Effacer toutes les données</button>
-            </div>
-            <p class="set-privacy-foot">Export JSON lisible · effacement irréversible (paramètres conservés sauf si tu choisis tout réinitialiser).</p>
-          </section>
+          <div class="set-tab-panel" data-set-panel="appearance"${activeTab !== 'appearance' ? ' hidden' : ''}>
+            <section class="set-section">
+              <div class="set-section-hd">
+                <h3>Thème <span class="set-count">${Object.keys(THEMES).length}</span></h3>
+                <p class="set-section-desc">Ambiance visuelle de l'application</p>
+              </div>
+              <div class="set-chip-row set-theme-filters">
+                <button type="button" class="set-chip${themeFilter === 'all' ? ' on' : ''}" data-set-theme-filter="all">Tous</button>
+                <button type="button" class="set-chip${themeFilter === 'dark' ? ' on' : ''}" data-set-theme-filter="dark">🌙 Sombre</button>
+                <button type="button" class="set-chip${themeFilter === 'light' ? ' on' : ''}" data-set-theme-filter="light">☀ Clair</button>
+              </div>
+              <div class="set-theme-grid" id="set-theme-grid-slot">${filteredThemeCards()}</div>
+            </section>
+            <section class="set-section">
+              <div class="set-section-hd">
+                <h3>Couleur d'accent <span class="set-count">${Object.keys(ACCENTS).length}</span></h3>
+                <p class="set-section-desc">Boutons, liens et surbrillances</p>
+              </div>
+              <div class="set-accent-row">${Object.entries(ACCENTS).map(([id, a]) => accentBtn(id, a)).join('')}</div>
+            </section>
+            <section class="set-section">
+              <div class="set-section-hd">
+                <h3>Typographie</h3>
+                <p class="set-section-desc">Taille du texte et police d'affichage</p>
+              </div>
+              <p class="set-chip-label">Taille</p>
+              <div class="set-chip-row">${chipGroup('fontSize', { compact: 'Compact', normal: 'Normal', large: 'Grand' }, current.fontSize)}</div>
+              <p class="set-chip-label">Police</p>
+              <div class="set-chip-row">${chipGroup('font', { outfit: 'Outfit', system: 'Système', mono: 'Mono' }, current.font)}</div>
+            </section>
+            <section class="set-section">
+              <div class="set-section-hd">
+                <h3>Mise en page</h3>
+                <p class="set-section-desc">Espacement entre les éléments</p>
+              </div>
+              <div class="set-chip-row">${chipGroup('density', { compact: 'Serré', comfort: 'Confort', spacious: 'Aéré' }, current.density)}</div>
+            </section>
+            <section class="set-section">
+              <div class="set-section-hd">
+                <h3>Effets visuels</h3>
+                <p class="set-section-desc">Personnalisez l'ambiance sans impacter le quiz</p>
+              </div>
+              <div class="set-toggles">
+                ${toggleRow('animations', 'Animations', 'Transitions et micro-mouvements')}
+                ${toggleRow('glass', 'Verre dépoli', 'Flou sur en-tête et cartes')}
+                ${toggleRow('glow', 'Lueurs', 'Halos de couleur en arrière-plan')}
+                ${toggleRow('grid', 'Grille', 'Motif discret sur le fond')}
+              </div>
+            </section>
+          </div>
+          <div class="set-tab-panel" data-set-panel="quiz"${activeTab !== 'quiz' ? ' hidden' : ''}>
+            <section class="set-section">
+              <div class="set-section-hd">
+                <h3>Comportement du quiz</h3>
+                <p class="set-section-desc">Affichage et déroulement des questions</p>
+              </div>
+              <div class="set-toggles">
+                ${toggleRow('showTimer', 'Chronomètre', 'Afficher le temps écoulé par question')}
+                ${toggleRow('confirmSkip', 'Confirmer « Passer »', 'Éviter les passages accidentels')}
+                ${toggleRow('showProbaTags', 'Badges probabilité', 'Réaction, thème et P(examen) après chaque réponse')}
+                ${toggleRow('shuffleOptions', 'Mélanger les options', 'Ordre aléatoire des réponses A–D à chaque question')}
+              </div>
+              <p class="set-chip-label">Passage automatique après réponse</p>
+              <div class="set-chip-row">${chipGroup('autoAdvance', { off: 'Désactivé', '2': '2 secondes', '4': '4 secondes' }, current.autoAdvance)}</div>
+              <div class="set-tip-box">
+                <strong>💡 Astuce</strong>
+                <p>Les badges probabilité aident à suivre ta progression par thème. Tu peux les masquer si tu préfères un affichage minimaliste.</p>
+              </div>
+            </section>
+          </div>
+          <div class="set-tab-panel" data-set-panel="a11y"${activeTab !== 'a11y' ? ' hidden' : ''}>
+            <section class="set-section">
+              <div class="set-section-hd">
+                <h3>Accessibilité</h3>
+                <p class="set-section-desc">Confort de lecture et d'utilisation</p>
+              </div>
+              <div class="set-toggles">
+                ${toggleRow('reduceMotion', 'Réduire les mouvements', 'Désactive animations et effets dynamiques')}
+                ${toggleRow('largeTouch', 'Grandes zones tactiles', 'Boutons et options plus faciles à toucher')}
+                ${toggleRow('highContrast', 'Contraste renforcé', 'Textes et bordures plus lisibles')}
+              </div>
+              <div class="set-tip-box">
+                <strong>♿ Conseil</strong>
+                <p>Combine « Grand » + « Contraste renforcé » pour une lecture confortable sur mobile en plein soleil.</p>
+              </div>
+            </section>
+          </div>
+          <div class="set-tab-panel" data-set-panel="privacy"${activeTab !== 'privacy' ? ' hidden' : ''}>
+            <section class="set-section set-section--privacy">
+              <div class="set-section-hd">
+                <h3>Données &amp; confidentialité</h3>
+                <p class="set-section-desc">Tout reste sur cet appareil — rien n'est envoyé sur internet</p>
+              </div>
+              ${dataSizeHTML()}
+              <p class="set-chip-label">Profils rapides</p>
+              ${privacyPresetsHTML(current)}
+              <p class="set-chip-label">Options détaillées</p>
+              <div class="set-toggles">
+                ${toggleRow('privateSession', 'Mode privé', 'Aucune sauvegarde — session éphémère uniquement')}
+                ${toggleRow('saveProgress', 'Historique & progression', 'Scores, erreurs, révisions SM-2')}
+                ${toggleRow('saveReaction', 'Temps de réaction', 'Mesures de rapidité par question')}
+                ${toggleRow('saveBehavior', 'Comportement souris / tactile', 'Survols, hésitations, parcours')}
+                ${toggleRow('saveDetailedLog', 'Journal détaillé', 'Réponses complètes pour Stats et fiches')}
+                ${toggleRow('saveProbaSnapshots', 'Snapshots P(examen)', 'Historique de probabilité d\'examen')}
+                ${toggleRow('clearOnExit', 'Effacer à la fermeture', 'Supprime les données à la fermeture de l\'onglet')}
+              </div>
+              <p class="set-chip-label">Conservation des données</p>
+              <div class="set-chip-row">${chipGroup('retention', { forever: 'Toujours', '90d': '90 jours', '30d': '30 jours', session: 'Session' }, current.retention)}</div>
+              <div class="set-action-row">
+                <button type="button" class="set-action-btn" data-set-privacy-review>🔐 Revoir le choix confidentialité</button>
+                <button type="button" class="set-action-btn" data-set-export>📤 Exporter mes données (${esc(sz.label)})</button>
+                <button type="button" class="set-action-btn set-action-btn--danger" data-set-erase>🗑 Effacer toutes les données</button>
+              </div>
+              <p class="set-privacy-foot">Export JSON lisible · effacement irréversible (paramètres conservés).</p>
+            </section>
+          </div>
         </div>
         <footer class="set-panel-ft">
           <button type="button" class="set-reset" data-set-reset>Réinitialiser l'apparence</button>
@@ -1022,12 +1320,25 @@
   function open() {
     const overlay = document.getElementById('set-overlay');
     if (!overlay) return;
+    const themeInFilter = themeFilter === 'all'
+      || (themeFilter === 'dark' && !LIGHT_THEMES.has(current.theme))
+      || (themeFilter === 'light' && LIGHT_THEMES.has(current.theme));
+    if (!themeInFilter) {
+      themeFilter = 'all';
+      refreshThemeGrid();
+    }
     overlay.hidden = false;
     panelOpen = true;
     document.body.classList.add('set-open');
     requestAnimationFrame(() => overlay.classList.add('open'));
     const panel = document.getElementById('set-panel');
     if (panel) panel.focus();
+    updatePanelControls();
+    const exportBtn = overlay.querySelector('[data-set-export]');
+    if (exportBtn) {
+      const sz = getDataSize();
+      exportBtn.textContent = '📤 Exporter mes données (' + sz.label + ')';
+    }
   }
 
   function close() {
@@ -1044,15 +1355,20 @@
     if (!overlay) return;
     const parent = overlay.parentNode;
     const open = panelOpen;
+    const body = overlay.querySelector('.set-panel-body');
+    const scrollTop = body ? body.scrollTop : 0;
     overlay.remove();
     parent.insertAdjacentHTML('beforeend', panelHTML());
     const newOverlay = document.getElementById('set-overlay');
+    const newBody = newOverlay.querySelector('.set-panel-body');
+    if (newBody) newBody.scrollTop = scrollTop;
     if (open) {
       newOverlay.hidden = false;
       newOverlay.classList.add('open');
       document.body.classList.add('set-open');
     }
     bindPanelEvents();
+    switchTab(activeTab);
   }
 
   function bindPanelEvents() {
@@ -1061,6 +1377,24 @@
 
     overlay.querySelectorAll('[data-set-close]').forEach((el) => {
       el.addEventListener('click', close);
+    });
+
+    overlay.querySelectorAll('[data-set-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.setTab));
+    });
+
+    overlay.querySelectorAll('[data-set-theme-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        themeFilter = btn.dataset.setThemeFilter;
+        refreshThemeGrid();
+      });
+    });
+
+    overlay.querySelectorAll('[data-privacy-preset]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const preset = PRIVACY_PRESETS[btn.dataset.privacyPreset];
+        if (preset) save(applyPrivacyPatch(preset.patch));
+      });
     });
 
     overlay.querySelectorAll('[data-set-theme]').forEach((btn) => {
@@ -1086,7 +1420,16 @@
     overlay.querySelectorAll('[data-set-toggle]').forEach((input) => {
       input.addEventListener('change', () => {
         const key = input.dataset.setToggle;
-        save({ [key]: input.checked });
+        const patch = { [key]: input.checked };
+        if (key === 'privateSession') {
+          if (input.checked) {
+            Object.assign(patch, PRIVACY_PRESETS.private.patch);
+          } else {
+            patch.clearOnExit = false;
+            if (current.retention === 'session') patch.retention = 'forever';
+          }
+        }
+        save(patch);
       });
     });
 
@@ -1097,10 +1440,16 @@
     overlay.querySelectorAll('[data-set-retention]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const val = btn.dataset.setRetention;
-        const patch = { retention: val };
-        if (val === 'session') patch.privateSession = true;
-        save(patch);
-        purgeRetention();
+        if (val === 'session') {
+          save(applyPrivacyPatch(PRIVACY_PRESETS.private.patch));
+        } else {
+          const patch = { retention: val };
+          if (current.privateSession) {
+            patch.privateSession = false;
+            patch.clearOnExit = false;
+          }
+          save(patch);
+        }
       });
     });
 
@@ -1144,9 +1493,12 @@
             highContrast: current.highContrast,
           };
           apply({ ...DEFAULTS, ...kept });
-          current = { ...DEFAULTS, ...kept };
+          current = sanitize({ ...DEFAULTS, ...kept });
           try { localStorage.setItem(STORAGE_KEY, JSON.stringify(current)); } catch (e) { /* ignore */ }
-          syncPanelUI();
+          updatePanelControls();
+          try {
+            window.dispatchEvent(new CustomEvent('ppl-settings-changed', { detail: { ...current } }));
+          } catch (e) { /* ignore */ }
         }
       });
     }
@@ -1155,8 +1507,7 @@
   }
 
   function ensureDecorations() {
-    const s = current;
-    if (!s.glass && !s.glow && !s.grid) return;
+    if (!current.glow && !current.grid) return;
     if (!document.querySelector('.grid-overlay')) {
       document.body.insertAdjacentHTML('afterbegin',
         '<div class="grid-overlay" aria-hidden="true"></div>'
@@ -1190,8 +1541,8 @@
       actions.className = 'app-header-actions';
       actions.innerHTML = '<button type="button" class="app-settings-btn" id="app-settings-btn" aria-label="Paramètres" title="Paramètres">'
         + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        + '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>'
         + '<circle cx="12" cy="12" r="3"/>'
-        + '<path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M19.78 4.22l-1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M19.78 19.78l-1.42-1.42"/>'
         + '</svg></button>';
       header.appendChild(actions);
       document.getElementById('app-settings-btn').addEventListener('click', open);
@@ -1222,9 +1573,20 @@
   }
 
   global.PPLSettings = {
-    load, save, apply, open, close, canPersist, hasPrivacyConsent, openPrivacyConsent,
-    exportUserData, eraseUserData, getDataSize, purgeRetention, DEFAULTS, THEMES, ACCENTS, DATA_KEYS,
+    load, get, save, apply, open, close, canPersist, hasPrivacyConsent, openPrivacyConsent,
+    exportUserData, eraseUserData, getDataSize, purgeRetention, sanitize,
+    DEFAULTS, THEMES, ACCENTS, DATA_KEYS,
   };
+
+  if (typeof global.__PPL_SETTINGS_TEST__ === 'object') {
+    global.__PPL_SETTINGS_TEST__.api = {
+      sanitize, applyPrivacyPatch, save, load, get, canPersist, DEFAULTS, PRIVACY_PRESETS,
+      setStorage: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
+      getCurrent: () => ({ ...current }),
+      setCurrent: (c) => { current = sanitize(c); },
+    };
+    return;
+  }
 
   init();
 })(typeof window !== 'undefined' ? window : this);

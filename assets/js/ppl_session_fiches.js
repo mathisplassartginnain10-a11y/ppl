@@ -341,6 +341,9 @@
       t: item.t,
     };
 
+    if (typeof renderQuestionErrorFicheHTML === 'function') {
+      return renderQuestionErrorFicheHTML(q, { idx: item.idx, chosenIdx: chosenIdx, beh: beh, entry: entry, logEntry: logEntry });
+    }
     if (typeof renderDeepFicheHTML === 'function') {
       return renderDeepFicheHTML(q, entry, chosenIdx, beh, logEntry);
     }

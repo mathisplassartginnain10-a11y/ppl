@@ -256,6 +256,30 @@ function clampProba(p){return Math.min(0.97,Math.max(0.03,p));}
 
 const DIFF_WEIGHT={1:0.85,2:1,3:1.15,4:1.3};
 
+let _modBankCounts=null;
+function getModBankCounts(){
+  if(_modBankCounts) return _modBankCounts;
+  if(typeof Q_BANK_META!=='undefined'&&Q_BANK_META.counts){
+    _modBankCounts={C:Q_BANK_META.counts.C||0,A:Q_BANK_META.counts.A||0,M:Q_BANK_META.counts.M||0,R:Q_BANK_META.counts.R||0};
+    return _modBankCounts;
+  }
+  _modBankCounts={C:0,A:0,M:0,R:0};
+  if(typeof Q!=='undefined'&&Array.isArray(Q)) Q.forEach(q=>{if(_modBankCounts[q.m]!=null)_modBankCounts[q.m]++;});
+  return _modBankCounts;
+}
+function modBankCount(m){return getModBankCounts()[m]||0;}
+
+let _globalStatsCache=null;
+let _revItemsCache=null;
+let _familySizeMap=null;
+let _examSimCache=null;
+
+function invalidateExamCache(){
+  _examSimCache=null;
+  _globalStatsCache=null;
+  _revItemsCache=null;
+}
+
 function moduleReactAvg(m,limit=80){
   const ans=(answerLog.items||[]).filter(h=>h.mod===m).slice(-limit);
   if(ans.length) return Math.round(ans.reduce((s,h)=>s+reactScoreFromLogItem(h),0)/ans.length);
@@ -288,41 +312,74 @@ function getRecentTrend(m,limit=40){
 }
 
 function collectGlobalStats(){
+  if(_globalStatsCache) return _globalStatsCache;
+  const bankCounts=getModBankCounts();
+  const revList=revItems();
+  const weakByMod={C:0,A:0,M:0,R:0};
+  revList.forEach(i=>{if(weakByMod[i.q.m]!=null)weakByMod[i.q.m]++;});
   const mods={};
   let totalOk=0,totalT=0,wOk=0,wT=0;
   let totalFails=0,totalHes=0,sm2Due=0,sm2Mastered=0;
+  const byDiffAll={1:{ok:0,t:0},2:{ok:0,t:0},3:{ok:0,t:0},4:{ok:0,t:0}};
   MOD_ORDER.forEach(m=>{
-    let ok=0,t=0,mwOk=0,mwT=0,fails=0,hes=0,due=0,reps=0;
-    const byDiff=getDifficultyStats(m);
-    Object.keys(hist).forEach(k=>{
-      const i=+k,q=Q[i];
-      if(!q||q.m!==m) return;
-      t++; if(hist[i]) ok++;
-      const w=DIFF_WEIGHT[q.d]||1;
-      mwT+=w; if(hist[i]) mwOk+=w;
-    });
-    Object.keys(revLog.entries||{}).forEach(k=>{
-      const i=+k,q=Q[i],e=revLog.entries[i];
-      if(!q||q.m!==m||!e) return;
-      fails+=e.failCount||0;
-      hes+=e.struggleCount||0;
-      if(e.due&&e.due<=Date.now()) due++;
-      if((e.sm2?.reps||0)>=2) reps++;
-    });
+    mods[m]={ok:0,t:0,mwOk:0,mwT:0,fails:0,hes:0,due:0,reps:0,
+      byDiff:{1:{ok:0,t:0},2:{ok:0,t:0},3:{ok:0,t:0},4:{ok:0,t:0}},
+      bankN:bankCounts[m]||0,weakN:weakByMod[m]||0};
+  });
+  Object.keys(hist).forEach(k=>{
+    const i=+k,q=Q[i];
+    if(!q) return;
+    const md=mods[q.m];
+    if(!md) return;
+    md.t++;
+    if(hist[i]) md.ok++;
+    const w=DIFF_WEIGHT[q.d]||1;
+    md.mwT+=w;
+    if(hist[i]) md.mwOk+=w;
+    const d=q.d;
+    if(d>=1&&d<=4){
+      md.byDiff[d].t++;
+      if(hist[i]) md.byDiff[d].ok++;
+      byDiffAll[d].t++;
+      if(hist[i]) byDiffAll[d].ok++;
+    }
+  });
+  Object.keys(revLog.entries||{}).forEach(k=>{
+    const i=+k,q=Q[i],e=revLog.entries[i];
+    if(!q||!e) return;
+    const md=mods[q.m];
+    if(!md) return;
+    md.fails+=e.failCount||0;
+    md.hes+=e.struggleCount||0;
+    if(e.due&&e.due<=Date.now()) md.due++;
+    if((e.sm2?.reps||0)>=2) md.reps++;
+  });
+  MOD_ORDER.forEach(m=>{
+    const md=mods[m];
     const reactAvg=moduleReactAvg(m);
     const trend=getRecentTrend(m);
-    const hardT=byDiff[3].t+byDiff[4].t,hardOk=byDiff[3].ok+byDiff[4].ok;
+    const hardT=md.byDiff[3].t+md.byDiff[4].t,hardOk=md.byDiff[3].ok+md.byDiff[4].ok;
     const hardRate=hardT?hardOk/hardT:0.5;
-    const easyT=byDiff[1].t+byDiff[2].t,easyOk=byDiff[1].ok+byDiff[2].ok;
+    const easyT=md.byDiff[1].t+md.byDiff[2].t,easyOk=md.byDiff[1].ok+md.byDiff[2].ok;
     const easyRate=easyT?easyOk/easyT:0.5;
-    mods[m]={ok,t,wRate:mwT?mwOk/mwT:EXAM_PRIOR.mean,byDiff,fails,hes,sm2Due:due,sm2Reps:reps,
-      reactAvg,trend,hardRate,easyRate,hardGap:easyRate-hardRate,
-      bankN:Q.filter(q=>q.m===m).length,weakN:revItems().filter(i=>i.q.m===m).length};
-    totalOk+=ok; totalT+=t; wOk+=mwOk; wT+=mwT;
-    totalFails+=fails; totalHes+=hes; sm2Due+=due; sm2Mastered+=reps;
+    md.wRate=md.mwT?md.mwOk/md.mwT:EXAM_PRIOR.mean;
+    md.reactAvg=reactAvg;
+    md.trend=trend;
+    md.hardRate=hardRate;
+    md.easyRate=easyRate;
+    md.hardGap=easyRate-hardRate;
+    md.sm2Due=md.due;
+    md.sm2Reps=md.reps;
+    totalOk+=md.ok;
+    totalT+=md.t;
+    wOk+=md.mwOk;
+    wT+=md.mwT;
+    totalFails+=md.fails;
+    totalHes+=md.hes;
+    sm2Due+=md.due;
+    sm2Mastered+=md.reps;
   });
   const reactG=getReactStats();
-  const byDiffAll=getDifficultyStats(null);
   const trendAll=getRecentTrend(null);
   const hasData=totalT>0||reactG.n>0;
   const globalConf=hasData?Math.round(
@@ -332,12 +389,13 @@ function collectGlobalStats(){
     Math.max(0,30-(totalFails*0.4+totalHes*0.25))+
     (trendAll.delta>0?8:trendAll.delta<-0.12?-8:0)
   ):null;
-  return{
+  _globalStatsCache={
     mods,totalOk,totalT,wRate:wT?wOk/wT:EXAM_PRIOR.mean,byDiffAll,reactG,trendAll,
     totalFails,totalHes,sm2Due,sm2Mastered,
     globalConf:globalConf==null?null:Math.max(5,Math.min(98,globalConf)),
-    weakN:revItems().length,coverage:Q.length?totalT/Q.length:0
+    weakN:revList.length,coverage:Q.length?totalT/Q.length:0
   };
+  return _globalStatsCache;
 }
 
 function moduleExamAdjustments(gs){
@@ -356,8 +414,8 @@ function moduleExamAdjustments(gs){
   return {adj,f};
 }
 
-function getModuleExamStats(m,globalRate){
-  const g=collectGlobalStats();
+function getModuleExamStats(m,globalRate,gIn){
+  const g=gIn||collectGlobalStats();
   const gs=g.mods[m];
   const globalMix=globalRate??g.wRate??EXAM_PRIOR.mean;
   let ok=0,t=0;
@@ -365,7 +423,7 @@ function getModuleExamStats(m,globalRate){
     const i=+k,q=Q[i];
     if(q&&q.m===m){t++;if(hist[i])ok++;}
   });
-  const bankN=gs?.bankN||Q.filter(q=>q.m===m).length;
+  const bankN=gs?.bankN||modBankCount(m);
   const pExam=estimateModuleSkill(ok,t,globalMix,gs);
   const wi=wilsonInterval(ok,t);
   const nExam=(EXAM_WEIGHTS||{C:9,A:15,M:20,R:20})[m]||15;
@@ -379,8 +437,8 @@ function getModuleExamStats(m,globalRate){
     weakN:gs?.weakN||0,reliable:t>=EXAM_MIN_ANSWERS_MODULE,adjFactors,hardRate:gs?.hardRate,easyRate:gs?.easyRate,trend:gs?.trend,covAdj};
 }
 
-function passProbFromCounts(m,ok,t,globalRate){
-  const g=collectGlobalStats();
+function passProbFromCounts(m,ok,t,globalRate,gIn){
+  const g=gIn||collectGlobalStats();
   const gs=g.mods[m];
   const globalMix=globalRate??g.wRate??EXAM_PRIOR.mean;
   const nExam=(EXAM_WEIGHTS||{C:9,A:15,M:20,R:20})[m]||15;
@@ -748,7 +806,7 @@ function calcProba(correct,elapsedSec,diff,sessionHistory,beh,ctx){
       t++; if(hist[i]) ok++;
     });
     const ok2=ok+(correct?1:0), t2=t+1;
-    examImpact=Math.round((passProbFromCounts(m,ok2,t2,g.wRate)-passProbFromCounts(m,ok,t,g.wRate))*100);
+    examImpact=Math.round((passProbFromCounts(m,ok2,t2,g.wRate,g)-passProbFromCounts(m,ok,t,g.wRate,g))*100);
   }
 
   const scorePct=Math.round(p*100);
@@ -776,9 +834,6 @@ function globalExamSkill(g){
   return clampProba(base+react+covBonus-pen);
 }
 
-let _examSimCache=null;
-function invalidateExamCache(){_examSimCache=null;}
-
 function simulateExamReadiness(){
   if(_examSimCache) return _examSimCache;
   const g=collectGlobalStats();
@@ -787,7 +842,7 @@ function simulateExamReadiness(){
   const mods={};
   let moduleProduct=1,globalPassLow=1,globalPassHigh=1,totalT=0,reliableModules=0;
   MOD_ORDER.forEach(m=>{
-    const s=getModuleExamStats(m,globalRate);
+    const s=getModuleExamStats(m,globalRate,g);
     totalT+=s.t;
     const cov=Math.min(1,s.t/EXAM_MIN_ANSWERS_MODULE);
     const localPass=s.passProb;
@@ -1448,6 +1503,9 @@ function renderDeepFicheHTML(q,entry,chosenIdx,beh,logEntry){
   const idx=Q.indexOf(q);
   const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
   const log=logEntry||getLastAnswerLogForIdx(idx>=0?idx:undefined);
+  if(typeof renderQuestionErrorFicheHTML==='function'){
+    return renderQuestionErrorFicheHTML(q,{idx,chosenIdx:ci,beh:beh||entry?.lastBeh,entry,logEntry:log});
+  }
   return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:log});
 }
 
@@ -1481,6 +1539,7 @@ function trackRevision(ok,el,beh,idx,q){
 }
 
 function revItems(){
+  if(_revItemsCache) return _revItemsCache;
   const items=[]; const seen=new Set();
   weak.forEach(idx=>{
     if(seen.has(idx)) return; seen.add(idx);
@@ -1497,7 +1556,8 @@ function revItems(){
     seen.add(idx);
     items.push({idx,q,e,priority:computePriority(idx,e,q)});
   });
-  return items.sort((a,b)=>b.priority-a.priority);
+  _revItemsCache=items.sort((a,b)=>b.priority-a.priority);
+  return _revItemsCache;
 }
 
 function computePriority(idx,e,q){
@@ -1774,11 +1834,10 @@ function upHomeHeavy(){
   try{
     initQIdx();
     if(typeof Q!=='undefined'&&Array.isArray(Q)){
-      const modCounts={C:0,A:0,M:0,R:0};
-      Q.forEach(q=>{if(modCounts[q.m]!=null)modCounts[q.m]++;});
+      const modCounts=getModBankCounts();
       ['C','A','M','R'].forEach(m=>{
         const el=document.getElementById('cnt-'+m.toLowerCase());
-        if(el) el.textContent=modCounts[m].toLocaleString('fr-FR')+' q';
+        if(el) el.textContent=(modCounts[m]||0).toLocaleString('fr-FR')+' q';
       });
     }else if(Q_BANK_META?.counts){
       ['C','A','M','R'].forEach(m=>{
@@ -1850,9 +1909,20 @@ function templateKey(q){
 function topicKey(q){return String(q.r||'?').toLowerCase();}
 function familyKey(q){return topicKey(q)+'::'+templateKey(q);}
 
+function ensureFamilySizes(){
+  if(_familySizeMap) return _familySizeMap;
+  _familySizeMap=new Map();
+  if(typeof Q!=='undefined'&&Array.isArray(Q)){
+    Q.forEach(q=>{
+      const fk=familyKey(q);
+      _familySizeMap.set(fk,(_familySizeMap.get(fk)||0)+1);
+    });
+  }
+  return _familySizeMap;
+}
+
 function familySize(fk){
-  const tk=fk.split('::')[0];
-  return Q.filter(x=>familyKey(x)===fk).length;
+  return ensureFamilySizes().get(fk)||0;
 }
 
 function trackDiversity(q,idx){
@@ -2221,7 +2291,7 @@ function launch(){
   hidePause(); show('sq'); renderQ();
 }
 
-function getSettings(){return window.PPLSettings?.load?.()||{};}
+function getSettings(){return window.PPLSettings?.get?.()||window.PPLSettings?.load?.()||{};}
 
 function buildOptOrder(n,shuffle){
   const a=Array.from({length:n},(_,i)=>i);
@@ -2432,6 +2502,8 @@ function showFb(ok,q,el,beh){
     ansBlock+=`<div class="fb-ans fb-correct">✓ Bonne réponse : ${esc(q.o[q.a])}</div>`;
   }
 
+  const ficheSlot=!ok?`<div class="fb-fiche-wrap" id="fb-fiche-slot"><div class="fiche-lazy-spin">Préparation de la fiche…</div></div>`:'';
+
   document.getElementById('fb').innerHTML=`
     <div class="fb ${ok?'ok':'ko'} fb-brief">
       <div class="fb-hd">
@@ -2444,9 +2516,15 @@ function showFb(ok,q,el,beh){
       ${ansBlock}
       <div class="fb-txt fb-exp-full">${esc(q.e)}</div>
       <div class="fb-ref">📌 ${q.r}</div>
+      ${ficheSlot}
       <p class="fb-end-hint">Résumé complet à la fin de la session →</p>
       <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées de cette réponse →</a>
     </div>`;
+
+  if(!ok&&typeof hydrateErrorFicheSlot==='function'){
+    const slot=document.getElementById('fb-fiche-slot');
+    hydrateErrorFicheSlot(slot,q,{idx,chosenIdx,beh,entry:revLog.entries?.[idx],logEntry:lastEntry});
+  }
 }
 
 function renderSessionRecapHTML(sData){
@@ -2472,7 +2550,7 @@ function renderSessionRecapHTML(sData){
         <p class="recap-correct">✓ Bonne réponse : <strong>${esc(q.o[q.a])}</strong></p>
         <div class="recap-exp">${esc(q.e)}</div>
         <div class="recap-ref">📌 ${esc(q.r)}</div>
-        ${!d.ok?renderDeepFicheHTML(q,revLog.entries?.[idx],chosenIdx,d.beh):''}
+        ${!d.ok?(typeof renderQuestionErrorFicheHTML==='function'?renderQuestionErrorFicheHTML(q,{idx,chosenIdx,beh:d.beh,entry:revLog.entries?.[idx]}):renderDeepFicheHTML(q,revLog.entries?.[idx],chosenIdx,d.beh)):''}
         <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées →</a>
       </div>
     </details>`;
@@ -2634,10 +2712,13 @@ function buildResult(){
     ${renderSessionRecapHTML(sData)}`;
   const recapRoot=document.getElementById('rc');
   if(window.PPLFormulasLazy) PPLFormulasLazy.hydrateFicheFormulaSlots(recapRoot);
-  if(sData.some(d=>!d.ok)&&window.PPLFormulasLazy){
-    const preload=()=>PPLFormulasLazy.ensureFormulasEngine().catch(()=>{});
-    if(typeof requestIdleCallback==='function') requestIdleCallback(preload,{timeout:3500});
-    else setTimeout(preload,1200);
+  if(sData.some(d=>!d.ok)){
+    if(window.PPLFicheEnrichLazy) PPLFicheEnrichLazy.ensureFicheEnrich().catch(()=>{});
+    if(window.PPLFormulasLazy){
+      const preload=()=>PPLFormulasLazy.ensureFormulasEngine().catch(()=>{});
+      if(typeof requestIdleCallback==='function') requestIdleCallback(preload,{timeout:3500});
+      else setTimeout(preload,1200);
+    }
   }
 }
 
@@ -2706,7 +2787,10 @@ function handleDeepLink(){
 window.addEventListener('ppl-data-erased',()=>{location.reload();});
 window.addEventListener('ppl-settings-changed',()=>{
   invalidateExamCache();
-  if(document.getElementById('sq')?.classList.contains('on')&&!answered) startTimer();
+  if(document.getElementById('sq')?.classList.contains('on')){
+    if(!answered) startTimer();
+    else scheduleAutoAdvance();
+  }
   if(document.getElementById('react-live')&&reactLiveOn) updateReactLive();
 });
 window.addEventListener('ppl-privacy-consent',()=>{
@@ -2722,5 +2806,6 @@ function bootQuiz(){
   upHome({deferHeavy:!!hasConsent,lite:!hasConsent});
   if(hasConsent) handleDeepLink();
   else window.addEventListener('ppl-privacy-consent',()=>{handleDeepLink();},{once:true});
+  if(window.PPLModuleHost) PPLModuleHost.emit('onAppReady',{page:'quiz'});
 }
 bootQuiz();

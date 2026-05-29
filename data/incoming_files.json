@@ -1,0 +1,39 @@
+{
+  "description": "Fichiers prévus — passer status à ready quand le fichier est ajouté, puis l'enregistrer dans scripts/build/asset_manifest.js",
+  "items": [
+    {
+      "id": "example_module",
+      "status": "planned",
+      "path": "assets/js/incoming/ppl_example_module.js",
+      "pages": ["index.html"],
+      "lazy": true,
+      "notes": "Exemple — supprimer ou remplacer par le vrai module"
+    },
+    {
+      "id": "example_styles",
+      "status": "planned",
+      "path": "assets/css/incoming/ppl_example_module.css",
+      "pages": ["index.html"],
+      "lazy": false,
+      "notes": "Exemple feuille de style complémentaire"
+    },
+    {
+      "id": "new_questions_bank",
+      "status": "planned",
+      "path": "assets/js/questions_bank.js",
+      "pages": ["index.html", "fiches.html"],
+      "lazy": false,
+      "regenerate": "node scripts/build/build_questions.py",
+      "notes": "Régénération banque QCM — écrase le fichier généré existant"
+    },
+    {
+      "id": "new_formulas_bank",
+      "status": "planned",
+      "path": "assets/js/formulas_bank.js",
+      "pages": ["formules.html"],
+      "lazy": true,
+      "regenerate": "node scripts/build/build_formulas.py",
+      "notes": "Régénération formules — mettre à jour formulas_meta.js aussi"
+    }
+  ]
+}

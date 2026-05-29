@@ -1,6 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 const dir = path.join(__dirname, '..', '..');
+
+// ⚠️ OBSOLÈTE pour l’architecture actuelle (moteur dans ppl_quiz_engine.js).
+// Régénère fiches.html / ppl_fiches_page.js depuis un index.html inline — écrase le travail manuel.
+// Utiliser seulement si vous savez ce que vous faites. Préférer : npm run verify
+if (process.env.PPL_ALLOW_LEGACY_BUILD !== '1') {
+  console.error(
+    'build_resource_pages.js est désactivé par défaut.\n' +
+    'Le moteur quiz est dans assets/js/ppl_quiz_engine.js.\n' +
+    'Pour forcer : PPL_ALLOW_LEGACY_BUILD=1 node scripts/build/build_resource_pages.js'
+  );
+  process.exit(1);
+}
+
 const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
 const script = html.match(/<script>\s*([\s\S]*?)<\/script>\s*<\/body>/)[1];
 const fullCss = fs.readFileSync(path.join(dir, 'assets/css/ppl_theme.css'), 'utf8');

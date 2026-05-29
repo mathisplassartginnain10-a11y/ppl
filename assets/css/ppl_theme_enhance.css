@@ -2024,6 +2024,13 @@ select:focus, input.cfg-num:focus {
 .err-beh-it strong{color:var(--t1);font-family:'DM Mono',monospace;font-size:11px}
 .err-action-plan{margin:0;padding-left:1.2rem;font-size:12px;color:var(--t2);line-height:1.55}
 .err-action-plan li{margin:.25rem 0}
+
+.fb-fiche-wrap{margin-top:.75rem;padding-top:.55rem;border-top:1px dashed var(--b1)}
+.q-fiche-ultra .q-fiche-question{font-size:13px;font-weight:500;color:var(--t1);line-height:1.5;margin-bottom:.5rem}
+.q-fiche-essentiel{font-size:13px;color:var(--t1);line-height:1.55;margin:0;font-weight:500}
+.q-fiche-why{font-size:12px;color:var(--t2);line-height:1.55;margin:0}
+.q-fiche-retain{margin:.25rem 0 0 1.1rem;padding:0;font-size:12px;color:var(--t2);line-height:1.5}
+.q-fiche-ref{font-size:11px;color:var(--t3);margin-top:.65rem;padding-top:.5rem;border-top:1px solid var(--b1)}
 .fiche-theme-expand{margin-top:.75rem;border:1px solid var(--b1);border-radius:8px;overflow:hidden}
 .fiche-theme-expand summary{cursor:pointer;padding:.55rem .75rem;font-size:12px;font-weight:500;color:var(--acc);background:var(--s1);list-style:none}
 .fiche-theme-expand summary::-webkit-details-marker{display:none}
