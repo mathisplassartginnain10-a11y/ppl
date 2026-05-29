@@ -13,7 +13,34 @@
     glass: true,
     glow: true,
     grid: true,
+    // Quiz
+    showTimer: true,
+    confirmSkip: true,
+    showProbaTags: true,
+    autoAdvance: 'off',
+    shuffleOptions: false,
+    // Accessibilité
+    reduceMotion: false,
+    largeTouch: false,
+    highContrast: false,
+    // Données & confidentialité (opt-in — confirmé via bannière au premier lancement)
+    saveProgress: false,
+    saveReaction: false,
+    saveBehavior: false,
+    saveDetailedLog: false,
+    saveProbaSnapshots: false,
+    privateSession: false,
+    clearOnExit: false,
+    retention: 'session',
+    privacyConsentAt: null,
   };
+
+  const DATA_KEYS = [
+    'ppl4h', 'ppl4w', 'ppl4rev', 'ppl4react', 'ppl4proba', 'ppl4div',
+    'ppl4answers', 'ppl4sessionFiches', 'ppl4errorFiches', 'ppl4gate',
+  ];
+
+  const RETENTION_DAYS = { forever: null, '90d': 90, '30d': 30, session: 0 };
 
   const THEMES = {
     midnight: {
@@ -474,8 +501,17 @@
   const FONT_SIZES = { compact: '14px', normal: '16px', large: '18px' };
   const DENSITY = { compact: '0.88', comfort: '1', spacious: '1.12' };
 
+  const PRIVACY_KEYS = [
+    'privateSession', 'saveProgress', 'saveReaction', 'saveBehavior',
+    'saveDetailedLog', 'saveProbaSnapshots', 'clearOnExit', 'retention',
+  ];
+
   let current = { ...DEFAULTS };
   let panelOpen = false;
+  let consentOpen = false;
+  let consentReview = false;
+  let uiMounted = false;
+  let consentDraft = null;
 
   function load() {
     try {
@@ -489,11 +525,150 @@
 
   function save(next) {
     current = { ...current, ...next };
+    if (current.privateSession) {
+      current.saveProgress = false;
+      current.saveReaction = false;
+      current.saveBehavior = false;
+      current.saveDetailedLog = false;
+      current.saveProbaSnapshots = false;
+      current.clearOnExit = true;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
     } catch (e) { /* ignore */ }
     apply(current);
     syncPanelUI();
+    try {
+      window.dispatchEvent(new CustomEvent('ppl-settings-changed', { detail: { ...current } }));
+    } catch (e) { /* ignore */ }
+  }
+
+  function hasPrivacyConsent() {
+    return current.privacyConsentAt != null && current.privacyConsentAt !== '';
+  }
+
+  function pickPrivacyState(src) {
+    return {
+      privateSession: !!src.privateSession,
+      saveProgress: !!src.saveProgress,
+      saveReaction: !!src.saveReaction,
+      saveBehavior: !!src.saveBehavior,
+      saveDetailedLog: !!src.saveDetailedLog,
+      saveProbaSnapshots: !!src.saveProbaSnapshots,
+      clearOnExit: !!src.clearOnExit,
+      retention: src.retention || 'session',
+    };
+  }
+
+  function canPersist(type) {
+    if (!hasPrivacyConsent()) return false;
+    const s = current;
+    if (s.privateSession) return false;
+    const map = {
+      progress: s.saveProgress,
+      reaction: s.saveReaction,
+      behavior: s.saveBehavior,
+      detailed: s.saveDetailedLog,
+      proba: s.saveProbaSnapshots,
+      diversity: s.saveProgress,
+      fiches: s.saveDetailedLog,
+    };
+    return map[type] !== false;
+  }
+
+  function getDataSize() {
+    let bytes = 0;
+    let keys = 0;
+    DATA_KEYS.forEach((k) => {
+      try {
+        const v = localStorage.getItem(k);
+        if (v) { bytes += v.length * 2; keys += 1; }
+      } catch (e) { /* ignore */ }
+    });
+    try {
+      const settings = localStorage.getItem(STORAGE_KEY);
+      if (settings) bytes += settings.length * 2;
+    } catch (e) { /* ignore */ }
+    if (bytes < 1024) return { bytes, keys, label: bytes + ' o' };
+    if (bytes < 1024 * 1024) return { bytes, keys, label: (bytes / 1024).toFixed(1) + ' Ko' };
+    return { bytes, keys, label: (bytes / (1024 * 1024)).toFixed(2) + ' Mo' };
+  }
+
+  function eraseUserData(opts) {
+    const keepSettings = opts?.keepSettings !== false;
+    DATA_KEYS.forEach((k) => {
+      try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
+    });
+    if (!keepSettings) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+      current = { ...DEFAULTS };
+      apply(current);
+    }
+    try {
+      window.dispatchEvent(new CustomEvent('ppl-data-erased', { detail: { keepSettings } }));
+    } catch (e) { /* ignore */ }
+  }
+
+  function exportUserData() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      app: 'PPL Quiz',
+      version: 1,
+      data: {},
+    };
+    DATA_KEYS.forEach((k) => {
+      try {
+        const raw = localStorage.getItem(k);
+        if (raw) payload.data[k] = JSON.parse(raw);
+      } catch (e) {
+        payload.data[k] = localStorage.getItem(k);
+      }
+    });
+    try {
+      payload.settings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch (e) { /* ignore */ }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ppl-quiz-export-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+  }
+
+  function purgeRetention() {
+    const days = RETENTION_DAYS[current.retention];
+    if (days == null) return;
+    const cutoff = Date.now() - days * 86400000;
+    ['ppl4answers', 'ppl4react', 'ppl4proba'].forEach((key) => {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        const obj = JSON.parse(raw);
+        if (key === 'ppl4answers' && Array.isArray(obj.items)) {
+          obj.items = obj.items.filter((it) => (it.t || 0) >= cutoff);
+          localStorage.setItem(key, JSON.stringify(obj));
+        } else if (key === 'ppl4react' && Array.isArray(obj.history)) {
+          obj.history = obj.history.filter((it) => (it.t || 0) >= cutoff);
+          localStorage.setItem(key, JSON.stringify(obj));
+        } else if (key === 'ppl4proba' && Array.isArray(obj.snapshots)) {
+          obj.snapshots = obj.snapshots.filter((it) => (it.t || 0) >= cutoff);
+          localStorage.setItem(key, JSON.stringify(obj));
+        }
+      } catch (e) { /* ignore */ }
+    });
+  }
+
+  let clearOnExitBound = false;
+
+  function setupClearOnExit() {
+    if (clearOnExitBound) return;
+    clearOnExitBound = true;
+    window.addEventListener('pagehide', () => {
+      if (current.clearOnExit || current.privateSession || current.retention === 'session') {
+        eraseUserData({ keepSettings: true });
+      }
+    });
   }
 
   function apply(s) {
@@ -514,10 +689,16 @@
     root.dataset.fontSize = current.fontSize;
     root.dataset.density = current.density;
     root.dataset.font = current.font;
-    root.dataset.anim = current.animations ? 'on' : 'off';
+    root.dataset.anim = (current.animations && !current.reduceMotion) ? 'on' : 'off';
     root.dataset.glass = current.glass ? 'on' : 'off';
     root.dataset.glow = current.glow ? 'on' : 'off';
     root.dataset.grid = current.grid ? 'on' : 'off';
+    root.dataset.showTimer = current.showTimer ? 'on' : 'off';
+    root.dataset.showProba = current.showProbaTags ? 'on' : 'off';
+    root.dataset.largeTouch = current.largeTouch ? 'on' : 'off';
+    root.dataset.highContrast = current.highContrast ? 'on' : 'off';
+    root.dataset.private = current.privateSession ? 'on' : 'off';
+    root.dataset.consent = hasPrivacyConsent() ? 'on' : 'off';
 
     if (current.font === 'system') {
       root.style.setProperty('--font-display', "system-ui, -apple-system, 'Segoe UI', sans-serif");
@@ -566,6 +747,192 @@
     </label>`;
   }
 
+  function dataSizeHTML() {
+    const sz = getDataSize();
+    return `<div class="set-privacy-note">
+      <strong>🔒 Données locales uniquement</strong>
+      <p>Tout reste sur cet appareil (localStorage). Aucun envoi vers un serveur. Taille actuelle : <em>${esc(sz.label)}</em> · ${sz.keys} jeu${sz.keys > 1 ? 'x' : ''} de données.</p>
+    </div>`;
+  }
+
+  function consentToggleRow(key, label, desc, draft) {
+    const disabled = draft.privateSession && key !== 'privateSession';
+    const on = !!draft[key];
+    return `<label class="set-toggle-row${disabled ? ' set-toggle-row--off' : ''}">
+      <span class="set-toggle-text"><strong>${esc(label)}</strong><span>${esc(desc)}</span></span>
+      <input type="checkbox" class="set-toggle" data-consent-toggle="${key}"${on ? ' checked' : ''}${disabled ? ' disabled' : ''}>
+      <span class="set-toggle-track" aria-hidden="true"></span>
+    </label>`;
+  }
+
+  function consentHTML(draft, review) {
+    return `<div class="set-consent-overlay" id="set-consent-overlay" role="presentation">
+      <div class="set-consent-card" id="set-consent-card" role="dialog" aria-labelledby="set-consent-title" aria-modal="true" tabindex="-1">
+        <header class="set-consent-hd">
+          <h2 id="set-consent-title">${review ? 'Confidentialité & données' : 'Bienvenue — vos données'}</h2>
+          <p class="set-consent-lead">${review
+    ? 'Modifiez vos autorisations. Rien n\'est envoyé sur internet : tout reste sur cet appareil.'
+    : 'Avant de commencer, choisissez ce que l\'application peut enregistrer <strong>localement</strong> sur cet appareil. Vous pouvez <strong>tout refuser</strong> et utiliser le quiz sans aucune sauvegarde.'}</p>
+        </header>
+        <div class="set-consent-body">
+          <div class="set-privacy-note set-consent-note">
+            <strong>🔒 100 % local · aucun serveur</strong>
+            <p>Scores, réactions, journal de réponses et fiches d'erreur ne quittent jamais votre navigateur. Vous pouvez modifier ou effacer ces choix à tout moment dans Paramètres.</p>
+          </div>
+          <div class="set-toggles set-consent-toggles">
+            ${consentToggleRow('privateSession', 'Mode privé', 'Aucune sauvegarde — session éphémère uniquement', draft)}
+            ${consentToggleRow('saveProgress', 'Historique & progression', 'Scores, erreurs, révisions SM-2', draft)}
+            ${consentToggleRow('saveReaction', 'Temps de réaction', 'Mesures de rapidité par question', draft)}
+            ${consentToggleRow('saveBehavior', 'Comportement souris / tactile', 'Survols, hésitations, parcours', draft)}
+            ${consentToggleRow('saveDetailedLog', 'Journal détaillé', 'Réponses complètes pour Stats et fiches', draft)}
+            ${consentToggleRow('saveProbaSnapshots', 'Snapshots P(examen)', 'Historique de probabilité d\'examen', draft)}
+            ${consentToggleRow('clearOnExit', 'Effacer à la fermeture', 'Supprime les données à la fermeture de l\'onglet', draft)}
+          </div>
+          <p class="set-chip-label">Conservation des données</p>
+          <div class="set-chip-row set-consent-retention">${chipGroup('retention', { forever: 'Toujours', '90d': '90 jours', '30d': '30 jours', session: 'Session' }, draft.retention)}</div>
+        </div>
+        <footer class="set-consent-ft">
+          <button type="button" class="set-consent-btn set-consent-btn--ghost" data-consent-decline>Tout refuser</button>
+          <button type="button" class="set-consent-btn set-consent-btn--ghost" data-consent-accept>Tout accepter</button>
+          <button type="button" class="set-consent-btn set-consent-btn--primary" data-consent-save>Valider mes choix</button>
+          ${review ? '<button type="button" class="set-consent-btn set-consent-btn--link" data-consent-cancel>Annuler</button>' : ''}
+        </footer>
+      </div>
+    </div>`;
+  }
+
+  function syncConsentUI() {
+    const overlay = document.getElementById('set-consent-overlay');
+    if (!overlay || !consentDraft) return;
+    const parent = overlay.parentNode;
+    const review = consentReview;
+    overlay.remove();
+    parent.insertAdjacentHTML('beforeend', consentHTML(consentDraft, review));
+    bindConsentEvents();
+    const card = document.getElementById('set-consent-card');
+    if (card) card.focus();
+  }
+
+  function finishConsent(patch) {
+    save({ ...patch, privacyConsentAt: Date.now() });
+    closeConsentGate();
+    if (!uiMounted) {
+      mountUI();
+      uiMounted = true;
+    }
+    purgeRetention();
+    try {
+      window.dispatchEvent(new CustomEvent('ppl-privacy-consent', { detail: { ...current } }));
+    } catch (e) { /* ignore */ }
+  }
+
+  function closeConsentGate() {
+    const overlay = document.getElementById('set-consent-overlay');
+    if (overlay) overlay.remove();
+    consentOpen = false;
+    consentReview = false;
+    consentDraft = null;
+    document.body.classList.remove('set-consent-open');
+  }
+
+  function bindConsentEvents() {
+    const overlay = document.getElementById('set-consent-overlay');
+    if (!overlay || !consentDraft) return;
+    if (!keydownBound) bindKeydown();
+
+    overlay.querySelectorAll('[data-consent-toggle]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const key = input.dataset.consentToggle;
+        consentDraft[key] = input.checked;
+        if (key === 'privateSession' && input.checked) {
+          consentDraft.saveProgress = false;
+          consentDraft.saveReaction = false;
+          consentDraft.saveBehavior = false;
+          consentDraft.saveDetailedLog = false;
+          consentDraft.saveProbaSnapshots = false;
+          consentDraft.clearOnExit = true;
+          consentDraft.retention = 'session';
+        }
+        syncConsentUI();
+      });
+    });
+
+    overlay.querySelectorAll('[data-set-retention]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        consentDraft.retention = btn.dataset.setRetention;
+        if (consentDraft.retention === 'session') {
+          consentDraft.privateSession = true;
+          consentDraft.saveProgress = false;
+          consentDraft.saveReaction = false;
+          consentDraft.saveBehavior = false;
+          consentDraft.saveDetailedLog = false;
+          consentDraft.saveProbaSnapshots = false;
+          consentDraft.clearOnExit = true;
+        }
+        syncConsentUI();
+      });
+    });
+
+    const decline = overlay.querySelector('[data-consent-decline]');
+    if (decline) {
+      decline.addEventListener('click', () => {
+        finishConsent({
+          privateSession: true,
+          saveProgress: false,
+          saveReaction: false,
+          saveBehavior: false,
+          saveDetailedLog: false,
+          saveProbaSnapshots: false,
+          clearOnExit: true,
+          retention: 'session',
+        });
+      });
+    }
+
+    const accept = overlay.querySelector('[data-consent-accept]');
+    if (accept) {
+      accept.addEventListener('click', () => {
+        finishConsent({
+          privateSession: false,
+          saveProgress: true,
+          saveReaction: true,
+          saveBehavior: true,
+          saveDetailedLog: true,
+          saveProbaSnapshots: true,
+          clearOnExit: false,
+          retention: 'forever',
+        });
+      });
+    }
+
+    const saveBtn = overlay.querySelector('[data-consent-save]');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        finishConsent({ ...consentDraft });
+      });
+    }
+
+    const cancel = overlay.querySelector('[data-consent-cancel]');
+    if (cancel) cancel.addEventListener('click', closeConsentGate);
+  }
+
+  function mountConsentGate(opts) {
+    if (document.getElementById('set-consent-overlay')) return;
+    consentReview = !!opts?.review;
+    consentDraft = pickPrivacyState(current);
+    document.body.insertAdjacentHTML('beforeend', consentHTML(consentDraft, consentReview));
+    document.body.classList.add('set-consent-open');
+    consentOpen = true;
+    bindConsentEvents();
+    const card = document.getElementById('set-consent-card');
+    if (card) card.focus();
+  }
+
+  function openPrivacyConsent() {
+    close();
+    mountConsentGate({ review: true });
+  }
+
   function panelHTML() {
     return `<div class="set-overlay" id="set-overlay" hidden>
       <div class="set-backdrop" data-set-close></div>
@@ -573,7 +940,7 @@
         <header class="set-panel-hd">
           <div>
             <h2 id="set-title">Paramètres</h2>
-            <p>Personnalise l'apparence de PPL Quiz</p>
+            <p>Apparence · quiz · confidentialité</p>
           </div>
           <button type="button" class="set-close" data-set-close aria-label="Fermer">✕</button>
         </header>
@@ -604,9 +971,49 @@
               ${toggleRow('grid', 'Grille', 'Motif discret sur le fond')}
             </div>
           </section>
+          <section class="set-section">
+            <h3>Quiz</h3>
+            <div class="set-toggles">
+              ${toggleRow('showTimer', 'Chronomètre', 'Afficher le temps par question')}
+              ${toggleRow('confirmSkip', 'Confirmer « Passer »', 'Éviter les skips accidentels')}
+              ${toggleRow('showProbaTags', 'Badges probabilité', 'Réaction, thème et P(examen) après chaque réponse')}
+              ${toggleRow('shuffleOptions', 'Mélanger les options', 'Ordre aléatoire des réponses A–D')}
+            </div>
+            <p class="set-chip-label">Passage auto après réponse</p>
+            <div class="set-chip-row">${chipGroup('autoAdvance', { off: 'Non', '2': '2 s', '4': '4 s' }, current.autoAdvance)}</div>
+          </section>
+          <section class="set-section">
+            <h3>Accessibilité</h3>
+            <div class="set-toggles">
+              ${toggleRow('reduceMotion', 'Réduire les mouvements', 'Désactive animations et effets dynamiques')}
+              ${toggleRow('largeTouch', 'Grandes zones tactiles', 'Boutons et options plus faciles à toucher')}
+              ${toggleRow('highContrast', 'Contraste renforcé', 'Textes et bordures plus lisibles')}
+            </div>
+          </section>
+          <section class="set-section set-section--privacy">
+            <h3>Données &amp; confidentialité</h3>
+            ${dataSizeHTML()}
+            <div class="set-toggles">
+              ${toggleRow('privateSession', 'Mode privé', 'Aucune sauvegarde — session éphémère uniquement')}
+              ${toggleRow('saveProgress', 'Historique & progression', 'Scores, erreurs, révisions SM-2')}
+              ${toggleRow('saveReaction', 'Temps de réaction', 'Mesures de rapidité par question')}
+              ${toggleRow('saveBehavior', 'Comportement souris', 'Survols, hésitations, parcours curseur')}
+              ${toggleRow('saveDetailedLog', 'Journal détaillé', 'Réponses complètes pour Stats et fiches')}
+              ${toggleRow('saveProbaSnapshots', 'Snapshots P(examen)', 'Historique de probabilité d\'examen')}
+              ${toggleRow('clearOnExit', 'Effacer à la fermeture', 'Supprime les données à la fermeture de l\'onglet')}
+            </div>
+            <p class="set-chip-label">Conservation des données</p>
+            <div class="set-chip-row">${chipGroup('retention', { forever: 'Toujours', '90d': '90 jours', '30d': '30 jours', session: 'Session' }, current.retention)}</div>
+            <div class="set-action-row">
+              <button type="button" class="set-action-btn" data-set-privacy-review>🔐 Revoir le choix confidentialité</button>
+              <button type="button" class="set-action-btn" data-set-export>📤 Exporter mes données</button>
+              <button type="button" class="set-action-btn set-action-btn--danger" data-set-erase>🗑 Effacer toutes les données</button>
+            </div>
+            <p class="set-privacy-foot">Export JSON lisible · effacement irréversible (paramètres conservés sauf si tu choisis tout réinitialiser).</p>
+          </section>
         </div>
         <footer class="set-panel-ft">
-          <button type="button" class="set-reset" data-set-reset>Réinitialiser</button>
+          <button type="button" class="set-reset" data-set-reset>Réinitialiser l'apparence</button>
         </footer>
       </aside>
     </div>`;
@@ -683,13 +1090,62 @@
       });
     });
 
+    overlay.querySelectorAll('[data-set-auto-advance]').forEach((btn) => {
+      btn.addEventListener('click', () => save({ autoAdvance: btn.dataset.setAutoAdvance }));
+    });
+
+    overlay.querySelectorAll('[data-set-retention]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const val = btn.dataset.setRetention;
+        const patch = { retention: val };
+        if (val === 'session') patch.privateSession = true;
+        save(patch);
+        purgeRetention();
+      });
+    });
+
+    const exportBtn = overlay.querySelector('[data-set-export]');
+    if (exportBtn) exportBtn.addEventListener('click', exportUserData);
+
+    const privacyReview = overlay.querySelector('[data-set-privacy-review]');
+    if (privacyReview) privacyReview.addEventListener('click', openPrivacyConsent);
+
+    const eraseBtn = overlay.querySelector('[data-set-erase]');
+    if (eraseBtn) {
+      eraseBtn.addEventListener('click', () => {
+        if (confirm('Effacer TOUTES les données du quiz (historique, stats, fiches, réactions) ?\n\nLes paramètres d\'apparence seront conservés.')) {
+          eraseUserData({ keepSettings: true });
+          alert('Données effacées. Recharge la page pour repartir à zéro.');
+        }
+      });
+    }
+
     const reset = overlay.querySelector('[data-set-reset]');
     if (reset) {
       reset.addEventListener('click', () => {
-        if (confirm('Réinitialiser tous les paramètres d\'apparence ?')) {
-          try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
-          apply({ ...DEFAULTS });
-          current = { ...DEFAULTS };
+        if (confirm('Réinitialiser uniquement l\'apparence (thème, couleurs, effets) ?')) {
+          const kept = {
+            saveProgress: current.saveProgress,
+            saveReaction: current.saveReaction,
+            saveBehavior: current.saveBehavior,
+            saveDetailedLog: current.saveDetailedLog,
+            saveProbaSnapshots: current.saveProbaSnapshots,
+            privateSession: current.privateSession,
+            clearOnExit: current.clearOnExit,
+            retention: current.retention,
+            privacyConsentAt: current.privacyConsentAt,
+            showTimer: current.showTimer,
+            confirmSkip: current.confirmSkip,
+            showProbaTags: current.showProbaTags,
+            autoAdvance: current.autoAdvance,
+            shuffleOptions: current.shuffleOptions,
+            reduceMotion: current.reduceMotion,
+            largeTouch: current.largeTouch,
+            highContrast: current.highContrast,
+          };
+          apply({ ...DEFAULTS, ...kept });
+          current = { ...DEFAULTS, ...kept };
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(current)); } catch (e) { /* ignore */ }
           syncPanelUI();
         }
       });
@@ -699,6 +1155,8 @@
   }
 
   function ensureDecorations() {
+    const s = current;
+    if (!s.glass && !s.glow && !s.grid) return;
     if (!document.querySelector('.grid-overlay')) {
       document.body.insertAdjacentHTML('afterbegin',
         '<div class="grid-overlay" aria-hidden="true"></div>'
@@ -710,7 +1168,10 @@
   let keydownBound = false;
 
   function onKeydown(e) {
-    if (e.key === 'Escape' && panelOpen) close();
+    if (e.key === 'Escape') {
+      if (panelOpen) close();
+      if (consentOpen && consentReview) closeConsentGate();
+    }
   }
 
   function bindKeydown() {
@@ -743,14 +1204,27 @@
   function init() {
     current = load();
     apply(current);
+    setupClearOnExit();
+    const onReady = () => {
+      if (!hasPrivacyConsent()) {
+        mountConsentGate();
+      } else {
+        mountUI();
+        uiMounted = true;
+        purgeRetention();
+      }
+    };
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', mountUI);
+      document.addEventListener('DOMContentLoaded', onReady);
     } else {
-      mountUI();
+      onReady();
     }
   }
 
-  global.PPLSettings = { load, save, apply, open, close, DEFAULTS, THEMES, ACCENTS };
+  global.PPLSettings = {
+    load, save, apply, open, close, canPersist, hasPrivacyConsent, openPrivacyConsent,
+    exportUserData, eraseUserData, getDataSize, purgeRetention, DEFAULTS, THEMES, ACCENTS, DATA_KEYS,
+  };
 
   init();
 })(typeof window !== 'undefined' ? window : this);

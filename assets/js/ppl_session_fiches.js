@@ -53,13 +53,19 @@
     return errorFiches;
   }
 
+  function canPersistFiches() {
+    return !window.PPLSettings || PPLSettings.canPersist('fiches') !== false;
+  }
+
   function save() {
+    if (!canPersistFiches()) return;
     try {
       localStorage.setItem(KEY, JSON.stringify(sessionFiches));
     } catch (e) { /* ignore */ }
   }
 
   function saveErrors() {
+    if (!canPersistFiches()) return;
     try {
       localStorage.setItem(KEY_ERRORS, JSON.stringify(errorFiches));
     } catch (e) { /* ignore */ }
@@ -110,6 +116,7 @@
   function archiveError(payload) {
     if (!payload || !payload.q) return;
     if (payload.ok === true) return;
+    if (window.PPLSettings && !PPLSettings.canPersist('fiches')) return;
     loadErrors();
     var idx = payload.idx;
     if (idx == null && typeof Q !== 'undefined') idx = Q.indexOf(payload.q);
@@ -129,6 +136,7 @@
 
   function archiveSession(sData, meta) {
     if (!sData || !sData.length) return;
+    if (!canPersistFiches()) return;
     load();
     var ok = sData.filter(function (d) { return d.ok; }).length;
     var session = {

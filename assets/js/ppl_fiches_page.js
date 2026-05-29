@@ -458,8 +458,17 @@ function renderTopicFicheHTML(ref,opts={}){
   const mCol=f.mastery.pct>=65?'var(--green)':f.mastery.pct>=40?'var(--amber)':'var(--red)';
   const acc=f.topicStats.n?Math.round(f.topicStats.accuracy*100):'—';
   const cov=f.topicStats.n?Math.round(f.topicStats.coverage*100):0;
-  const formulasHtml=typeof renderFicheFormulasSection==='function'
-    ?renderFicheFormulasSection(f.formulas,f.worked,f.essentials,f.module):'';
+  const qIdx=opts.sampleQ?Q.indexOf(opts.sampleQ):-1;
+  let formulasBlock='';
+  if(typeof getFormulasForQuestion==='function'&&typeof renderFicheFormulasSection==='function'){
+    const fh=renderFicheFormulasSection(f.formulas,f.worked,f.essentials,f.module);
+    if(fh) formulasBlock=`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div><div class="fiche-block-bd">${fh}</div></div>`;
+  }else if(qIdx>=0){
+    formulasBlock=`<div class="fiche-block fiche-formulas-lazy" data-fiche-formulas-q="${qIdx}" data-fiche-mod="${f.module}">
+      <div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div>
+      <div class="fiche-block-bd"><div class="fiche-formulas-slot"><div class="fiche-lazy-spin">Chargement formules…</div></div></div>
+    </div>`;
+  }
   const points=(f.allRules.length?f.allRules:f.allPoints.length?f.allPoints:f.keyPoints);
   const isError=opts.mode==='error';
   const errorUltra=isError?renderErrorUltraHTML(f,opts):'';
@@ -545,7 +554,7 @@ function renderTopicFicheHTML(ref,opts={}){
         <div class="fiche-block-bd"><div class="fiche-trap-grid">${trapsDisplayHtml}</div></div>
       </div>
       ${f.refHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📖</span> Référence programme</div><div class="fiche-block-bd">${f.refHtml}</div></div>`:''}
-      ${formulasHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📐</span> Formules & calculs</div><div class="fiche-block-bd">${formulasHtml}</div></div>`:''}
+      ${formulasBlock}
       ${workedMulti?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">🔢</span> Calculs pas à pas (${f.workedExamples.length})</div><div class="fiche-block-bd">${workedMulti}</div></div>`:''}
       ${topWrongHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">❌</span> Erreurs les plus fréquentes sur ce thème</div><div class="fiche-block-bd">${topWrongHtml}</div></div>`:''}
       ${revStatsHtml?`<div class="fiche-block"><div class="fiche-block-hd"><span class="fiche-block-ico">📈</span> Ta progression sur ce thème</div><div class="fiche-block-bd">${revStatsHtml}</div></div>`:''}
@@ -934,8 +943,15 @@ function buildFichesPanel(){
 
   const sessionCount=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.count():0;
   const errorFicheCount=typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.countErrors?PPLSessionFiches.countErrors():errItems.length;
+  const privateOn=document.documentElement.dataset.private==='on';
+  const noConsent=window.PPLSettings&&typeof PPLSettings.hasPrivacyConsent==='function'&&!PPLSettings.hasPrivacyConsent();
+  const noPersist=window.PPLSettings&&!PPLSettings.canPersist('progress');
+  const privacyBanner=(noConsent||privateOn||noPersist)
+    ?`<div class="fiches-privacy-banner">${noConsent?'Choix confidentialité en attente — validez la bannière pour enregistrer des données.':privateOn?'Mode privé — aucune donnée n’est enregistrée sur cet appareil.':'Sauvegarde de progression désactivée — active-la dans Paramètres → Données.'}</div>`
+    :'';
 
   panel.innerHTML=`
+    ${privacyBanner}
     ${renderFichesDashboard(ficheStats,nRev)}
     <div class="fiche-tabs-wrap">
       <div class="rev-tabs fiche-tabs-inner">
@@ -953,6 +969,7 @@ function buildFichesPanel(){
       if(selStart!=null) newSearch.setSelectionRange(selStart,selStart);
     }
   }
+  if(window.PPLFormulasLazy) PPLFormulasLazy.hydrateFicheFormulaSlots(panel);
 }
 
 
@@ -1118,4 +1135,20 @@ function handleFicheDeepLink(){
 }
 const btnAll=document.getElementById('btn-rev-all');
 if(btnAll) btnAll.addEventListener('click', launchRevision);
-handleFicheDeepLink();
+function bootFichesPage(){
+  const run=()=>handleFicheDeepLink();
+  if(window.PPLSettings?.hasPrivacyConsent?.()){
+    if(typeof requestIdleCallback==='function') requestIdleCallback(run,{timeout:1400});
+    else setTimeout(run,40);
+    return;
+  }
+  const panel=document.getElementById('rev-panel');
+  if(panel){
+    panel.innerHTML='<div class="fiches-privacy-banner">Validez vos préférences de confidentialité pour charger les fiches.</div>';
+  }
+  window.addEventListener('ppl-privacy-consent',run,{once:true});
+}
+bootFichesPage();
+window.addEventListener('ppl-data-erased',()=>location.reload());
+window.addEventListener('ppl-settings-changed',()=>buildFichesPanel());
+window.addEventListener('ppl-privacy-consent',()=>buildFichesPanel());

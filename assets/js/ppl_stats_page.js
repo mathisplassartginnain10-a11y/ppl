@@ -166,6 +166,15 @@ function bindAnswerClicks(root, log){
 }
 
 function render(){
+  const root=document.getElementById('stats-root');
+  if(!root) return;
+  const privateOn=document.documentElement.dataset.private==='on';
+  const noConsent=window.PPLSettings&&typeof PPLSettings.hasPrivacyConsent==='function'&&!PPLSettings.hasPrivacyConsent();
+  const logAllowed=!window.PPLSettings||PPLSettings.canPersist('detailed');
+  if(privateOn||noConsent||!logAllowed){
+    root.innerHTML=`<div class="stats-empty"><h2>${noConsent?'Choix confidentialité requis':'Journal désactivé'}</h2><p>${noConsent?'Validez vos préférences de données pour accéder au journal.':'Active « Journal détaillé » dans Paramètres → Données & confidentialité.'}</p></div>`;
+    return;
+  }
   const log=loadLog();
   let items=(log.items||[]).slice().reverse();
   const params=new URLSearchParams(location.search);
@@ -173,9 +182,6 @@ function render(){
 
   if(filterMode==='ok') items=items.filter(x=>x.ok);
   else if(filterMode==='ko') items=items.filter(x=>!x.ok);
-
-  const root=document.getElementById('stats-root');
-  if(!root) return;
 
   if(!items.length){
     root.innerHTML=`<div class="stats-empty">
@@ -265,9 +271,15 @@ function render(){
 
   const clearBtn=document.getElementById('btn-clear-stats');
   if(clearBtn){
+    const priv=document.documentElement.dataset.private==='on';
+    clearBtn.hidden=priv;
     clearBtn.addEventListener('click',()=>{
       if(confirm('Effacer tout l’historique des stats détaillées ?')){
-        localStorage.removeItem('ppl4answers');
+        if(window.PPLSettings&&PPLSettings.eraseUserData){
+          PPLSettings.eraseUserData({keepSettings:true});
+        }else{
+          localStorage.removeItem('ppl4answers');
+        }
         render();
       }
     });
@@ -280,8 +292,15 @@ function render(){
 }
 
 document.addEventListener('DOMContentLoaded',render);
+window.addEventListener('ppl-data-erased',render);
+window.addEventListener('ppl-settings-changed',render);
+window.addEventListener('ppl-privacy-consent',render);
+let _statsBp=window.innerWidth<640?'m':'d';
 window.addEventListener('resize',()=>{
   clearTimeout(window._pplStatsResize);
-  window._pplStatsResize=setTimeout(render,200);
+  window._pplStatsResize=setTimeout(()=>{
+    const bp=window.innerWidth<640?'m':'d';
+    if(bp!==_statsBp){_statsBp=bp;render();}
+  },200);
 });
 })();

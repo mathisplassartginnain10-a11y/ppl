@@ -244,3 +244,4 @@ if (document.readyState === 'loading') {
 } else {
   initFormulasPage();
 }
+window.addEventListener('ppl-data-erased', () => location.reload());
