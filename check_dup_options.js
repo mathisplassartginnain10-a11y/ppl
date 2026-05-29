@@ -8,7 +8,7 @@ const Q = sandbox.Q;
 if (!Q) throw new Error('Q not loaded');
 
 function norm(s) {
-  return String(s).trim().replace(/\s+/g, ' ').toLowerCase();
+  return String(s).trim().replace(/\u2019/g, "'").replace(/\u2018/g, "'").replace(/`/g, "'").replace(/\s+/g, ' ').toLowerCase();
 }
 
 const dups = [];

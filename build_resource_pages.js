@@ -149,6 +149,8 @@ const fichesHtml = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b12">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Fiches explicatives — Quiz PPL</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260528c">
@@ -157,12 +159,12 @@ const fichesHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="ppl_mobile.css?v=20260528k">
 <link rel="stylesheet" href="ppl_auth.css?v=20260529a">
 <link rel="stylesheet" href="ppl_perf.css?v=20260529e">
-<script src="ppl_auth.js?v=20260529a"></script>
+<script src="ppl_auth.js?v=20260529b"></script>
 </head>
 <body class="fiches-page">
 <div class="wrap app-shell">
 <header class="app-header">
-  <a href="index.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
+  <a href="index.html" class="app-brand"><span class="app-brand-icon"><img src="favicon.png" alt="" width="38" height="38"></span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
   <nav class="app-nav">
     <a href="index.html" class="app-nav-link">Quiz</a>
     <a href="formules.html" class="app-nav-link">Formules</a>

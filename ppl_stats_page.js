@@ -45,7 +45,7 @@ function computeAverages(items){
     avgMastery:round(avg(items,x=>x.mastery),1),
     avgExam:round(avg(items,x=>x.examImpact),1),
     avgConf:round(avg(items,x=>x.confIdx),1),
-    avgReactSec:round(avg(items,x=>x.reactSec),2),
+    avgReactSec:round(avg(items,x=>x.el||x.totalSec||x.reactSec),2),
     avgReadSec:round(avg(items,x=>x.readSec),2),
     avgDecideSec:round(avg(items,x=>x.decideSec),2),
     avgHovers:round(avg(items,x=>x.hoverSwitches),1),
@@ -71,7 +71,7 @@ function renderDetail(item){
       <div><span>Confiance cognitive</span><span>${item.confIdx!=null?item.confIdx+'%':'—'}</span></div>
       <div><span>Impact examen</span><span>${item.examImpact!=null?(item.examImpact>=0?'+':'')+item.examImpact+' pts':'—'}</span></div>
       <div><span>Lecture</span><span>${(item.readSec||b.readSec||0).toFixed(1)} s</span></div>
-      <div><span>Réaction</span><span>${(item.reactSec||b.reactionSec||0).toFixed(1)} s</span></div>
+      <div><span>Survol → clic</span><span>${(item.chooseSec||item.reactSec||b.chooseSec||b.reactionSec||0).toFixed(1)} s</span></div>
       <div><span>Décision</span><span>${(item.decideSec||b.decideSec||0).toFixed(1)} s</span></div>
       <div><span>Survols / vacillations</span><span>${item.hoverSwitches??b.hoverSwitches??0} / ${item.vacillations??b.vacillations??0}</span></div>
       <div><span>Mauvaises options survolées</span><span>${item.wrongHoverCount??b.wrongHoverCount??0}</span></div>
@@ -195,10 +195,9 @@ function render(){
     <div class="stats-summary">
       <div class="stats-card"><div class="stats-card-v">${globalAv.n}</div><div class="stats-card-l">Total enregistré</div></div>
       <div class="stats-card"><div class="stats-card-v" style="color:var(--green)">${globalAv.okRate}%</div><div class="stats-card-l">Réussite globale</div></div>
-      <div class="stats-card"><div class="stats-card-v">${globalAv.avgReactScore||'—'}%</div><div class="stats-card-l">Réaction moy.</div></div>
+      <div class="stats-card"><div class="stats-card-v">${globalAv.avgReactScore||'—'}%</div><div class="stats-card-l">Score réact. moy.</div></div>
       <div class="stats-card"><div class="stats-card-v">${globalAv.avgMastery||'—'}%</div><div class="stats-card-l">Maîtrise moy.</div></div>
-      <div class="stats-card"><div class="stats-card-v">${globalAv.avgEl||'—'}s</div><div class="stats-card-l">Temps moy.</div></div>
-      <div class="stats-card"><div class="stats-card-v">${globalAv.avgReactSec||'—'}s</div><div class="stats-card-l">Réact. moy.</div></div>
+      <div class="stats-card"><div class="stats-card-v">${globalAv.avgEl||globalAv.avgReactSec||'—'}s</div><div class="stats-card-l">Temps moy.</div></div>
     </div>
 
     <div class="stats-toolbar">
@@ -213,7 +212,7 @@ function render(){
         <thead>
           <tr>
             <th>#</th><th>Date</th><th>Question</th><th>Module</th><th>Rés.</th>
-            <th>Temps</th><th>Réact.%</th><th>Maîtr.%</th><th>Réact.s</th><th>Décis.s</th>
+            <th>Temps</th><th>Score réact.</th><th>Maîtr.%</th><th>Temps moy.</th><th>Décis.s</th>
             <th>Survols</th><th>Mauv.opt</th><th>Conf.%</th>
           </tr>
         </thead>
@@ -242,7 +241,7 @@ function render(){
             <td class="num">${av.avgEl??'—'}s</td>
             <td class="num">${av.avgReactScore??'—'}</td>
             <td class="num">${av.avgMastery??'—'}</td>
-            <td class="num">${av.avgReactSec??'—'}</td>
+            <td class="num">${av.avgEl??av.avgReactSec??'—'}</td>
             <td class="num">${av.avgDecideSec??'—'}</td>
             <td class="num">${av.avgHovers??'—'}</td>
             <td class="num">${av.avgWrongH??'—'}</td>

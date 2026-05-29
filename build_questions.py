@@ -17,7 +17,17 @@ def q(m, d, question, opts, a, e, r):
 
 
 def norm_opt(s):
-    return re.sub(r"\s+", " ", str(s).strip().lower())
+    s = str(s).replace("\u2019", "'").replace("\u2018", "'").replace("`", "'")
+    return re.sub(r"\s+", " ", s.strip().lower())
+
+
+def opts_similar(a, b):
+    na, nb = norm_opt(a), norm_opt(b)
+    if na == nb:
+        return True
+    if len(na) > 8 and len(nb) > 8 and (na in nb or nb in na):
+        return True
+    return False
 
 
 def numeric_fillers(correct, seen):
@@ -62,9 +72,13 @@ def unique_wrongs(correct, candidates, fillers=None):
     seen = {norm_opt(correct)}
     wrongs = []
     for c in candidates:
-        if norm_opt(c) not in seen:
-            seen.add(norm_opt(c))
-            wrongs.append(c)
+        nk = norm_opt(c)
+        if nk in seen or opts_similar(c, correct):
+            continue
+        if any(opts_similar(c, w) for w in wrongs):
+            continue
+        seen.add(nk)
+        wrongs.append(c)
         if len(wrongs) >= 3:
             return wrongs[:3]
     for c in fillers or []:
@@ -616,7 +630,7 @@ def gen_meteo_symbols_advanced():
     # ── Symboles cartes TEMSI (Aérogligli) ──
     TEMSI_LINES = [
         ("Une ligne festonnée sur une carte TEMSI", "Limite d'une zone de temps significatif",
-         ["Limite d'une zone de turbulence légère", "Axe d'un courant-jet", "Front stationnaire en surface"],
+         ["Ligne d'isoallobares en surface", "Axe d'un courant-jet", "Front stationnaire en surface"],
          "La ligne festonnée délimite les zones où le temps se dégrade (précipitations, brouillard, orages…).",
          "Cartes TEMSI - symboles", 2),
         ("Une ligne fine discontinue à l'intérieur d'une zone festonnée TEMSI", "Limite d'une sous-zone",
@@ -637,7 +651,7 @@ def gen_meteo_symbols_advanced():
 
     TEMSI_PHEN = [
         ("Symbole « orages » sur carte TEMSI", "Orages (convectifs)", ["Averses isolées", "Brouillard givrant", "Brume sèche"]),
-        ("Symbole « brouillard » sur carte TEMSI", "Brouillard", ["Brume sèche", "Brouillard givrant", "Obscurcissement"]),
+        ("Symbole « brouillard » sur carte TEMSI", "Brouillard", ["Brume sèche", "Visibilité réduite", "Obscurcissement"]),
         ("Symbole « brume sèche » grande étendue", "Brume sèche étendue", ["Brouillard local", "Pluie surfondue", "Grêle"]),
         ("Symbole « givrage modéré »", "Givrage modéré en vol", ["Givrage au sol uniquement", "Givrage fort", "Givrage léger carburateur"]),
         ("Symbole « turbulence modérée »", "Turbulence modérée", ["Turbulence légère", "Turbulence forte", "Cisaillement bas"]),
@@ -665,12 +679,10 @@ def gen_meteo_symbols_advanced():
 
     # ── Fronts sur cartes (symboles) ──
     add(2, "Sur carte de fronts, les triangles bleus pointent dans le sens :",
-        ["Avance de l'air froid", "Avance de l'air chaud", "Vent de surface", "Axe thalweg"],
-        ["Avance de l'air chaud", "Stationnaire", "Occlusion"],
+        "Avance de l'air froid", ["Avance de l'air chaud", "Stationnaire", "Occlusion"],
         "Triangles = front froid (masse froide avance).", "Fronts - symboles cartes")
     add(2, "Sur carte de fronts, les demi-cercles rouges indiquent :",
-        ["Avance de l'air chaud", "Avance de l'air froid", "Front stationnaire", "Axe dorsale"],
-        ["Avance de l'air froid", "Occlusion chaude", "Col barométrique"],
+        "Avance de l'air chaud", ["Avance de l'air froid", "Occlusion chaude", "Col barométrique"],
         "Demi-cercles = front chaud.", "Fronts - symboles cartes")
     add(3, "Front occlus sur carte TEMSI — symbolisation :",
         "Projection en surface du front occlus (froid rattrape chaud)",
@@ -1330,13 +1342,13 @@ def gen_reg():
         qs.append(q("R", 2, f"Code OACI FIR {name} ?", opts, a, f"FIR {name} = {code}.", "Espace aérien - FIR"))
 
     CLASSES = [
-        ("A", "IFR uniquement, VFR interdit", 1),
-        ("B", "IFR et VFR, séparation totale", 2),
-        ("C", "IFR/VFR, séparation IFR-IFR et IFR-VFR", 2),
-        ("D", "IFR/VFR, séparation IFR-IFR uniquement", 2),
-        ("E", "IFR/VFR, pas de séparation ATS", 2),
-        ("F", "IFR/VFR advisory", 3),
-        ("G", "IFR/VFR, info vol seulement", 2),
+        ("A", "IFR uniquement — VFR interdit", 1),
+        ("B", "IFR et VFR — séparation totale", 2),
+        ("C", "IFR/VFR — séparation IFR-IFR et IFR-VFR", 2),
+        ("D", "IFR/VFR — séparation IFR-IFR seulement", 2),
+        ("E", "IFR/VFR — pas de séparation ATS", 2),
+        ("F", "IFR/VFR — service advisory", 3),
+        ("G", "IFR/VFR — information de vol seulement", 2),
     ]
     for cls, rule, diff in CLASSES:
         opts, a = shuffle_opts(rule, [c[1] for c in CLASSES if c[0] != cls][:3])
@@ -1344,12 +1356,16 @@ def gen_reg():
 
     for route in range(0, 360, 15):
         is_west = 180 <= route < 360
-        fl_vfr = "pair + 500 ft" if is_west else "impair + 500 ft"
+        fl_vfr = "Cap pair · milliers + 500 ft" if is_west else "Cap impair · milliers + 500 ft"
         examples = ("FL045,065,085..." if is_west else "FL035,055,075...")
-        wrong = "impair + 500 ft" if is_west else "pair + 500 ft"
+        wrongs = [
+            "Cap impair · milliers + 500 ft" if is_west else "Cap pair · milliers + 500 ft",
+            "Milliers entiers sans +500 ft",
+            "Niveau libre sous 3000 ft AMSL",
+        ]
+        opts, a = shuffle_opts(fl_vfr, wrongs)
         qs.append(q("R", 2, f"Route magnétique {route:03d}° — FL VFR ?",
-            [fl_vfr, wrong, "pair entier", "impair entier"], 0,
-            f"Route {route}° → {fl_vfr} ({examples}).", "Règle semi-circulaire"))
+            opts, a, f"Route {route}° → {fl_vfr} ({examples}).", "Règle semi-circulaire"))
 
     SURVOL = [
         ("Hors agglomération", "150m/500ft au-dessus obstacle +500ft/150m rayon", 1),
@@ -1408,7 +1424,7 @@ def gen_reg():
           "60 min avant, pas en vol.", "Plan de vol"),
         q("R", 2, "Vitesse 120 kt en FPL :", ["K0120", "N0120", "V0120", "M0120"], 1,
           "N=kt, K=km/h, F=FL.", "Plan de vol - paramètres"),
-        q("R", 2, "Zone D (dangereuse) :", ["Interdite", "Sous conditions", "Non interdite mais activités dangereuses", "Militaire"], 2,
+        q("R", 2, "Zone D (dangereuse) :", ["Réservée IFR exclusivement", "Sous conditions ATS", "Non interdite mais activités dangereuses", "Zone militaire fermée"], 2,
           "D=pénétration non interdite.", "Zones à statut particulier"),
         q("R", 2, "Zone R :", ["Interdite", "Sous conditions", "Dangereuse", "Libre"], 1, "R=réglementée sous conditions.", "Zones à statut particulier"),
         q("R", 2, "Zone P :", ["Interdite", "Sous conditions", "Dangereuse", "Libre"], 0, "P=interdite.", "Zones à statut particulier"),
@@ -1434,7 +1450,7 @@ def gen_reg():
           "Interdiction atterrir.", "Signaux visuels au sol"),
         q("R", 2, "Haltère blanc :", ["Interdit", "Atterrissage/décollage/circulation sur pistes et voies uniquement", "T", "Fermé"], 1,
           "Haltère+barres=noires : circ libre ailleurs.", "Signaux visuels au sol"),
-        q("R", 4, "Signal sol/air X :", ["Assistance", "Assistance médicale", "Non", "Terminé"], 1,
+        q("R", 4, "Signal sol/air X :", ["Besoin d'assistance (V)", "Assistance médicale", "Négatif (N)", "Affirmatif (Y)"], 1,
           "V=assistance, X=médical, N=non, Y=oui.", "Signaux sol/air"),
         q("R", 4, "Signal sol/air LL :", ["Rien trouvé", "Tous occupants retrouvés", "Partie seulement", "Terminé"], 1,
           "LLL=terminé, ++=partie.", "Signaux sol/air sauvetage"),
@@ -1841,8 +1857,12 @@ def validate_bank_options(bank):
             issues.append(f"#{i} index invalide: {item['q'][:70]}")
         if len(opts) != 4:
             issues.append(f"#{i} {len(opts)} options: {item['q'][:70]}")
+        for j in range(len(opts)):
+            for k in range(j + 1, len(opts)):
+                if opts_similar(opts[j], opts[k]):
+                    issues.append(f"#{i} options similaires: «{opts[j][:40]}» / «{opts[k][:40]}» — {item['q'][:50]}")
     if issues:
-        raise SystemExit(f"{len(issues)} problèmes options:\n" + "\n".join(issues[:15]))
+        raise SystemExit(f"{len(issues)} problèmes options:\n" + "\n".join(issues[:20]))
 
 
 def merge_doc_questions(bank, doc_qs):

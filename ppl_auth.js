@@ -168,7 +168,7 @@
 
     gate.innerHTML =
       '<div class="ppl-gate-card">' +
-      '<div class="ppl-gate-icon">✈</div>' +
+      '<div class="ppl-gate-icon"><img src="favicon.png" alt="" width="52" height="52"></div>' +
       '<h1>PPL Quiz</h1>' +
       '<p class="ppl-gate-sub">Entrez le code d\'accès pour utiliser l\'application.</p>' +
       blockHtml +

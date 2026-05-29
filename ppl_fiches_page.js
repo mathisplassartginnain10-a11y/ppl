@@ -354,14 +354,105 @@ function renderErrorUltraHTML(f,opts){
   </div>`;
 }
 
-function renderDeepFicheHTML(q,entry,chosenIdx,beh,logEntry){
+function renderDeepFicheHTML(q,entry,chosenIdx,beh,logEntry,deepOpts={}){
   const idx=Q.indexOf(q);
   const ci=chosenIdx??entry?.lastWrongChoice??entry?.lastBeh?.chosenIdx??-1;
   const log=logEntry||getLastAnswerLogForIdx(idx>=0?idx:undefined);
-  return renderTopicFicheHTML(q.r,{sampleQ:q,entry,chosenIdx:ci,mode:'error',compact:true,showFoot:true,beh:beh||entry?.lastBeh,logEntry:log});
+  return renderTopicFicheSimple(q.r,{
+    sampleQ:q,entry,chosenIdx:ci,mode:'error',showFoot:true,
+    beh:beh||entry?.lastBeh,logEntry:log,minimal:!!deepOpts.minimal
+  });
+}
+
+function getTopicAccuracy(data){
+  const answered=(data.idxs||[]).filter(i=>hist[i]!==undefined);
+  if(!answered.length) return -1;
+  const ok=answered.filter(i=>hist[i]).length;
+  return Math.round(ok/answered.length*100);
+}
+
+function renderFicheSortBar(placeholder){
+  const sortVal=ficheDateSort==='errors'?'success_low':ficheDateSort;
+  return`<div class="fiche-sticky-bar">
+    <div class="fiche-search-wrap">
+      <span class="fiche-search-ico" aria-hidden="true">🔍</span>
+      <input type="search" class="fiche-lib-search" id="fiche-lib-search" placeholder="${esc(placeholder||'Rechercher un thème (VHF, ISA, METAR…)')}" value="${esc(ficheLibSearch)}" autocomplete="off">
+    </div>
+    <div class="fiche-bar-actions">
+      <label class="fiche-sort-label">Trier
+        <select id="fiche-date-sort" class="fiche-sort-select">
+          <option value="recent"${sortVal==='recent'?' selected':''}>Date (récent)</option>
+          <option value="success_high"${sortVal==='success_high'?' selected':''}>Réussite ↓</option>
+          <option value="success_low"${sortVal==='success_low'?' selected':''}>Réussite ↑</option>
+          <option value="alpha"${sortVal==='alpha'?' selected':''}>A → Z</option>
+        </select>
+      </label>
+      <button type="button" class="fiche-bar-btn" data-fiche-expand="all">Ouvrir</button>
+      <button type="button" class="fiche-bar-btn" data-fiche-expand="none">Fermer</button>
+    </div>
+  </div>`;
+}
+
+function shortenText(s,max=160){
+  if(!s) return '';
+  const t=String(s).trim();
+  const m=t.match(/^[^.!?]+[.!?]/);
+  const first=m?m[0].trim():t;
+  if(first.length<=max) return first;
+  return first.slice(0,max-1).trim()+'…';
+}
+
+function pickEssentialPoint(f){
+  const rule=(f.rule||'').trim();
+  const pts=(f.allRules?.length?f.allRules:f.keyPoints||[]).filter(p=>p&&p.trim()!==rule);
+  if(!pts.length) return '';
+  return shortenText(pts.sort((a,b)=>a.length-b.length)[0],110);
+}
+
+function renderFicheRevLinks(f,ref,opts={}){
+  const needsWork=f.failTotal>0||f.weakCount>0||(f.topicStats?.n&&f.topicStats.accuracy<0.65);
+  const links=[];
+  links.push(needsWork
+    ?`<a href="index.html?topic=${encodeURIComponent(ref)}" class="fiche-rev-link primary">Réviser</a>`
+    :`<button type="button" class="fiche-rev-link primary" data-rev-action="topic" data-ref="${esc(ref)}">Quiz</button>`);
+  if(f.failTotal>0)
+    links.push(`<a href="fiches.html?errors=1" class="fiche-rev-link">Erreurs</a>`);
+  if((f.formulas?.linked?.length||0)>0)
+    links.push(`<a href="formules.html" class="fiche-rev-link">Formules</a>`);
+  if(!opts.hideFull)
+    links.push(`<a href="fiches.html?topic=${encodeURIComponent(ref)}&full=1" class="fiche-rev-link ghost">Détails</a>`);
+  return`<nav class="fiche-rev-nav" aria-label="Réviser">${links.join('')}</nav>`;
+}
+
+function renderTopicFicheSimple(ref,opts={}){
+  const f=opts.f||buildTopicFiche(ref,opts.sampleQ,opts.entry,opts.chosenIdx);
+  if(!f) return '';
+  const q=f.sampleQ;
+  const isError=opts.mode==='error';
+  const chosenIdx=f.chosenIdx??-1;
+  const minimal=!!opts.minimal;
+  const rule=shortenText(f.rule||q.e,180);
+  const extra=!isError&&!minimal?pickEssentialPoint(f):'';
+
+  if(minimal) return`<div class="fiche-lite">${renderFicheRevLinks(f,ref,opts)}</div>`;
+
+  let errHtml='';
+  if(isError){
+    if(chosenIdx>=0&&chosenIdx!==q.a)
+      errHtml=`<p class="fiche-lite-line bad"><span>Ta réponse</span>${esc(shortenText(q.o[chosenIdx],120))}</p>`;
+    errHtml+=`<p class="fiche-lite-line good"><span>Bonne réponse</span>${esc(shortenText(q.o[q.a],120))}</p>`;
+  }
+
+  return`<div class="fiche-lite${isError?' fiche-lite--err':''}">
+    ${errHtml}
+    <p class="fiche-lite-rule">${esc(rule)}</p>
+    ${extra?`<p class="fiche-lite-note">${esc(extra)}</p>`:''}
+    ${opts.showFoot!==false?renderFicheRevLinks(f,ref,opts):''}
+  </div>`;
 }
 
 function renderTopicFicheHTML(ref,opts={}){
+  if(opts.full!==true) return renderTopicFicheSimple(ref,opts);
   const f=opts.f||buildTopicFiche(ref,opts.sampleQ,opts.entry,opts.chosenIdx);
   if(!f) return '';
   const mCol=f.mastery.pct>=65?'var(--green)':f.mastery.pct>=40?'var(--amber)':'var(--red)';
@@ -535,37 +626,16 @@ function computeFicheStats(allThemes){
 function renderFichesDashboard(stats,nRev){
   const sessionCount=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.count():0;
   const errorFicheCount=typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.countErrors?PPLSessionFiches.countErrors():0;
-  const errorBanner=errorFicheCount?`<a href="fiches.html?errors=1" class="fiches-session-banner fiches-error-banner" data-rev-tab-jump="errors">✕ ${errorFicheCount} fiche${errorFicheCount>1?'s':''} d'erreur — consulter →</a>`:'';
-  const sessionBanner=sessionCount?`<a href="fiches.html?session=1" class="fiches-session-banner" data-rev-tab-jump="sessions">📋 ${sessionCount} résumé${sessionCount>1?'s':''} de session — consulter →</a>`:'';
-  return`<div class="fiches-dashboard">
-    ${errorBanner}
-    ${sessionBanner}
-    <div class="fiches-hero">
-      <div class="fiches-hero-stat"><span class="fiches-hero-n">${stats.total}</span><span class="fiches-hero-l">Thèmes</span></div>
-      <div class="fiches-hero-stat accent-green"><span class="fiches-hero-n">${stats.studied}</span><span class="fiches-hero-l">Étudiés</span></div>
-      <div class="fiches-hero-stat accent-red"><span class="fiches-hero-n">${stats.totalErr}</span><span class="fiches-hero-l">Erreurs</span></div>
-      <div class="fiches-hero-stat accent-amber"><span class="fiches-hero-n">${nRev||0}</span><span class="fiches-hero-l">À réviser</span></div>
-    </div>
-    <div class="fiches-mod-grid">
-      ${MOD_ORDER.map(m=>{
-        const tot=stats.modCounts[m]||0,st=stats.modStudied[m]||0;
-        const pct=tot?Math.round(st/tot*100):0;
-        return`<button type="button" class="fiches-mod-chip${ficheLibMod===m?' on':''}" data-fmod="${m}" style="--mod-accent:${MOD_ACCENT[m]}">
-          <span class="fiches-mod-chip-ico">${MOD_ICON[m]}</span>
-          <span class="fiches-mod-chip-body">
-            <span class="fiches-mod-chip-name">${modStr(m)}</span>
-            <span class="fiches-mod-chip-meta">${st}/${tot} étudiés</span>
-          </span>
-          <span class="fiches-mod-chip-bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
-        </button>`;
-      }).join('')}
-      <button type="button" class="fiches-mod-chip all${ficheLibMod==='all'?' on':''}" data-fmod="all">
-        <span class="fiches-mod-chip-ico">📚</span>
-        <span class="fiches-mod-chip-body">
-          <span class="fiches-mod-chip-name">Toutes matières</span>
-          <span class="fiches-mod-chip-meta">${stats.total} fiches</span>
-        </span>
-      </button>
+  const alerts=[];
+  if(errorFicheCount) alerts.push(`<a href="fiches.html?errors=1" class="fiches-alert fiches-alert--err" data-rev-tab-jump="errors">${errorFicheCount} erreur${errorFicheCount>1?'s':''} à revoir</a>`);
+  if(sessionCount) alerts.push(`<a href="fiches.html?session=1" class="fiches-alert" data-rev-tab-jump="sessions">${sessionCount} session${sessionCount>1?'s':''}</a>`);
+  const modShort={C:'Comm.',A:'Aéronef',M:'Météo',R:'Réglem.'};
+  return`<div class="fiches-dash-lite">
+    ${alerts.length?`<div class="fiches-alerts">${alerts.join('')}</div>`:''}
+    <div class="fiches-filter-row">
+      ${MOD_ORDER.map(m=>`<button type="button" class="fiches-filter-chip${ficheLibMod===m?' on':''}" data-fmod="${m}">${modShort[m]}</button>`).join('')}
+      <button type="button" class="fiches-filter-chip all${ficheLibMod==='all'?' on':''}" data-fmod="all">Tout</button>
+      <span class="fiches-filter-meta">${stats.total} thèmes${nRev?` · ${nRev} à revoir`:''}</span>
     </div>
   </div>`;
 }
@@ -578,7 +648,7 @@ function hydrateFicheCard(card){
   if(!bd||!ref||!Q[idx]) return;
   bd.innerHTML='<div class="fiche-lazy-load"><span class="fiche-lazy-spin"></span> Chargement…</div>';
   requestAnimationFrame(()=>{
-    bd.innerHTML=renderTopicFicheHTML(ref,{sampleQ:Q[idx],entry:revLog.entries?.[idx],showFoot:true});
+    bd.innerHTML=renderTopicFicheSimple(ref,{sampleQ:Q[idx],entry:revLog.entries?.[idx],showFoot:true});
     card.dataset.lazy='0';
   });
 }
@@ -593,7 +663,13 @@ function fmtFicheDate(ts){
 
 function sortFicheThemeEntries(entries){
   if(ficheDateSort==='alpha') return entries.sort((a,b)=>a.ref.localeCompare(b.ref,'fr'));
-  if(ficheDateSort==='errors') return entries.sort((a,b)=>b.failTotal-a.failTotal||b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr'));
+  if(ficheDateSort==='success_high'||ficheDateSort==='errors')
+    return entries.sort((a,b)=>(b.accuracy??-1)-(a.accuracy??-1)||b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr'));
+  if(ficheDateSort==='success_low')
+    return entries.sort((a,b)=>{
+      const aa=a.accuracy??101,bb=b.accuracy??101;
+      return aa-bb||b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr');
+    });
   return entries.sort((a,b)=>b.lastAct-a.lastAct||a.ref.localeCompare(b.ref,'fr'));
 }
 
@@ -606,53 +682,25 @@ function renderFichesByModule(allThemes){
     if(qSearch&&!ref.toLowerCase().includes(qSearch)&&!modStr(data.module).toLowerCase().includes(qSearch)) return;
     const lastAct=getTopicLastActivity(ref,data);
     const failTotal=getTopicFailTotal(data);
+    const accuracy=getTopicAccuracy(data);
     const m=data.module;
     if(!byMod[m]) byMod[m]=[];
-    byMod[m].push({ref,data,lastAct,failTotal});
+    byMod[m].push({ref,data,lastAct,failTotal,accuracy});
   });
-  const studiedCount=MOD_ORDER.reduce((n,m)=>n+byMod[m].filter(t=>t.lastAct>0).length,0);
   const visibleCount=MOD_ORDER.reduce((n,m)=>n+byMod[m].length,0);
-  let html=`<div class="fiche-sticky-bar">
-    <div class="fiche-search-wrap">
-      <span class="fiche-search-ico" aria-hidden="true">🔍</span>
-      <input type="search" class="fiche-lib-search" id="fiche-lib-search" placeholder="Rechercher un thème (VHF, ISA, METAR…)" value="${esc(ficheLibSearch)}" autocomplete="off">
-    </div>
-    <div class="fiche-bar-actions">
-      <label class="fiche-sort-label">Trier
-        <select id="fiche-date-sort" class="fiche-sort-select">
-          <option value="recent"${ficheDateSort==='recent'?' selected':''}>Plus récent</option>
-          <option value="errors"${ficheDateSort==='errors'?' selected':''}>Erreurs</option>
-          <option value="alpha"${ficheDateSort==='alpha'?' selected':''}>A → Z</option>
-        </select>
-      </label>
-      <button type="button" class="fiche-bar-btn" data-fiche-expand="all">Tout ouvrir</button>
-      <button type="button" class="fiche-bar-btn" data-fiche-expand="none">Tout fermer</button>
-    </div>
-  </div>
+  let html=renderFicheSortBar('Rechercher…')+`
   <div class="fiche-results-bar">
-    <span>${visibleCount} fiche${visibleCount>1?'s':''} affichée${visibleCount>1?'s':''}</span>
-    <span class="fiche-results-dot">·</span>
-    <span>${studiedCount} avec activité</span>
+    <span>${visibleCount} thème${visibleCount>1?'s':''}</span>
   </div>`;
   let any=false;
   MOD_ORDER.forEach(m=>{
     const themes=sortFicheThemeEntries([...byMod[m]]);
     if(!themes.length) return;
     any=true;
-    const studied=themes.filter(t=>t.lastAct>0).length;
-    html+=`<section class="fiche-mod-group fiche-mod-group--${m.toLowerCase()}" data-module="${m}" style="--mod-accent:${MOD_ACCENT[m]}">
-      <div class="fiche-mod-hd">
-        <div class="fiche-mod-hd-left">
-          <span class="fiche-mod-ico">${MOD_ICON[m]}</span>
-          <div>
-            <span class="fiche-mod-title">${modStr(m)}</span>
-            <span class="fiche-mod-count">${themes.length} fiche${themes.length>1?'s':''}${studied?` · ${studied} étudiée${studied>1?'s':''}`:''}</span>
-          </div>
-        </div>
-        <span class="bd ${modClass(m)}">${Math.round(studied/themes.length*100)||0}%</span>
-      </div>
+    html+=`<section class="fiche-mod-group fiche-mod-group--${m.toLowerCase()}" data-module="${m}">
+      <h3 class="fiche-mod-title-lite">${modStr(m)} <span>${themes.length}</span></h3>
       <div class="fiche-mod-list">
-        ${themes.map(t=>renderTopicFicheCard(t.ref,t.data,{lastAct:t.lastAct,failTotal:t.failTotal,openByDefault:t.lastAct>0||t.failTotal>0})).join('')}
+        ${themes.map(t=>renderTopicFicheCard(t.ref,t.data,{lastAct:t.lastAct,failTotal:t.failTotal,accuracy:t.accuracy})).join('')}
       </div>
     </section>`;
   });
@@ -664,30 +712,22 @@ function renderTopicFicheCard(ref,data,opts={}){
   const entry=revLog.entries?.[sampleIdx];
   const f=opts.f||buildTopicFiche(ref,Q[sampleIdx],entry,-1);
   if(!f) return '';
-  const acc=f.topicStats.n?Math.round(f.topicStats.accuracy*100):0;
+  const acc=opts.accuracy??(f.topicStats.n?Math.round(f.topicStats.accuracy*100):-1);
   const lastAct=opts.lastAct??getTopicLastActivity(ref,data);
   const failTotal=opts.failTotal??getTopicFailTotal(data);
-  const isOpen=!!(opts.openByDefault||lastAct>0||failTotal>0);
+  const isOpen=!!opts.forceOpen;
   const openCls=isOpen?' open':'';
-  const mCol=f.mastery.pct>=65?'var(--green)':f.mastery.pct>=40?'var(--amber)':'var(--red)';
   const mod=data.module||'R';
-  const bodyHtml=isOpen?renderTopicFicheHTML(ref,{sampleQ:Q[sampleIdx],entry,showFoot:true,f}):'';
-  return`<article class="fiche-card fiche-card--${mod.toLowerCase()}${openCls}${failTotal?' has-errors':''}" data-fiche-ref="${esc(ref)}" data-fiche-idx="${sampleIdx}" data-last-act="${lastAct}" data-lazy="${isOpen?'0':'1'}">
+  const accLabel=acc>=0?acc+'%':'—';
+  const accCls=acc>=65?' good':acc>=0&&acc<50?' bad':'';
+  const bodyHtml=isOpen?renderTopicFicheSimple(ref,{sampleQ:Q[sampleIdx],entry,showFoot:true,f}):'';
+  return`<article class="fiche-card fiche-card--${mod.toLowerCase()}${openCls}${failTotal?' has-errors':''}" data-fiche-ref="${esc(ref)}" data-fiche-idx="${sampleIdx}" data-last-act="${lastAct}" data-accuracy="${acc}" data-lazy="${isOpen?'0':'1'}">
     <button type="button" class="fiche-card-hd" data-fiche-toggle="${esc(ref)}" aria-expanded="${isOpen?'true':'false'}">
-      <div class="fiche-card-ring" style="--pct:${f.mastery.pct};--ring-col:${mCol}" title="Maîtrise ${f.mastery.pct}%"><span>${f.mastery.pct}%</span></div>
-      <div class="fiche-card-hd-left">
-        <div class="fiche-card-title-row">
-          <h3 class="fiche-card-title">${esc(ref)}</h3>
-          ${failTotal?`<span class="fiche-pill err">${failTotal} err.</span>`:''}
-        </div>
-        <div class="fiche-card-meta">
-          <span class="fiche-date-badge${lastAct?'':' none'}">${fmtFicheDate(lastAct)}</span>
-          <span class="fiche-meta-sep">·</span>
-          <span>${data.idxs.length} q</span>
-          <span class="fiche-meta-sep">·</span>
-          <span class="fiche-acc${acc>=65?' good':acc>0&&acc<50?' bad':''}">${acc?acc+'% réussite':'Non testé'}</span>
-        </div>
+      <div class="fiche-card-hd-main">
+        <h3 class="fiche-card-title">${esc(ref)}</h3>
+        <span class="fiche-card-sub">${fmtFicheDate(lastAct)}${failTotal?` · ${failTotal} err.`:' · '+data.idxs.length+' q'}</span>
       </div>
+      <span class="fiche-card-acc${accCls}">${accLabel}</span>
       <span class="fiche-card-chevron" aria-hidden="true"></span>
     </button>
     <div class="fiche-card-bd">${bodyHtml}</div>
@@ -836,35 +876,24 @@ function getStudyPlan(){
   return{due,topThemes,total:items.length};
 }
 
-function renderRevCard(item,priority,expanded){
+function renderRevCard(item,priority){
   const {idx,q,e}=item;
   const chosenIdx=e.lastWrongChoice??e.lastBeh?.chosenIdx??-1;
-  const learn=learnObjectives(q,e.lastBeh?{...e.lastBeh,hoveredWrongMs:0,wrongDwellRatio:0}:null,e.lastOk===false,e,chosenIdx);
-  const errN=e.failCount||0,hesN=e.struggleCount||0;
-  const mastery=computeMastery(e,initTopicKB()[q.r]);
-  const mCol=mastery.pct>=65?'var(--green)':mastery.pct>=40?'var(--amber)':'var(--red)';
-  return`<article class="rev-card${priority?' priority':''}${expanded?' open':''}" data-rev-idx="${idx}">
-    <div class="rev-card-hd">
+  const isWrong=e.lastOk===false;
+  const f=buildTopicFiche(q.r,q,e,chosenIdx);
+  return`<article class="rev-card rev-card--lite${priority?' priority':''}" data-rev-idx="${idx}">
+    <div class="rev-card-top">
       <span class="bd ${modClass(q.m)}">${modStr(q.m)}</span>
-      <span class="bd ${diffClass(q.d)}">${diffStr(q.d)}</span>
-      ${errN?`<span class="rev-badge err">${errN} err.</span>`:''}
-      ${hesN?`<span class="rev-badge hes">${hesN} hésit.</span>`:''}
-      <span class="rev-badge" style="color:${mCol}">${mastery.level}</span>
-      ${(e.tags||[]).slice(0,2).map(t=>`<span class="rev-badge">${esc(t)}</span>`).join('')}
+      <span class="rev-card-ref">${esc(q.r)}</span>
     </div>
-    <div class="rev-topic">📌 ${esc(q.r)}</div>
-    <p class="rev-q">${esc(q.q)}</p>
-    <div class="rev-meta">Priorité ${item.priority} · ${e.attempts||1} tentative${(e.attempts||1)>1?'s':''}${e.due&&e.due<=Date.now()?' · <span style="color:var(--amber)">à réviser aujourd\'hui</span>':''}</div>
-    <div class="rev-learn">
-      <strong>Plan d'apprentissage</strong>
-      <ul>${learn.map(li=>`<li>${li}</li>`).join('')}</ul>
-      <div class="rev-ans">✓ ${esc(q.o[q.a])}</div>
-    </div>
-    ${renderTopicFicheHTML(q.r,{sampleQ:q,entry:e,chosenIdx,compact:true,showFoot:false})}
-    <div class="rev-actions">
+    <p class="rev-q-lite">${esc(shortenText(q.q,140))}</p>
+    ${isWrong&&chosenIdx>=0?`<p class="fiche-lite-line bad"><span>Ta réponse</span>${esc(shortenText(q.o[chosenIdx],100))}</p>`:''}
+    <p class="fiche-lite-line good"><span>Réponse</span>${esc(shortenText(q.o[q.a],100))}</p>
+    <p class="fiche-lite-rule">${esc(shortenText(q.e,160))}</p>
+    ${f?renderFicheRevLinks(f,q.r,{hideFull:true}):''}
+    <div class="rev-actions rev-actions--lite">
       <button type="button" class="rev-btn-sm primary" data-rev-action="one" data-idx="${idx}">Refaire</button>
-      <button type="button" class="rev-btn-sm" data-rev-action="topic" data-ref="${esc(q.r)}">Thème (${initTopicKB()[q.r]?.idxs.length||'?'}q)</button>
-      <button type="button" class="rev-btn-sm" data-rev-toggle="${idx}">${expanded?'Réduire':'Fiche complète ▾'}</button>
+      <button type="button" class="rev-btn-sm" data-rev-action="topic" data-ref="${esc(q.r)}">Thème</button>
     </div>
   </article>`;
 }
@@ -872,6 +901,7 @@ function renderRevCard(item,priority,expanded){
 
 function buildFichesPanel(){
   initTopicKB();
+  if(revTab==='library') revTab='fiches';
   const panel=document.getElementById('rev-panel');
   const searchEl=document.getElementById('fiche-lib-search');
   const hadFocus=document.activeElement===searchEl;
@@ -879,73 +909,27 @@ function buildFichesPanel(){
   const btnAll=document.getElementById('btn-rev-all');
   const items=revItems();
   const errItems=items.filter(i=>(i.e.failCount||0)>0);
-  const hesItems=items.filter(i=>(i.e.struggleCount||0)>0);
   const nRev=items.length;
-  const plan=getStudyPlan();
   const kb=initTopicKB();
   const allThemes=Object.entries(kb).sort((a,b)=>a[0].localeCompare(b[0],'fr'));
   const ficheStats=computeFicheStats(allThemes);
 
   if(btnAll){btnAll.hidden=nRev===0;btnAll.textContent=nRev?`📚 Réviser mes ${nRev} points faibles`:'';}
 
-  const byTheme={};
-  items.forEach(it=>{
-    const r=it.q.r||'Autre';
-    if(!byTheme[r]) byTheme[r]={items:[],fails:0,hes:0,module:it.q.m};
-    byTheme[r].items.push(it); byTheme[r].fails+=(it.e.failCount||0); byTheme[r].hes+=(it.e.struggleCount||0);
-  });
-  const themes=Object.entries(byTheme).sort((a,b)=>(b[1].fails*10+b[1].hes)-(a[1].fails*10+a[1].hes));
-
   let listHtml='';
-  if(revTab==='library'){
-    const qSearch=ficheLibSearch.toLowerCase();
-    const filteredThemes=allThemes.filter(([ref,data])=>{
-      if(ficheLibMod!=='all'&&data.module!==ficheLibMod) return false;
-      if(!qSearch) return true;
-      return ref.toLowerCase().includes(qSearch)||modStr(data.module).toLowerCase().includes(qSearch);
-    });
-    listHtml=`
-      <div class="fiche-sticky-bar">
-        <div class="fiche-search-wrap">
-          <span class="fiche-search-ico" aria-hidden="true">🔍</span>
-          <input type="search" class="fiche-lib-search" id="fiche-lib-search" placeholder="Rechercher dans la bibliothèque…" value="${esc(ficheLibSearch)}" autocomplete="off">
-        </div>
-        <div class="fiche-bar-actions">
-          <button type="button" class="fiche-bar-btn" data-fiche-expand="all">Tout ouvrir</button>
-          <button type="button" class="fiche-bar-btn" data-fiche-expand="none">Tout fermer</button>
-        </div>
-      </div>
-      <div class="fiche-results-bar"><span>${filteredThemes.length} thème${filteredThemes.length>1?'s':''}</span></div>
-      ${filteredThemes.length?filteredThemes.map(([ref,data])=>renderTopicFicheCard(ref,data)).join('')
-        :`<div class="rev-empty fiche-empty"><span class="fiche-empty-ico">🔎</span><p>Aucun thème trouvé.</p></div>`}`;
-  }else if(revTab==='priority'){
-    listHtml=nRev?items.slice(0,15).map((it,i)=>renderRevCard(it,i<5,false)).join(''):`<div class="rev-empty">Aucune priorité — consulte la <strong>Bibliothèque</strong> ou lance un quiz.</div>`;
-  }else if(revTab==='errors'){
+  if(revTab==='priority'||revTab==='plan'||revTab==='hesitations'||revTab==='themes'){
+    revTab='fiches';
+  }
+  if(revTab==='errors'){
     listHtml=typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.renderErrorsTab
       ?PPLSessionFiches.renderErrorsTab()
       :((errItems.length?errItems:items).map(it=>renderRevCard(it,false,false)).join('')||`<div class="rev-empty">Aucune erreur enregistrée.</div>`);
-  }else if(revTab==='hesitations'){
-    listHtml=(hesItems.length?hesItems:items).map(it=>renderRevCard(it,false,false)).join('')||`<div class="rev-empty">Aucune hésitation enregistrée.</div>`;
-  }else if(revTab==='plan'){
-    listHtml=`<div class="fiche-deep" style="margin-bottom:8px">
-      <div class="fiche-sec-hd">Révisions dues (SM-2)</div>
-      ${plan.due.length?plan.due.map(it=>`<div class="study-plan-item"><span class="study-plan-dot" style="background:var(--amber)"></span><div class="study-plan-txt"><strong>${esc(it.q.r)}</strong> — ${esc(it.q.q.substring(0,80))}…<br><span style="font-size:10px;color:var(--t3)">${it.e.failCount||0} err. · priorité ${it.priority}</span></div></div>`).join(''):'<div style="font-size:12px;color:var(--t3)">Aucune révision due aujourd\'hui — continue l\'entraînement.</div>'}
-      <div class="fiche-sec-hd" style="margin-top:.75rem">Thèmes à attaquer en priorité</div>
-      ${plan.topThemes.map(t=>`<div class="study-plan-item"><span class="study-plan-dot" style="background:var(--red)"></span><div class="study-plan-txt"><strong>${esc(t.ref)}</strong> (${modStr(t.module)}) — ${t.count} question${t.count>1?'s':''} · ${t.fails} erreur${t.fails>1?'s':''}<br><button type="button" class="rev-btn-sm primary" style="margin-top:4px" data-rev-action="topic" data-ref="${esc(t.ref)}">Plan de révision ciblé</button></div></div>`).join('')}
-    </div>`;
   }else if(revTab==='fiches'){
     listHtml=renderFichesByModule(allThemes);
   }else if(revTab==='sessions'){
     listHtml=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.renderTab():'<div class="rev-empty">Chargement…</div>';
   }else{
-    listHtml=themes.map(([ref,data])=>`
-      <div class="rev-theme">
-        <button type="button" class="rev-theme-hd" data-rev-action="topic" data-ref="${esc(ref)}">
-          <span>📂 ${esc(ref)}</span><span>${data.items.length} q · ${data.fails} err. · ${modStr(data.module)}</span>
-        </button>
-        <div class="rev-theme-bd">${data.items.slice(0,4).map(it=>renderRevCard(it,false,false)).join('')}
-          ${data.items.length>4?`<button type="button" class="rev-btn-sm primary" style="margin-top:6px" data-rev-action="topic" data-ref="${esc(ref)}">Tout réviser (${data.items.length})</button>`:''}
-        </div></div>`).join('')||`<div class="rev-empty">Aucun thème en révision — consulte la Bibliothèque.</div>`;
+    listHtml=renderFichesByModule(allThemes);
   }
 
   const sessionCount=typeof PPLSessionFiches!=='undefined'?PPLSessionFiches.count():0;
@@ -958,11 +942,6 @@ function buildFichesPanel(){
         <button type="button" class="rev-tab${revTab==='fiches'?' on':''}" data-rev-tab="fiches"><span class="rev-tab-ico">📂</span> Par matière</button>
         <button type="button" class="rev-tab${revTab==='errors'?' on':''}" data-rev-tab="errors"><span class="rev-tab-ico">✕</span> Fiches erreur${errorFicheCount?` <em>${errorFicheCount}</em>`:''}</button>
         <button type="button" class="rev-tab${revTab==='sessions'?' on':''}" data-rev-tab="sessions"><span class="rev-tab-ico">📋</span> Résumés session${sessionCount?` <em>${sessionCount}</em>`:''}</button>
-        <button type="button" class="rev-tab${revTab==='library'?' on':''}" data-rev-tab="library"><span class="rev-tab-ico">📚</span> Bibliothèque</button>
-        <button type="button" class="rev-tab${revTab==='priority'?' on':''}" data-rev-tab="priority"><span class="rev-tab-ico">⚡</span> Priorités</button>
-        <button type="button" class="rev-tab${revTab==='plan'?' on':''}" data-rev-tab="plan"><span class="rev-tab-ico">📅</span> SM-2</button>
-        <button type="button" class="rev-tab${revTab==='hesitations'?' on':''}" data-rev-tab="hesitations"><span class="rev-tab-ico">?</span> Hésitations</button>
-        <button type="button" class="rev-tab${revTab==='themes'?' on':''}" data-rev-tab="themes"><span class="rev-tab-ico">🏷</span> Par thème</button>
       </div>
     </div>
     <div class="rev-list tall">${listHtml}</div>`;
@@ -1114,6 +1093,7 @@ function handleFicheDeepLink(){
 
   if(!topic) return;
 
+  const wantFull=params.get('full')==='1';
   revTab='fiches';
   ficheLibSearch=topic;
   buildFichesPanel();
@@ -1123,7 +1103,15 @@ function handleFicheDeepLink(){
       card.classList.add('open');
       const hd=card.querySelector('.fiche-card-hd');
       if(hd) hd.setAttribute('aria-expanded','true');
-      hydrateFicheCard(card);
+      const ref=card.dataset.ficheRef;
+      const idx=parseInt(card.dataset.ficheIdx,10);
+      const bd=card.querySelector('.fiche-card-bd');
+      if(wantFull&&bd&&ref&&Q[idx]){
+        bd.innerHTML=renderTopicFicheHTML(ref,{sampleQ:Q[idx],entry:revLog.entries?.[idx],showFoot:true,full:true});
+        card.dataset.lazy='0';
+      }else{
+        hydrateFicheCard(card);
+      }
       card.scrollIntoView({behavior:'smooth',block:'start'});
     }
   },120);

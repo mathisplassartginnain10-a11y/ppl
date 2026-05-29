@@ -20,15 +20,14 @@ REG_POOLS = {
     ],
     "exam": [
         "128 QCM · 9 épreuves · 75% chacune",
-        "128 QCM · 9 épreuves · 75% par épreuve",
         "100 QCM · 8 épreuves · 75% global",
         "75 QCM · 6 épreuves · 80% global",
     ],
-    "speed": ["100 kt CAS", "120 kt CAS", "140 kt CAS", "140 kt CAS maximum", "160 kt CAS"],
+    "speed": ["100 kt CAS", "120 kt CAS", "160 kt CAS", "180 kt CAS"],
     "altitude": ["1000 ft minimum", "1500 ft minimum", "1700 ft minimum", "2000 ft minimum"],
     "fl": ["FL075", "FL100", "FL130", "FL150", "à partir du FL130"],
     "water": [">30 NM de la côte", ">50 NM de la côte", ">50 NM côte ou >30 min de la côte"],
-    "time": ["30 min avant départ", "45 min avant départ", "60 min avant départ", "90 min avant départ", "dépôt 60 min avant départ"],
+    "time": ["30 min avant départ", "45 min avant départ", "90 min avant départ", "dépôt 60 min avant départ"],
     "temsi": ["surface à 10000 ft QNH", "surface à 15000 ft QNH", "FL100-FL450 standard"],
     "class_short": ["A", "B", "C", "D", "E", "G"],
     "class_long": ["classe A", "classe B", "classe C", "classe D", "classe E", "classe G"],
@@ -244,6 +243,77 @@ def gen_handcrafted_docs():
     return qs
 
 
+def _topic_family(term, defn):
+    s = (term + " " + defn).lower()
+    if any(w in s for w in ("mayday", "pan-pan", "pan pan", "détresse", "detresse", "urgence")):
+        return "distress"
+    if any(w in s for w in ("vhf", "portée", "portee", "distance", "réception", "reception", "obstacle", "émetteur", "emetteur")):
+        return "vhf"
+    if any(w in s for w in ("alphabet", "phraséologie", "phras", "roger", "wilco", "affirme", "autorisé")):
+        return "phrase"
+    return "general"
+
+
+def _related_candidates(term, defn, ref, defs):
+    fam = _topic_family(term, defn)
+    pool = []
+    for t, p, r in defs:
+        if norm_opt(p) == norm_opt(defn):
+            continue
+        if _topic_family(t, p) != fam:
+            continue
+        score = 2 if r == ref else 0
+        tw = set(re.findall(r"\w{4,}", term.lower()))
+        if tw & set(re.findall(r"\w{4,}", t.lower())):
+            score += 2
+        pool.append((score, p))
+    pool.sort(key=lambda x: -x[0])
+    return [p for _, p in pool]
+
+
+COMM_FAMILY_POOLS = {
+    "vhf": [
+        "il ne doit y avoir aucun obstacle entre l'émetteur et le récepteur.",
+        "D = 1,23 √h (avec «h» hauteur de l'aéronef en pieds).",
+        "La portée augmente avec la fréquence porteuse.",
+        "Les ondes VHF contournent les obstacles par réflexion ionosphérique.",
+        "Portée illimitée sans ligne de vue directe.",
+        "108 MHz à 137 MHz — bande aéronautique VHF.",
+    ],
+    "distress": [
+        "précédés de l'expression MAYDAY, répétée 3 fois.",
+        "précédés de l'expression PAN-PAN ou PAN-PAN MEDICAL dans le cas d'un",
+        "Annoncés uniquement sur 121,5 MHz sans mot d'appel.",
+        "Remplacés par le code transpondeur 7700 sans appel radio.",
+        "Précédés du mot URGENCE répété trois fois.",
+    ],
+    "phrase": [
+        "Roger = message reçu et exécuté.",
+        "Wilco = message compris seulement.",
+        "Autorisé = permission pour tout type de vol.",
+        "Négatif = oui.",
+    ],
+    "general": [
+        "Fréquence de détresse internationale 121,500 MHz.",
+        "Lecture obligatoire en anglais uniquement.",
+        "Contact tour en premier sur 118,000 MHz.",
+    ],
+}
+
+
+def _fallback_candidates(term, defn, ref, defs, module):
+    fam = _topic_family(term, defn)
+    if module == "C" and fam in COMM_FAMILY_POOLS:
+        return [p for p in COMM_FAMILY_POOLS[fam] if norm_opt(p) != norm_opt(defn)]
+    related = _related_candidates(term, defn, ref, defs)
+    if len(related) >= 3:
+        return related
+    same_ref = [p for t, p, r in defs if norm_opt(p) != norm_opt(defn) and r == ref and _topic_family(t, p) == fam]
+    if len(same_ref) >= 3:
+        return same_ref
+    return [p for t, p, r in defs if norm_opt(p) != norm_opt(defn) and _topic_family(t, p) == fam]
+
+
 def _distinct_pool(definitions, min_len=4):
     """Garde des définitions suffisamment différentes pour des QCM cohérents."""
     pool = []
@@ -277,7 +347,7 @@ def gen_from_file_definitions(path, module, default_ref):
         if norm_opt(defn) not in {norm_opt(p) for p in pool}:
             continue
         question = f"Selon la compilation — {term} ?"
-        candidates = [p for p in pool if norm_opt(p) != norm_opt(defn)]
+        candidates = _fallback_candidates(term, defn, ref, defs, module)
         wrong = unique_wrongs(defn, candidates)
         if len(wrong) < 3:
             continue
@@ -398,7 +468,6 @@ def gen_aero_extra():
 
 def gen_reg_extra():
     facts = [
-        ("Examen théorique PPL", "128 QCM · 9 épreuves · 75% par épreuve", "Examen théorique", "exam"),
         ("LAPL solo", "16 ans minimum", "Licence LAPL", "age"),
         ("LAPL obtention", "17 ans minimum", "Licence LAPL", "age"),
         ("PPL solo", "16 ans minimum", "Licence PPL", "age"),

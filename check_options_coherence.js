@@ -8,7 +8,7 @@ const Q = sandbox.Q;
 if (!Q) throw new Error('Q not loaded');
 
 function norm(s) {
-  return String(s).trim().replace(/\s+/g, ' ').toLowerCase();
+  return String(s).trim().replace(/\u2019/g, "'").replace(/\u2018/g, "'").replace(/`/g, "'").replace(/\s+/g, ' ').toLowerCase();
 }
 
 function similar(a, b) {
@@ -19,6 +19,7 @@ function similar(a, b) {
 }
 
 let dupes = 0, similarPairs = 0, badIdx = 0;
+const similarList = [];
 Q.forEach((item, i) => {
   const seen = new Set();
   item.o.forEach((opt) => {
@@ -29,7 +30,10 @@ Q.forEach((item, i) => {
   if (item.a < 0 || item.a >= item.o.length) badIdx++;
   for (let j = 0; j < item.o.length; j++) {
     for (let k = j + 1; k < item.o.length; k++) {
-      if (similar(item.o[j], item.o[k])) similarPairs++;
+      if (similar(item.o[j], item.o[k])) {
+        similarPairs++;
+        similarList.push({ i, j, k, q: item.q, o: item.o });
+      }
     }
   }
 });
@@ -38,4 +42,10 @@ console.log('Total:', Q.length);
 console.log('Doublons exacts:', dupes);
 console.log('Index invalides:', badIdx);
 console.log('Paires trop similaires:', similarPairs);
-process.exit(dupes || badIdx ? 1 : 0);
+if (similarList.length) {
+  similarList.slice(0, 10).forEach((x) => {
+    console.log(`#${x.i}: "${x.o[x.j]}" | "${x.o[x.k]}"`);
+    console.log(`  ${x.q.slice(0, 80)}`);
+  });
+}
+process.exit(dupes || badIdx || similarPairs ? 1 : 0);

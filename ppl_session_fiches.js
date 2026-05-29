@@ -218,7 +218,7 @@
     var modLabel = safeModStr(q.m);
     var deepHtml = '';
     if (!item.ok && typeof renderDeepFicheHTML === 'function') {
-      deepHtml = renderDeepFicheHTML(q, entry, chosenIdx, beh, logEntry);
+      deepHtml = renderDeepFicheHTML(q, entry, chosenIdx, beh, logEntry, { minimal: true });
     }
 
     return '<details class="recap-item ' + (item.ok ? 'recap-ok' : 'recap-ko') + '"' + openAttr + '>' +
@@ -232,11 +232,10 @@
       '<div class="recap-body">' +
       '<p class="recap-question">' + safeEsc(q.q) + '</p>' +
       (!item.ok && chosenIdx >= 0
-        ? '<p class="recap-wrong">✗ Ta réponse : <strong>' + safeEsc(q.o[chosenIdx]) + '</strong></p>'
+        ? '<p class="fiche-lite-line bad"><span>Ta réponse</span>' + safeEsc(q.o[chosenIdx]) + '</p>'
         : '') +
-      '<p class="recap-correct">✓ Bonne réponse : <strong>' + safeEsc(q.o[q.a]) + '</strong></p>' +
-      '<div class="recap-exp">' + safeEsc(q.e) + '</div>' +
-      '<div class="recap-ref">📌 ' + safeEsc(q.r) + '</div>' +
+      '<p class="fiche-lite-line good"><span>Réponse</span>' + safeEsc(q.o[q.a]) + '</p>' +
+      '<p class="fiche-lite-rule">' + safeEsc(String(q.e || '').slice(0, 200)) + '</p>' +
       deepHtml +
       '<a href="' + statsHref + '" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées →</a>' +
       '</div></details>';
@@ -266,11 +265,15 @@
       '<p class="recap-correct">✓ ' + safeEsc(q.o[q.a]) + '</p>' +
       '<div class="recap-exp">' + safeEsc(summ) + '</div>' +
       '<div class="recap-ref">📌 ' + safeEsc(q.r) + '</div>' +
-      (typeof renderTopicFicheHTML === 'function'
-        ? '<details class="fiche-theme-expand"><summary>📚 Fiche thème complète</summary><div class="fiche-theme-expand-bd">' +
-          renderTopicFicheHTML(q.r, { sampleQ: q, entry: entry, showFoot: false, compact: true }) +
+      (typeof renderTopicFicheSimple === 'function'
+        ? '<details class="fiche-theme-expand"><summary>📚 Fiche thème</summary><div class="fiche-theme-expand-bd">' +
+          renderTopicFicheSimple(q.r, { sampleQ: q, entry: entry, showFoot: false }) +
           '</div></details>'
-        : '') +
+        : (typeof renderTopicFicheHTML === 'function'
+          ? '<details class="fiche-theme-expand"><summary>📚 Fiche thème</summary><div class="fiche-theme-expand-bd">' +
+            renderTopicFicheHTML(q.r, { sampleQ: q, entry: entry, showFoot: false }) +
+            '</div></details>'
+          : '')) +
       '</div>';
   }
 

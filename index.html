@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b12">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,17 +14,17 @@
 <meta http-equiv="Expires" content="0">
 <title>PPL Quiz Ultra Complet</title>
 <link rel="stylesheet" href="ppl_theme.css?v=20260529b">
-<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260529f">
+<link rel="stylesheet" href="ppl_theme_enhance.css?v=20260529j">
 <link rel="stylesheet" href="ppl_mobile.css?v=20260529e">
-<link rel="stylesheet" href="ppl_auth.css?v=20260529a">
+<link rel="stylesheet" href="ppl_auth.css?v=20260529b">
 <link rel="stylesheet" href="ppl_perf.css?v=20260529e">
-<script src="ppl_auth.js?v=20260529a"></script>
+<script src="ppl_auth.js?v=20260529b"></script>
 <script src="ppl_session_fiches.js?v=20260529g"></script>
 </head>
 <body>
 <div class="wrap app-shell">
 <header class="app-header">
-  <a href="index.html" class="app-brand"><span class="app-brand-icon">✈</span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
+  <a href="index.html" class="app-brand"><span class="app-brand-icon"><img src="favicon.png" alt="" width="38" height="38"></span><span class="app-brand-text">PPL <em>Quiz</em></span></a>
   <nav class="app-nav">
     <a href="index.html" class="app-nav-link on">Quiz</a>
     <a href="formules.html" class="app-nav-link">Formules</a>
@@ -173,7 +175,7 @@
 </div>
 
 </div>
-<script src="questions_bank.js?v=20260528q"></script>
+<script src="questions_bank.js?v=20260529q"></script>
 <script>
 (function(){
   const meta=typeof Q_BANK_META!=='undefined'?Q_BANK_META:null;
@@ -307,9 +309,12 @@ const QBehavior={
     const totalDwell=Object.values(dwellPerOpt).reduce((a,b)=>a+b,0)||1;
     const wrongDwellRatio=hoveredWrongMs/totalDwell;
     return{
-      chosenIdx,correctIdx,reactionMs,reactionSec:reactionMs/1000,
+      chosenIdx,correctIdx,
+      totalMs,totalSec:clickMs/1000,
+      chooseMs:reactionMs,chooseSec:reactionMs/1000,
+      reactionMs:clickMs,reactionSec:clickMs/1000,
       decisionMs,decisionSec:decisionMs/1000,readMs,readSec:readMs/1000,
-      totalMs,moveDist:Math.round(this.dist),moveCount:this.moves,
+      moveDist:Math.round(this.dist),moveCount:this.moves,
       hoverSwitches:this.hoverSwitches,wrongHoverCount,hoveredWrongMs,
       dwellChosen,dwellPerOpt,scrollCount:this.scrollCount,
       jitter:this.moves>0?this.dist/this.moves:0,
@@ -374,10 +379,41 @@ function bayesianRate(ok,n,priorOk=0.5,priorN=4){
 }
 
 /* ── Modèle probabiliste examen PPL (64Q · 75%/épreuve) ── */
-const EXAM_PRIOR={mean:0.62,n:12};
+const EXAM_PRIOR={mean:0.62,n:8};
 const EXAM_PASS_THRESHOLD=0.75;
 const EXAM_MIN_ANSWERS_GLOBAL=20;
 const EXAM_MIN_ANSWERS_MODULE=5;
+
+function estimateModuleSkill(ok,t,globalRate,gs){
+  const raw=t>0?ok/t:(globalRate??EXAM_PRIOR.mean);
+  const bayes=bayesianRate(ok,t,EXAM_PRIOR.mean,EXAM_PRIOR.n);
+  const wBayes=t>0?bayesianRate(Math.round((gs?.wRate??raw)*t)||ok,t,EXAM_PRIOR.mean,EXAM_PRIOR.n):(globalRate??EXAM_PRIOR.mean);
+  const trust=Math.min(1,t/18);
+  const globalMix=globalRate??EXAM_PRIOR.mean;
+  let pEst;
+  if(t>=EXAM_MIN_ANSWERS_MODULE){
+    pEst=trust*(0.5*bayes+0.5*wBayes)+(1-trust)*globalMix;
+  }else if(t>0){
+    const blend=t/EXAM_MIN_ANSWERS_MODULE;
+    pEst=blend*(0.55*bayes+0.45*raw)+(1-blend)*globalMix;
+  }else{
+    pEst=globalMix;
+  }
+  const {adj}=moduleExamAdjustments(gs||{weakN:0,fails:0,hes:0,sm2Due:0,hardGap:0,trend:{delta:0},reactAvg:null,sm2Reps:0,byDiff:{3:{t:0},4:{t:0}}});
+  return clampProba(pEst+adj);
+}
+
+function modulePassProb(ok,t,nExam,globalRate,gs){
+  const pSkill=estimateModuleSkill(ok,t,globalRate,gs);
+  const strict=binomialPassProb(nExam,pSkill);
+  if(t<3) return strict;
+  const rate=ok/t;
+  const margin=rate-EXAM_PASS_THRESHOLD;
+  const direct=margin>=0
+    ?Math.min(0.96,0.62+margin*2.2)
+    :Math.max(0.08,0.42+margin*1.6);
+  return Math.min(0.98,Math.max(0.05,0.38*strict+0.62*direct));
+}
 
 function comb(n,k){
   if(k<0||k>n) return 0;
@@ -414,6 +450,16 @@ function clampProba(p){return Math.min(0.97,Math.max(0.03,p));}
 
 const DIFF_WEIGHT={1:0.85,2:1,3:1.15,4:1.3};
 
+function moduleReactAvg(m,limit=80){
+  const ans=(answerLog.items||[]).filter(h=>h.mod===m).slice(-limit);
+  if(ans.length) return Math.round(ans.reduce((s,h)=>s+reactScoreFromLogItem(h),0)/ans.length);
+  const legacy=(reactLog.history||[]).filter(h=>h.m===m).slice(-limit);
+  if(!legacy.length) return null;
+  return Math.round(legacy.reduce((s,h)=>s+reactScoreFromLogItem({
+    ok:h.ok,diff:h.diff,el:h.totalSec||h.el,readSec:h.readSec,
+    chooseSec:h.chooseSec,reactSec:h.reactSec,decideSec:h.decideSec
+  }),0)/legacy.length);
+}
 function getDifficultyStats(m){
   const d={1:{ok:0,t:0},2:{ok:0,t:0},3:{ok:0,t:0},4:{ok:0,t:0}};
   Object.keys(hist).forEach(k=>{
@@ -457,8 +503,7 @@ function collectGlobalStats(){
       if(e.due&&e.due<=Date.now()) due++;
       if((e.sm2?.reps||0)>=2) reps++;
     });
-    const reactM=(reactLog.history||[]).filter(h=>h.m===m);
-    const reactAvg=reactM.length?Math.round(reactM.reduce((s,h)=>s+(h.score||50),0)/reactM.length):null;
+    const reactAvg=moduleReactAvg(m);
     const trend=getRecentTrend(m);
     const hardT=byDiff[3].t+byDiff[4].t,hardOk=byDiff[3].ok+byDiff[4].ok;
     const hardRate=hardT?hardOk/hardT:0.5;
@@ -506,39 +551,35 @@ function moduleExamAdjustments(gs){
   return {adj,f};
 }
 
-function getModuleExamStats(m){
-  const gs=collectGlobalStats().mods[m];
+function getModuleExamStats(m,globalRate){
+  const g=collectGlobalStats();
+  const gs=g.mods[m];
+  const globalMix=globalRate??g.wRate??EXAM_PRIOR.mean;
   let ok=0,t=0;
   Object.keys(hist).forEach(k=>{
     const i=+k,q=Q[i];
     if(q&&q.m===m){t++;if(hist[i])ok++;}
   });
   const bankN=gs?.bankN||Q.filter(q=>q.m===m).length;
-  const bayesP=bayesianRate(ok,t,EXAM_PRIOR.mean,EXAM_PRIOR.n);
-  const wBayes=bayesianRate(Math.round(gs?.wRate*t)||ok,t,EXAM_PRIOR.mean,EXAM_PRIOR.n);
-  const trust=Math.min(1,t/30);
-  const pEst=trust*(0.55*bayesP+0.45*wBayes)+(1-trust)*EXAM_PRIOR.mean;
-  const {adj:modAdj,factors:adjFactors}=moduleExamAdjustments(gs||{weakN:0,fails:0,hes:0,sm2Due:0,hardGap:0,trend:{delta:0},reactAvg:null,sm2Reps:0,byDiff:{3:{t:0},4:{t:0}}});
-  const pExam=clampProba(pEst+modAdj);
+  const pExam=estimateModuleSkill(ok,t,globalMix,gs);
   const wi=wilsonInterval(ok,t);
   const nExam=(EXAM_WEIGHTS||{C:9,A:15,M:20,R:20})[m]||15;
   const kMin=Math.ceil(EXAM_PASS_THRESHOLD*nExam);
-  const passProb=binomialPassProb(nExam,pExam);
-  const passLow=binomialPassProb(nExam,clampProba(wi.low+modAdj));
-  const passHigh=binomialPassProb(nExam,clampProba(Math.min(0.98,wi.high+modAdj)));
+  const passProb=modulePassProb(ok,t,nExam,globalMix,gs);
+  const passLow=modulePassProb(Math.max(0,Math.floor(wi.low*t)),t,nExam,globalMix,gs);
+  const passHigh=modulePassProb(Math.min(t,Math.ceil(wi.high*t)),t,nExam,globalMix,gs);
   const covAdj=Math.min(1,Math.sqrt((gs?.t||t)/Math.max(50,bankN*0.05)));
-  return{ok,t,bankN,coverage:bankN?t/bankN:0,pEst,pExam,passProb,passLow,passHigh,nExam,kMin,
+  const {adjFactors}=moduleExamAdjustments(gs||{weakN:0,fails:0,hes:0,sm2Due:0,hardGap:0,trend:{delta:0},reactAvg:null,sm2Reps:0,byDiff:{3:{t:0},4:{t:0}}});
+  return{ok,t,bankN,coverage:bankN?t/bankN:0,pEst:pExam,pExam,passProb,passLow,passHigh,nExam,kMin,
     weakN:gs?.weakN||0,reliable:t>=EXAM_MIN_ANSWERS_MODULE,adjFactors,hardRate:gs?.hardRate,easyRate:gs?.easyRate,trend:gs?.trend,covAdj};
 }
 
-function passProbFromCounts(m,ok,t){
-  const gs=collectGlobalStats().mods[m];
-  const bayesP=bayesianRate(ok,t,EXAM_PRIOR.mean,EXAM_PRIOR.n);
-  const trust=Math.min(1,t/30);
-  const pEst=trust*bayesP+(1-trust)*EXAM_PRIOR.mean;
-  const {adj}=moduleExamAdjustments(gs||{weakN:0,fails:0,hes:0,sm2Due:0,hardGap:0,trend:{delta:0},reactAvg:null,sm2Reps:0,byDiff:{3:{t:0},4:{t:0}}});
+function passProbFromCounts(m,ok,t,globalRate){
+  const g=collectGlobalStats();
+  const gs=g.mods[m];
+  const globalMix=globalRate??g.wRate??EXAM_PRIOR.mean;
   const nExam=(EXAM_WEIGHTS||{C:9,A:15,M:20,R:20})[m]||15;
-  return binomialPassProb(nExam,clampProba(pEst+adj));
+  return modulePassProb(ok,t,nExam,globalMix,gs);
 }
 
 /* ── Moteur réaction — facteur #1 ── */
@@ -552,8 +593,9 @@ const REACT_PROFILE={
 function reactionEngine(correct,diff,beh){
   if(!beh) return {score:50,bonus:0,tags:[],label:'—',tier:'na',phase:{read:0,react:0,decide:0,total:0},confIdx:50,reactSweet:[3,35]};
   const prof=REACT_PROFILE[diff]||REACT_PROFILE[2];
-  const total=(beh.totalMs||0)/1000||((beh.readSec||0)+(beh.reactionSec||0));
-  const choose=beh.reactionSec||0,decide=beh.decisionSec||0,read=beh.readSec||0;
+  const choose=beh.chooseSec??beh.reactionSec??0;
+  const total=(beh.totalMs||0)/1000||(beh.totalSec??((beh.readSec||0)+choose));
+  const decide=beh.decisionSec||0,read=beh.readSec||0;
   const [rLo,rHi]=prof.reactSweet,[rMin,rMax]=prof.reactWarn;
   const [dLo,dHi]=prof.decideSweet;
   const tags=[]; let score=52;
@@ -613,6 +655,48 @@ function reactionEngine(correct,diff,beh){
   return {score,bonus,tags,label,tier,phase:{read,react:choose,decide,total},confIdx:score,reactSweet:prof.reactSweet};
 }
 
+function behFromLogItem(it){
+  const chooseSec=it.chooseSec??it.reactSec??0;
+  const totalSec=it.el||it.totalSec||((it.readSec||0)+chooseSec)||chooseSec;
+  return{
+    totalMs:totalSec*1000,totalSec,
+    readSec:it.readSec||0,chooseSec,
+    reactionSec:chooseSec,decisionSec:it.decideSec||it.decisionSec||0
+  };
+}
+
+function reactResultFromLogItem(it){
+  if(!it) return {score:50,tier:'na',tags:[]};
+  return reactionEngine(!!it.ok,it.diff||2,behFromLogItem(it));
+}
+
+function reactScoreFromLogItem(it){
+  return reactResultFromLogItem(it).score;
+}
+
+function getReactStats(src){
+  const ans=(answerLog.items||[]);
+  const entries=ans.length?ans.slice(-400):(src||(reactLog.history||[]));
+  if(!entries.length) return {avgScore:0,avgReact:0,avgTotal:0,optimal:0,impulsive:0,slow:0,n:0};
+  let scoreSum=0,timeSum=0,optimal=0,impulsive=0,slow=0;
+  entries.forEach(it=>{
+    const res=ans.length?reactResultFromLogItem(it):reactResultFromLogItem({
+      ok:it.ok,diff:it.diff,el:it.totalSec,readSec:it.readSec,
+      chooseSec:it.chooseSec,reactSec:it.reactSec,decideSec:it.decideSec
+    });
+    const totalSec=behFromLogItem(it).totalMs/1000;
+    scoreSum+=res.score;
+    timeSum+=totalSec;
+    if(res.tier==='optimal') optimal++;
+    if((res.tags||[]).includes('très rapide')||(res.tags||[]).includes('impulsif')) impulsive++;
+    if((res.tags||[]).includes('réaction lente')||(res.tags||[]).includes('sur-analyse')) slow++;
+  });
+  const n=entries.length;
+  return{
+    n,avgScore:Math.round(scoreSum/n),avgReact:timeSum/n,avgTotal:timeSum/n,
+    optimal,impulsive,slow
+  };
+}
 let reactInt=null,curQDiff=2;
 function stopReactLive(){if(reactInt){clearInterval(reactInt);reactInt=null;}}
 function updateReactLive(){
@@ -650,25 +734,15 @@ function startReactLive(diff){
   reactInt=setInterval(updateReactLive,250);
 }
 
-function getReactStats(src){
-  src=src||(reactLog.history||[]);
-  if(!src.length) return {avgScore:0,avgReact:0,optimal:0,impulsive:0,slow:0,n:0};
-  const avgScore=Math.round(src.reduce((s,h)=>s+(h.score||50),0)/src.length);
-  const avgReact=src.reduce((s,h)=>s+(h.reactSec||0),0)/src.length;
-  return {
-    n:src.length,avgScore,avgReact,
-    optimal:src.filter(h=>h.tier==='optimal').length,
-    impulsive:src.filter(h=>(h.tags||[]).includes('très rapide')||(h.tags||[]).includes('impulsif')).length,
-    slow:src.filter(h=>(h.tags||[]).includes('réaction lente')||(h.tags||[]).includes('sur-analyse')).length
-  };
-}
-
-function trackReactLog(ok,diff,beh,reactRes,q,idx){
+function trackReactLog(ok,diff,beh,reactRes,q,idx,el){
   if(!beh||!reactRes) return;
   if(!reactLog.history) reactLog={history:[]};
   reactLog.history.push({
     t:Date.now(),ok,diff,m:q?.m,ref:q?.r,idx,
-    reactSec:beh.reactionSec,decideSec:beh.decisionSec,readSec:beh.readSec,
+    el:el||beh.totalSec,
+    totalSec:beh.totalSec||beh.reactionSec,
+    chooseSec:beh.chooseSec,reactSec:beh.reactionSec,
+    decideSec:beh.decisionSec,readSec:beh.readSec,
     score:reactRes.score,tier:reactRes.tier,tags:reactRes.tags
   });
   if(reactLog.history.length>400) reactLog.history=reactLog.history.slice(-400);
@@ -707,12 +781,15 @@ function buildReactDash(){
     </div>`;
     return;
   }
-  const recent=(reactLog.history||[]).slice(-40);
-  const maxR=Math.max(...recent.map(h=>h.reactSec||0),4);
-  const bars=recent.map((h,i)=>{
-    const hpx=Math.max(4,Math.round((h.reactSec||0)/maxR*48));
-    const col=probaColor(h.score||50);
-    return`<div class="ph-bar" style="height:${hpx}px;background:${col};opacity:${h.ok?1:.45}" title="Réact. ${(h.reactSec||0).toFixed(1)}s · score ${h.score}"></div>`;
+  const recent=(answerLog.items||[]).slice(-40);
+  const recentLegacy=recent.length?recent:(reactLog.history||[]).slice(-40);
+  const maxR=Math.max(...recentLegacy.map(h=>h.el||h.totalSec||h.reactSec||0),4);
+  const bars=recentLegacy.map((h,i)=>{
+    const t=h.el||h.totalSec||h.reactSec||0;
+    const sc=recent.length?reactScoreFromLogItem(h):reactScoreFromLogItem({ok:h.ok,diff:h.diff,el:h.totalSec||h.el,readSec:h.readSec,chooseSec:h.chooseSec,reactSec:h.reactSec,decideSec:h.decideSec});
+    const hpx=Math.max(4,Math.round(t/maxR*48));
+    const col=probaColor(sc);
+    return`<div class="ph-bar" style="height:${hpx}px;background:${col};opacity:${h.ok?1:.45}" title="Total ${t.toFixed(1)}s · score ${sc}"></div>`;
   }).join('');
   const sweet=REACT_PROFILE[2].reactSweet;
   el.innerHTML=`<div class="react-dash">
@@ -723,11 +800,11 @@ function buildReactDash(){
     </div>
     <div class="react-stat-grid">
       <div class="react-stat"><div class="react-stat-v" style="color:${probaColor(st.avgScore)}">${st.avgScore}%</div><div class="react-stat-l">Score réaction</div></div>
-      <div class="react-stat"><div class="react-stat-v">${st.avgReact.toFixed(1)}s</div><div class="react-stat-l">Réaction moy.</div></div>
+      <div class="react-stat"><div class="react-stat-v">${st.avgReact.toFixed(1)}s</div><div class="react-stat-l">Temps moy.</div></div>
       <div class="react-stat"><div class="react-stat-v" style="color:var(--green)">${st.optimal}</div><div class="react-stat-l">Optimales</div></div>
       <div class="react-stat"><div class="react-stat-v" style="color:var(--red)">${st.impulsive}</div><div class="react-stat-l">Impulsives</div></div>
     </div>
-    ${recent.length>4?`<div class="ph-section" style="margin:0"><div style="font-size:10px;color:var(--t3);margin-bottom:4px">Historique récent (hauteur = temps réaction, couleur = score)</div><div class="ph-bars">${bars}</div></div>`:''}
+    ${recentLegacy.length>4?`<div class="ph-section" style="margin:0"><div style="font-size:10px;color:var(--t3);margin-bottom:4px">Historique récent (hauteur = temps total, couleur = score)</div><div class="ph-bars">${bars}</div></div>`:''}
   </div>`;
 }
 
@@ -853,13 +930,15 @@ function calcProba(correct,elapsedSec,diff,sessionHistory,beh,ctx){
   let examImpact=null;
   if(ctx.q&&ctx.idx!=null){
     const m=ctx.q.m;
+    const g=collectGlobalStats();
     let ok=0,t=0;
-    Object.keys(hist).forEach(k=>{const i=+k,q=Q[i];if(q&&q.m===m){t++;if(hist[i])ok++;}});
-    const cur=hist[ctx.idx];
-    let ok2=ok,t2=t;
-    if(cur===undefined){t2++;if(correct)ok2++;}
-    else if(cur!==correct){if(correct)ok2++;else ok2=Math.max(0,ok2-1);}
-    examImpact=Math.round((passProbFromCounts(m,ok2,t2)-passProbFromCounts(m,ok,t))*100);
+    Object.keys(hist).forEach(k=>{
+      const i=+k,q=Q[i];
+      if(i===ctx.idx||!q||q.m!==m) return;
+      t++; if(hist[i]) ok++;
+    });
+    const ok2=ok+(correct?1:0), t2=t+1;
+    examImpact=Math.round((passProbFromCounts(m,ok2,t2,g.wRate)-passProbFromCounts(m,ok,t,g.wRate))*100);
   }
 
   const scorePct=Math.round(p*100);
@@ -874,19 +953,19 @@ function calcProba(correct,elapsedSec,diff,sessionHistory,beh,ctx){
 
 function simulateExamReadiness(){
   const g=collectGlobalStats();
+  const globalRate=g.wRate??EXAM_PRIOR.mean;
   const mods={};
-  let globalPass=1,globalPassLow=1,globalPassHigh=1,totalT=0;
+  let globalPass=1,globalPassLow=1,globalPassHigh=1,totalT=0,reliableModules=0;
   MOD_ORDER.forEach(m=>{
-    const s=getModuleExamStats(m);
+    const s=getModuleExamStats(m,globalRate);
     totalT+=s.t;
-    const covScale=0.85+0.15*(s.covAdj||0);
-    const passC=s.passProb*covScale+(1-covScale)*s.passProb*0.85;
-    globalPass*=passC;
+    if(s.reliable) reliableModules++;
+    globalPass*=s.passProb;
     globalPassLow*=s.passLow;
     globalPassHigh*=Math.min(0.999,s.passHigh);
     mods[m]={
       rate:Math.round(s.pExam*100),
-      passProb:Math.round(passC*100),
+      passProb:Math.round(s.passProb*100),
       passLow:Math.round(s.passLow*100),
       passHigh:Math.round(s.passHigh*100),
       coverage:Math.round(s.coverage*100),
@@ -902,8 +981,10 @@ function simulateExamReadiness(){
   const verdict=!reliable?'na':examP>=80?'ready':examP>=55?'mid':'low';
   const vLabel=!reliable
     ?`${totalT}/${EXAM_MIN_ANSWERS_GLOBAL} réponses — estimation indisponible`
-    :examP>=80?'Prêt pour l\'examen':examP>=55?'En progression — cible 80%+':'Révisions intensives requises';
-  return{examP,examPLow,examPHigh,mods,verdict,vLabel,reliable,totalT,global:g,
+    :reliableModules<4
+      ?`P(réussir les 4 épreuves) · ${reliableModules}/4 épreuves estimées (${examP}%)`
+      :examP>=80?'Prêt pour l\'examen':examP>=55?'En progression — cible 80%+':'Révisions intensives requises';
+  return{examP,examPLow,examPHigh,mods,verdict,vLabel,reliable,reliableModules,totalT,global:g,
     riskFactors:buildRiskFactors(g,mods),byDiff:g.byDiffAll};
 }
 
@@ -1539,12 +1620,14 @@ function trackAnswerLog(ok,el,beh,reactRes,probaRes,q,idx,qi){
     reactScore:reactRes?.score,tier:reactRes?.tier,
     mastery:probaRes?.p,confIdx:probaRes?.confIdx,examImpact:probaRes?.examImpact,
     reactSec:b.reactionSec,readSec:b.readSec,decideSec:b.decisionSec,
+    totalSec:b.totalSec||b.reactionSec,chooseSec:b.chooseSec,
     hoverSwitches:b.hoverSwitches,wrongHoverCount:b.wrongHoverCount,vacillations:b.vacillations,
     dwellChosen:b.dwellChosen,moveDist:b.moveDist,decisiveness:b.decisiveness,blurCount:b.blurCount,
     wrongDwellRatio:b.wrongDwellRatio,chosenIdx:b.chosenIdx,correctIdx:q.a,
     tags:[...(reactRes?.tags||[]),...(probaRes?.tags||[])],
     factors:(probaRes?.factors||[]).map(f=>({label:f.label||f.name,value:f.value,unit:f.unit||''})),
-    beh:{readSec:b.readSec,reactionSec:b.reactionSec,decisionSec:b.decisionSec,hoverSwitches:b.hoverSwitches,
+    beh:{readSec:b.readSec,reactionSec:b.reactionSec,decisionSec:b.decisionSec,
+      totalSec:b.totalSec,chooseSec:b.chooseSec,totalMs:b.totalMs,hoverSwitches:b.hoverSwitches,
       wrongHoverCount:b.wrongHoverCount,vacillations:b.vacillations,dwellChosen:b.dwellChosen,
       moveDist:b.moveDist,decisiveness:b.decisiveness,blurCount:b.blurCount,jitter:b.jitter,velStd:b.velStd}
   });
@@ -1758,7 +1841,7 @@ function buildExamDash(){
     <div class="exam-dash">
       <div class="exam-dash-hd">
         <div><h2>Simulateur de probabilité d'examen</h2>
-          <div class="exam-dash-sub">Binomial · 64 Q · 12 facteurs stats · ${done} réponses · confiance ${confStr}</div></div>
+          <div class="exam-dash-sub">4 épreuves ≥75% · 64 Q · ${done} réponses · confiance ${confStr}</div></div>
         <div style="text-align:right">
           <div class="exam-big" style="color:${ex.reliable&&ex.examP!=null?probaColor(ex.examP):'var(--t3)'}">${ex.reliable&&ex.examP!=null?ex.examP+'%':'—'}</div>
           <span class="exam-verdict ${ex.verdict}">${ex.vLabel}${rangeStr}</span>
@@ -1809,7 +1892,7 @@ function buildProbaDash(){
     </div>
     <div class="proba-stat-grid">
       <div class="react-stat"><div class="react-stat-v" style="color:${probaColor(Math.round(g.wRate*100))}">${Math.round(g.wRate*100)}%</div><div class="react-stat-l">Précision pondérée</div></div>
-      <div class="react-stat"><div class="react-stat-v">${g.reactG.n?g.reactG.avgScore+'%':'—'}</div><div class="react-stat-l">Réaction moy.</div></div>
+      <div class="react-stat"><div class="react-stat-v">${g.reactG.n?g.reactG.avgScore+'%':'—'}</div><div class="react-stat-l">Score réact. moy.</div></div>
       <div class="react-stat"><div class="react-stat-v" style="color:var(--red)">${g.weakN}</div><div class="react-stat-l">Points faibles</div></div>
       <div class="react-stat"><div class="react-stat-v" style="color:var(--amber)">${g.sm2Due}</div><div class="react-stat-l">SM-2 en retard</div></div>
       <div class="react-stat"><div class="react-stat-v">${Math.round(g.coverage*100)}%</div><div class="react-stat-l">Couverture</div></div>
@@ -2628,7 +2711,7 @@ function record(ok,el,beh){
   const reactRes=reactionEngine(ok,q.d,beh);
   const probaRes=calcProba(ok,el,q.d,sesHist.slice(0,-1),beh,{q,idx,qi,total:queue.length});
   trackAnswerLog(ok,el,beh,reactRes,probaRes,q,idx,qi);
-  trackReactLog(ok,q.d,beh,reactRes,q,idx);
+  trackReactLog(ok,q.d,beh,reactRes,q,idx,el);
   trackRevision(ok,el,beh,idx,q);
   if(!ok&&typeof PPLSessionFiches!=='undefined'&&PPLSessionFiches.archiveError){
     PPLSessionFiches.archiveError({q,idx,ok:false,el,beh,reactScore:reactRes.score,mode});
@@ -2641,12 +2724,13 @@ function record(ok,el,beh){
 }
 
 function fmtBeh(beh){
-  if(!beh||!beh.reactionMs) return '';
+  if(!beh||!(beh.totalMs||beh.reactionSec)) return '';
+  const totalS=beh.totalSec||(beh.totalMs?beh.totalMs/1000:beh.reactionSec);
   return `<div class="beh-hd">Analyse comportementale avancée (12 métriques)</div>
     <div class="beh-grid wide">
       <div class="beh-it"><span>Lecture question</span><span>${(beh.readSec||0).toFixed(1)}s</span></div>
-      <div class="beh-it"><span>Temps de réaction</span><span>${(beh.reactionSec||0).toFixed(1)}s</span></div>
-      <div class="beh-it"><span>Temps de décision</span><span>${(beh.decisionSec||0).toFixed(1)}s</span></div>
+      <div class="beh-it"><span>Temps total</span><span>${totalS.toFixed(1)}s</span></div>
+      <div class="beh-it"><span>Survol → clic</span><span>${(beh.chooseSec||0).toFixed(1)}s</span></div>
       <div class="beh-it"><span>Survols / vacillations</span><span>${beh.hoverSwitches||0} / ${beh.vacillations||0}</span></div>
       <div class="beh-it"><span>Mauvaises options</span><span>${beh.wrongHoverCount||0} (${Math.round((beh.wrongDwellRatio||0)*100)}% temps)</span></div>
       <div class="beh-it"><span>Dwell bonne rép.</span><span>${Math.round((beh.dwellChosen||0)/100)/10}s</span></div>
@@ -2664,7 +2748,7 @@ function fmtReactHero(reactRes,beh){
   const col=probaColor(reactRes.score);
   const circ=2*Math.PI*28,off=circ*(1-reactRes.score/100);
   const sweet=reactRes.reactSweet||[3,35];
-  const totalSec=beh.totalMs?beh.totalMs/1000:((beh.readSec||0)+(beh.reactionSec||0));
+  const totalSec=beh.totalSec||(beh.totalMs?beh.totalMs/1000:((beh.readSec||0)+(beh.chooseSec||0)));
   return`<div class="react-hero">
     <div class="react-ring">
       <svg width="72" height="72" viewBox="0 0 72 72">
@@ -2679,7 +2763,7 @@ function fmtReactHero(reactRes,beh){
       Fenêtre idéale ${sweet[0]}–${sweet[1]}s (temps total) · ${(reactRes.tags||[]).join(' · ')||'—'}
       <div class="react-phases">
         <div class="react-ph"><em>Lecture</em><span>${(beh.readSec||0).toFixed(1)}s</span></div>
-        <div class="react-ph"><em>Choix</em><span>${(beh.reactionSec||0).toFixed(1)}s</span></div>
+        <div class="react-ph"><em>Choix</em><span>${(beh.chooseSec||0).toFixed(1)}s</span></div>
         <div class="react-ph"><em>Total</em><span>${totalSec.toFixed(1)}s</span></div>
       </div>
     </div>
@@ -2706,7 +2790,7 @@ function showFb(ok,q,el,beh){
   const p=res.p,pc=probaClass(p);
   const examSim=simulateExamReadiness();
   const examTag=examSim.reliable&&examSim.examP!=null
-    ?`<span class="proba-tag ${probaClass(examSim.examP)}">P(examen) ${examSim.examP}%</span>`
+    ?`<span class="proba-tag ${probaClass(examSim.examP)}" title="Probabilité estimée de réussir les 4 épreuves (≥75% chacune)">P(examen) ${examSim.examP}%</span>`
     :`<span class="proba-tag proba-tag-muted">P(examen) · ${examSim.totalT||0}/${EXAM_MIN_ANSWERS_GLOBAL} rép.</span>`;
   const tlim={1:12,2:22,3:38,4:55}[q.d];
   const r=el/tlim;
@@ -2801,17 +2885,19 @@ function buildResult(){
   const examSim=simulateExamReadiness();
   const C=probaColor;
 
-  const avgReactScore=total?Math.round(sData.reduce((s,d)=>s+(d.reactScore||calcProba(d.ok,d.el,d.q.d,[],d.beh,{q:d.q,idx:d.idx}).reactScore||50),0)/total):0;
+  const avgReactScore=total?Math.round(sData.reduce((s,d)=>s+(d.reactScore||reactScoreFromLogItem({ok:d.ok,diff:d.q.d,el:d.el,readSec:d.beh?.readSec,chooseSec:d.beh?.chooseSec,reactSec:d.beh?.reactionSec,decideSec:d.beh?.decisionSec})),0)/total):0;
+  const maxSessionT=Math.max(0.5,...sData.map(d=>d.el||d.beh?.totalSec||0));
   const sessionReactBars=sData.map((d,i)=>{
     const rs=d.reactScore||50;
     const col=C(rs);
-    const h=Math.max(4,Math.round((d.beh?.reactionSec||1)/Math.max(0.5,...sData.map(x=>x.beh?.reactionSec||0))*52));
-    return `<div class="ph-bar" style="height:${h}px;background:${col};opacity:${d.ok?1:.45}" title="Q${i+1}: réact. ${(d.beh?.reactionSec||0).toFixed(1)}s · score ${rs}"></div>`;
+    const t=d.el||d.beh?.totalSec||1;
+    const h=Math.max(4,Math.round(t/maxSessionT*52));
+    return `<div class="ph-bar" style="height:${h}px;background:${col};opacity:${d.ok?1:.45}" title="Q${i+1}: total ${t.toFixed(1)}s · score ${rs}"></div>`;
   }).join('');
   const reactOpt=sData.filter(d=>(d.reactScore||0)>=82).length;
   const reactImp=sData.filter(d=>(d.reactRes?.tags||[]).includes('très rapide')||(d.reactRes?.tags||[]).includes('impulsif')||(d.beh?.totalMs||99999)<800).length;
   const avgDecide=total?sData.reduce((s,d)=>s+(d.beh?.decisionSec||0),0)/total:0;
-  const avgReact=total?sData.reduce((s,d)=>s+(d.beh?.reactionSec||0),0)/total:0;
+  const avgReact=total?sData.reduce((s,d)=>s+(d.el||d.beh?.totalSec||0),0)/total:0;
   const avgHovers=total?sData.reduce((s,d)=>s+(d.beh?.hoverSwitches||0),0)/total:0;
   const avgWrongHover=total?sData.reduce((s,d)=>s+(d.beh?.wrongHoverCount||0),0)/total:0;
   const avgDist=total?sData.reduce((s,d)=>s+(d.beh?.moveDist||0),0)/total:0;
@@ -2877,11 +2963,11 @@ function buildResult(){
         </div>
       </div>
       <div><span class="rverd ${pass?'pass':'fail'}">${pass?'✓ Examen réussi (75% par épreuve)':'✗ Révisions recommandées (seuil 75% par épreuve)'}</span></div>
-      <div class="rsub">${ok}/${total} correctes · Réaction moy. <span style="color:${C(avgReactScore)};font-weight:600">${avgReactScore}%</span> (${avgReact.toFixed(1)}s) · Maîtrise session : <span style="color:${C(avgMastery)};font-weight:600">${avgMastery}%</span>${examSim.reliable&&examSim.examP!=null?` · P(examen) : <span style="color:${C(examSim.examP)};font-weight:600">${examSim.examP}%</span>`:''}${mode==='exam'&&sessionPlan&&sessionPlan.allModules?' · '+MOD_ORDER.map(m=>(sessionPlan.counts[m]||0)+' '+modStr(m).split(' ')[0].toLowerCase()).join(' · '):''}</div>
+      <div class="rsub">${ok}/${total} correctes · Score réact. <span style="color:${C(avgReactScore)};font-weight:600">${avgReactScore}%</span> · Temps moy. ${avgReact.toFixed(1)}s · Maîtrise session : <span style="color:${C(avgMastery)};font-weight:600">${avgMastery}%</span>${examSim.reliable&&examSim.examP!=null?` · P(examen) : <span style="color:${C(examSim.examP)};font-weight:600">${examSim.examP}%</span>`:''}${mode==='exam'&&sessionPlan&&sessionPlan.allModules?' · '+MOD_ORDER.map(m=>(sessionPlan.counts[m]||0)+' '+modStr(m).split(' ')[0].toLowerCase()).join(' · '):''}</div>
     </div>
     <div class="rkpis">
       <div class="kpi-c g"><div class="kpi-v" style="color:${C(avgReactScore)}">${avgReactScore}%</div><div class="kpi-l">Score réaction</div></div>
-      <div class="kpi-c"><div class="kpi-v">${avgReact.toFixed(1)}s</div><div class="kpi-l">Réact. moy.</div></div>
+      <div class="kpi-c"><div class="kpi-v">${avgReact.toFixed(1)}s</div><div class="kpi-l">Temps moy.</div></div>
       <div class="kpi-c"><div class="kpi-v" style="color:var(--green)">${reactOpt}</div><div class="kpi-l">Optimales</div></div>
       <div class="kpi-c"><div class="kpi-v" style="color:var(--red)">${reactImp}</div><div class="kpi-l">Impulsives</div></div>
       <div class="kpi-c"><div class="kpi-v" style="color:${rc}">${pct}%</div><div class="kpi-l">Score QCM</div></div>
