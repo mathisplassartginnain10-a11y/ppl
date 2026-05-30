@@ -61,7 +61,7 @@
   }
 
   function needsGate() {
-    return !pageAuthed;
+    return !isAuthed();
   }
 
   function fmtRemaining(ms) {

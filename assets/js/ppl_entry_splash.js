@@ -7,7 +7,9 @@
 
   var SESSION_AUTH = 'ppl_session_auth';
   var SESSION_CONSENT = 'ppl_session_consent';
+  var SESSION_NAV = 'ppl_internal_nav';
   var APP_PAGES = /^(index\.html|fiches\.html|formules\.html|stats\.html)$/;
+  var loadWasInternalNav = false;
 
   function isAppPagePath(pathname) {
     try {
@@ -45,7 +47,17 @@
   }
 
   function bootstrapSession() {
-    if (isPageReload()) clearSession();
+    loadWasInternalNav = false;
+    try {
+      loadWasInternalNav = sessionStorage.getItem(SESSION_NAV) === '1';
+      if (loadWasInternalNav) sessionStorage.removeItem(SESSION_NAV);
+    } catch (e) { /* ignore */ }
+    if (!loadWasInternalNav && isPageReload()) clearSession();
+  }
+
+  function stampInternalNav() {
+    try { sessionStorage.setItem(SESSION_NAV, '1'); } catch (e) { /* ignore */ }
+    preserveSessionForNav();
   }
 
   function markAuth() {
@@ -64,13 +76,17 @@
     try { return sessionStorage.getItem(SESSION_CONSENT) === '1'; } catch (e) { return false; }
   }
 
-  /** Session valide dans l'onglet — sans dépendre du referrer (souvent vide). */
+  /** Session valide dans l'onglet (navigation interne ou rechargement partiel). */
   function shouldSkipAuthGate() {
-    return !isPageReload() && hasAuth();
+    if (!hasAuth()) return false;
+    if (loadWasInternalNav) return true;
+    return !isPageReload();
   }
 
   function shouldSkipLaunchConsent() {
-    return !isPageReload() && hasAuth() && hasConsent();
+    if (!hasAuth() || !hasConsent()) return false;
+    if (loadWasInternalNav) return true;
+    return !isPageReload();
   }
 
   function preserveSessionForNav() {
@@ -88,10 +104,18 @@
         var url = new URL(link.href, location.href);
         if (url.origin !== location.origin) return;
         if (!isAppPagePath(url.pathname)) return;
-        if (global.PPLAuth && global.PPLAuth.isAuthed && global.PPLAuth.isAuthed()) markAuth();
+        if (global.PPLAuth && global.PPLAuth.isAuthed && global.PPLAuth.isAuthed()) {
+          markAuth();
+        } else if (hasAuth()) {
+          markAuth();
+        }
         if (global.PPLSettings && global.PPLSettings.hasPrivacyConsent
-          && global.PPLSettings.hasPrivacyConsent()) markConsent();
-        else preserveSessionForNav();
+          && global.PPLSettings.hasPrivacyConsent()) {
+          markConsent();
+        } else if (hasConsent()) {
+          markConsent();
+        }
+        stampInternalNav();
       } catch (err) { /* ignore */ }
     }, true);
   }
@@ -115,6 +139,8 @@
     shouldSkipAuthGate: shouldSkipAuthGate,
     shouldSkipLaunchConsent: shouldSkipLaunchConsent,
     preserveSessionForNav: preserveSessionForNav,
+    stampInternalNav: stampInternalNav,
+    wasInternalNav: function () { return loadWasInternalNav; },
   };
 
   var PLANE_SVG =
