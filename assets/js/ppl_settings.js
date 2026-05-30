@@ -1181,15 +1181,25 @@
   function finishConsent(patch) {
     sessionConsentGranted = true;
     save({ ...patch, privacyConsentAt: Date.now() });
-    closeConsentGate();
-    if (!uiMounted) {
-      mountUI();
-      uiMounted = true;
+
+    function complete() {
+      closeConsentGate();
+      if (!uiMounted) {
+        mountUI();
+        uiMounted = true;
+      }
+      purgeRetention();
+      document.documentElement.classList.add('ppl-app-reveal');
+      try {
+        window.dispatchEvent(new CustomEvent('ppl-privacy-consent', { detail: { ...current } }));
+      } catch (e) { /* ignore */ }
     }
-    purgeRetention();
-    try {
-      window.dispatchEvent(new CustomEvent('ppl-privacy-consent', { detail: { ...current } }));
-    } catch (e) { /* ignore */ }
+
+    if (consentLaunch && !consentReview && global.PPLEntrySplash && global.PPLEntrySplash.play) {
+      global.PPLEntrySplash.play({ type: 'consent', detail: patch }).then(complete);
+    } else {
+      complete();
+    }
   }
 
   function closeConsentGate() {

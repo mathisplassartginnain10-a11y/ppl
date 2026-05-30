@@ -9,7 +9,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 
 /** Version cache-bust globale (YYYYMMDD + lettre). */
-const CACHE_VERSION = '20260530k';
+const CACHE_VERSION = '20260530l';
 
 /** Fichiers générés par scripts/build — ne pas éditer à la main. */
 const GENERATED = [
@@ -30,6 +30,7 @@ const CSS = {
   ppl_theme_enhance: 'assets/css/ppl_theme_enhance.css',
   ppl_mobile: 'assets/css/ppl_mobile.css',
   ppl_auth: 'assets/css/ppl_auth.css',
+  ppl_entry_splash: 'assets/css/ppl_entry_splash.css',
   ppl_perf: 'assets/css/ppl_perf.css',
   ppl_settings: 'assets/css/ppl_settings.css',
   ppl_pro: 'assets/css/ppl_pro.css',
@@ -42,6 +43,7 @@ const CSS = {
 /** JS connus (clé → chemin relatif racine). */
 const JS = {
   ppl_settings: 'assets/js/ppl_settings.js',
+  ppl_entry_splash: 'assets/js/ppl_entry_splash.js',
   ppl_storage: 'assets/js/ppl_storage.js',
   ppl_auth: 'assets/js/ppl_auth.js',
   ppl_session_fiches: 'assets/js/ppl_session_fiches.js',
@@ -77,23 +79,23 @@ const PAGES = ['index.html', 'fiches.html', 'formules.html', 'stats.html'];
  */
 const PAGE_BUNDLES = {
   'index.html': {
-    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_mobile', 'ppl_auth', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
-    headBlocking: ['ppl_settings', 'ppl_storage', 'ppl_auth', 'ppl_module_host'],
+    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_mobile', 'ppl_auth', 'ppl_entry_splash', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
+    headBlocking: ['ppl_entry_splash', 'ppl_settings', 'ppl_storage', 'ppl_auth', 'ppl_module_host'],
     bodyDefer: ['questions_bank', 'formulas_meta', 'topics_utils', 'ppl_formulas_lazy', 'question_fiche_core', 'question_fiche_engine', 'ppl_session_fiches', 'ppl_quiz_engine'],
   },
   'fiches.html': {
-    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_resources', 'ppl_mobile', 'ppl_auth', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
-    headBlocking: ['ppl_settings', 'ppl_storage', 'ppl_auth', 'ppl_module_host'],
+    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_resources', 'ppl_mobile', 'ppl_auth', 'ppl_entry_splash', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
+    headBlocking: ['ppl_entry_splash', 'ppl_settings', 'ppl_storage', 'ppl_auth', 'ppl_module_host'],
     bodyDefer: ['questions_bank', 'topics_utils', 'ppl_formulas_lazy', 'question_fiche_core', 'question_fiche_engine', 'ppl_session_fiches', 'ppl_fiches_page'],
   },
   'formules.html': {
-    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_resources', 'ppl_mobile', 'ppl_auth', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
-    headBlocking: ['ppl_settings', 'ppl_auth', 'ppl_module_host'],
+    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_resources', 'ppl_mobile', 'ppl_auth', 'ppl_entry_splash', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
+    headBlocking: ['ppl_entry_splash', 'ppl_settings', 'ppl_auth', 'ppl_module_host'],
     bodyDefer: ['formulas_bank', 'formulas_engine', 'ppl_formulas_page'],
   },
   'stats.html': {
-    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_stats', 'ppl_mobile', 'ppl_auth', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
-    headBlocking: ['ppl_settings', 'ppl_auth', 'ppl_module_host'],
+    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_stats', 'ppl_mobile', 'ppl_auth', 'ppl_entry_splash', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
+    headBlocking: ['ppl_entry_splash', 'ppl_settings', 'ppl_auth', 'ppl_module_host'],
     bodyDefer: ['ppl_stats_page'],
   },
 };

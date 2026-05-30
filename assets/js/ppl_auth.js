@@ -121,16 +121,23 @@
     registerSuccess();
     stopTick();
 
-    try {
-      window.dispatchEvent(new CustomEvent('ppl-auth-success'));
-    } catch (e) {}
+    function done() {
+      try {
+        window.dispatchEvent(new CustomEvent('ppl-auth-success'));
+      } catch (e) {}
+      gate.classList.add('is-leaving');
+      document.documentElement.classList.remove('ppl-gated');
+      setTimeout(function () {
+        gate.innerHTML = '';
+        gate.className = '';
+      }, 520);
+    }
 
-    gate.classList.add('is-leaving');
-    document.documentElement.classList.remove('ppl-gated');
-    setTimeout(function () {
-      gate.innerHTML = '';
-      gate.className = '';
-    }, 320);
+    if (window.PPLEntrySplash && window.PPLEntrySplash.play) {
+      window.PPLEntrySplash.play({ type: 'auth' }).then(done);
+    } else {
+      done();
+    }
   }
 
   if (needsGate()) {
