@@ -848,6 +848,9 @@
     if (clearOnExitBound) return;
     clearOnExitBound = true;
     window.addEventListener('pagehide', () => {
+      try {
+        if (sessionStorage.getItem('ppl_internal_nav') === '1') return;
+      } catch (e) { /* ignore */ }
       if (current.clearOnExit || current.privateSession || current.retention === 'session') {
         eraseUserData({ keepSettings: true });
       }

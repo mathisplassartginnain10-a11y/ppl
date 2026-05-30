@@ -38,8 +38,8 @@ const lazyPath = path.join(ROOT, 'assets/js/ppl_formulas_lazy.js');
 if (fs.existsSync(lazyPath)) {
   const before = fs.readFileSync(lazyPath, 'utf8');
   const after = before
-    .replace(/'20260530[bcd]'/g, `'${CACHE_VERSION}'`)
-    .replace(/\?v=20260528[a-z]/g, `?v=${CACHE_VERSION}`);
+    .replace(/'20\d{6}[a-z]'/g, `'${CACHE_VERSION}'`)
+    .replace(/\?v=20\d{6}[a-z]/g, `?v=${CACHE_VERSION}`);
   if (after !== before) {
     fs.writeFileSync(lazyPath, after);
     console.log('Mis à jour: assets/js/ppl_formulas_lazy.js');

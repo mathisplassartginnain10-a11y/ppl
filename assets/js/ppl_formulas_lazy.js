@@ -6,7 +6,7 @@
     if (meta && meta.content) return meta.content;
     const probe = document.querySelector('script[src*="ppl_settings"],script[src*="ppl_formulas_lazy"]');
     const m = probe && probe.src && probe.src.match(/[?&]v=([^&]+)/);
-    return (m && m[1]) || '20260530e';
+    return (m && m[1]) || '20260530p';
   }
 
   let _loadPromise = null;
@@ -69,7 +69,7 @@
     if (_enrichPromise) return _enrichPromise;
     const ver = global.PPLFormulasLazy && global.PPLFormulasLazy.cacheVer
       ? global.PPLFormulasLazy.cacheVer()
-      : '20260530e';
+      : '20260530p';
     _enrichPromise = new Promise((resolve, reject) => {
       const s = document.createElement('script');
       s.src = 'assets/js/fiche_enrich.js?v=' + ver;
@@ -93,7 +93,7 @@
     if (global.PPLFormulasLazy && global.PPLFormulasLazy.cacheVer) {
       return global.PPLFormulasLazy.cacheVer();
     }
-    return '20260530e';
+    return '20260530p';
   }
 
   function isModLoaded(mod) {

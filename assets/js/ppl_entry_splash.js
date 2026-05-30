@@ -13,9 +13,14 @@
 
   function isAppPagePath(pathname) {
     try {
-      var leaf = (pathname || '').split('/').pop() || '';
-      if (!leaf || leaf === '/') leaf = 'index.html';
-      return APP_PAGES.test(leaf);
+      var p = pathname || '';
+      if (!p || p === '/') return true;
+      if (p.endsWith('/')) return true;
+      var leaf = p.split('/').pop() || '';
+      if (!leaf) return true;
+      if (APP_PAGES.test(leaf)) return true;
+      if (!/\.\w+$/.test(leaf)) return true;
+      return false;
     } catch (e) { /* ignore */ }
     return false;
   }
