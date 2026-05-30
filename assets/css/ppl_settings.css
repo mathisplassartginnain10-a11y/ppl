@@ -768,7 +768,7 @@ body.set-consent-open {
 .set-consent-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10050;
+  z-index: 100050;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -776,6 +776,10 @@ body.set-consent-open {
   background: rgba(4, 6, 12, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+.set-consent-overlay--launch .set-consent-card {
+  max-width: min(480px, 100%);
 }
 
 .set-consent-card {
@@ -897,6 +901,35 @@ body.set-consent-open {
 
 html[data-show-proba='off'] .proba-tag {
   display: none !important;
+}
+
+html[data-show-explanation='off'] .fb-exp-full {
+  display: none !important;
+}
+
+html[data-show-error-fiche='off'] .fb-fiche-wrap {
+  display: none !important;
+}
+
+html[data-show-react-live='off'] #react-live {
+  display: none !important;
+}
+
+html[data-compact-feedback='on'] .fb-end-hint,
+html[data-compact-feedback='on'] .fb-stats-link {
+  display: none !important;
+}
+
+.set-tip-box kbd {
+  display: inline-block;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid var(--b2);
+  background: var(--s2);
+  color: var(--t2);
+  margin: 0 0.1rem;
 }
 
 /* ═══ Effets personnalisables (data-attributes) ═══ */

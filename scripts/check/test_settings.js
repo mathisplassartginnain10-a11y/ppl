@@ -113,7 +113,9 @@ assert(saved.autoAdvance === '2', 'save autoAdvance');
 
 const BOOL_TOGGLE_KEYS = [
   'animations', 'glass', 'glow', 'grid', 'showTimer', 'confirmSkip', 'showProbaTags',
-  'shuffleOptions', 'reduceMotion', 'largeTouch', 'highContrast',
+  'shuffleOptions', 'showExplanation', 'showErrorFiche', 'showReactLive', 'compactFeedback',
+  'keyboardShortcuts', 'soundFeedback', 'vibrationFeedback', 'pauseOnBlur',
+  'reduceMotion', 'largeTouch', 'highContrast',
 ];
 
 reset();
@@ -130,6 +132,13 @@ api.setCurrent(api.sanitize({ ...api.PRIVACY_PRESETS.full.patch, privacyConsentA
 api.save({ privateSession: false, saveProgress: true, saveReaction: false });
 assert(api.getCurrent().saveProgress === true, 'saveProgress activable hors mode privé');
 assert(api.getCurrent().saveReaction === false, 'saveReaction désactivable hors mode privé');
+
+reset();
+api.setCurrent(api.sanitize({ ...api.DEFAULTS, privacyConsentAt: Date.now() }));
+api.save({ defaultQuestionCount: '40' });
+assert(api.getCurrent().defaultQuestionCount === '40', 'defaultQuestionCount 40');
+api.save({ defaultQuestionCount: '999' });
+assert(api.getCurrent().defaultQuestionCount === '64', 'defaultQuestionCount invalide → 64');
 
 console.log('\n' + passed + ' OK · ' + failed + ' échec(s)');
 process.exit(failed > 0 ? 1 : 0);

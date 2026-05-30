@@ -8,6 +8,9 @@
   var MAX_LOCKOUTS = 15;
   var DAY_MS = 24 * 60 * 60 * 1000;
 
+  /** Authentifié uniquement pour cette page (re-demandé à chaque navigation). */
+  var pageAuthed = false;
+
   function load() {
     try {
       return JSON.parse(localStorage.getItem(KEY) || '{}') || {};
@@ -28,7 +31,7 @@
 
   function normalize(s) {
     s = s || defaultState();
-    if (!s.ok) s.ok = false;
+    s.ok = false;
     s.attempts = s.attempts || 0;
     s.lockouts = s.lockouts || 0;
     s.lockUntil = s.lockUntil || 0;
@@ -37,7 +40,7 @@
   }
 
   function isAuthed() {
-    return !!normalize(load()).ok;
+    return pageAuthed;
   }
 
   function getBlock(now) {
@@ -53,7 +56,7 @@
   }
 
   function needsGate() {
-    return !isAuthed();
+    return !pageAuthed;
   }
 
   function fmtRemaining(ms) {
@@ -91,9 +94,10 @@
   }
 
   function registerSuccess() {
+    pageAuthed = true;
     var prev = normalize(load());
     save({
-      ok: true,
+      ok: false,
       attempts: 0,
       lockouts: prev.lockouts || 0,
       lockUntil: 0,
@@ -117,27 +121,16 @@
     registerSuccess();
     stopTick();
 
-    gate.classList.add('ppl-gate-success');
-    gate.innerHTML =
-      '<div class="ppl-gate-card is-success">' +
-      '<div class="ppl-gate-success-anim">' +
-      '<div class="ppl-gate-check" aria-hidden="true">' +
-      '<svg viewBox="0 0 52 52"><circle class="ppl-gate-check-circle" cx="26" cy="26" r="24"/>' +
-      '<path class="ppl-gate-check-mark" d="M14 27l8 8 16-16"/></svg>' +
-      '</div>' +
-      '<p class="ppl-gate-success-title">Accès autorisé</p>' +
-      '<p class="ppl-gate-success-sub">Bienvenue à bord ✈</p>' +
-      '</div>' +
-      '</div>';
+    try {
+      window.dispatchEvent(new CustomEvent('ppl-auth-success'));
+    } catch (e) {}
 
+    gate.classList.add('is-leaving');
+    document.documentElement.classList.remove('ppl-gated');
     setTimeout(function () {
-      gate.classList.add('is-leaving');
-      document.documentElement.classList.remove('ppl-gated');
-      setTimeout(function () {
-        gate.innerHTML = '';
-        gate.className = '';
-      }, 650);
-    }, 1500);
+      gate.innerHTML = '';
+      gate.className = '';
+    }, 320);
   }
 
   if (needsGate()) {
@@ -177,13 +170,14 @@
           '<div class="ppl-gate-field">' +
           '<label for="ppl-gate-code">Code d\'accès</label>' +
           '<div class="ppl-gate-input-wrap">' +
-          '<input id="ppl-gate-code" type="password" inputmode="text" autocapitalize="characters" autocomplete="off" placeholder="••••••••" maxlength="32">' +
-          '<button type="button" class="ppl-gate-toggle" id="ppl-gate-toggle" aria-label="Afficher le code" aria-pressed="false" title="Afficher le code">' +
-          EYE_OPEN +
+          '<input id="ppl-gate-code" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" placeholder="Code d\'accès" maxlength="32" spellcheck="false">' +
+          '<button type="button" class="ppl-gate-toggle" id="ppl-gate-toggle" aria-label="Masquer le code" aria-pressed="true" title="Masquer le code">' +
+          EYE_CLOSED +
           '</button>' +
           '</div>' +
+          '<p class="ppl-gate-hint" id="ppl-gate-hint">Le code est visible pendant la saisie · cliquez sur l\'œil pour le masquer</p>' +
           '</div>' +
-          '<button type="submit" class="ppl-gate-btn">Accéder</button>' +
+          '<button type="submit" class="ppl-gate-btn">Continuer</button>' +
           '</form>' +
           '<p class="ppl-gate-attempts">' +
           remaining +
@@ -203,15 +197,26 @@
       var msg = document.getElementById('ppl-gate-msg');
 
       if (toggle && input) {
+        var hint = document.getElementById('ppl-gate-hint');
+        function syncToggleUi() {
+          var masked = input.type === 'password';
+          toggle.setAttribute('aria-pressed', masked ? 'false' : 'true');
+          toggle.setAttribute('aria-label', masked ? 'Afficher le code' : 'Masquer le code');
+          toggle.setAttribute('title', masked ? 'Afficher le code' : 'Masquer le code');
+          toggle.innerHTML = masked ? EYE_OPEN : EYE_CLOSED;
+          toggle.classList.toggle('is-visible', !masked);
+          if (hint) {
+            hint.textContent = masked
+              ? 'Code masqué · cliquez sur l\'œil pour l\'afficher'
+              : 'Code visible · cliquez sur l\'œil pour le masquer';
+          }
+        }
         toggle.addEventListener('click', function () {
-          var show = input.type === 'password';
-          input.type = show ? 'text' : 'password';
-          toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
-          toggle.setAttribute('aria-label', show ? 'Masquer le code' : 'Afficher le code');
-          toggle.setAttribute('title', show ? 'Masquer le code' : 'Afficher le code');
-          toggle.innerHTML = show ? EYE_CLOSED : EYE_OPEN;
+          input.type = input.type === 'password' ? 'text' : 'password';
+          syncToggleUi();
           input.focus();
         });
+        syncToggleUi();
       }
 
       form.addEventListener('submit', function (e) {
@@ -263,9 +268,6 @@
     tickTimer = setInterval(function () {
       if (!needsGate()) {
         stopTick();
-        document.documentElement.classList.remove('ppl-gated');
-        var gate = document.getElementById('ppl-gate');
-        if (gate) gate.innerHTML = '';
         return;
       }
       var block = getBlock();
@@ -290,7 +292,14 @@
     }
   }
 
+  function purgeLegacyAuthFlag() {
+    var s = normalize(load());
+    if (s.ok) save(s);
+  }
+
   function init() {
+    purgeLegacyAuthFlag();
+
     if (!document.getElementById('ppl-gate')) {
       var gate = document.createElement('div');
       gate.id = 'ppl-gate';
@@ -305,7 +314,16 @@
       document.documentElement.classList.remove('ppl-gated');
       stopTick();
     }
+
+    try {
+      window.dispatchEvent(new CustomEvent('ppl-auth-ready'));
+    } catch (e) {}
   }
+
+  window.PPLAuth = {
+    isAuthed: isAuthed,
+    needsGate: needsGate,
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

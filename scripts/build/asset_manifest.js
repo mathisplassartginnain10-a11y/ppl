@@ -9,7 +9,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 
 /** Version cache-bust globale (YYYYMMDD + lettre). */
-const CACHE_VERSION = '20260530g';
+const CACHE_VERSION = '20260530k';
 
 /** Fichiers générés par scripts/build — ne pas éditer à la main. */
 const GENERATED = [
@@ -58,6 +58,7 @@ const JS = {
   formulas_engine: 'assets/js/formulas_engine.js',
   topics_utils: 'assets/js/topics_utils.js',
   fiche_enrich: 'assets/js/fiche_enrich.js',
+  question_fiche_core: 'assets/js/question_fiche_core.js',
   question_fiche_engine: 'assets/js/question_fiche_engine.js',
   question_fiches_meta: 'assets/js/question_fiches_meta.js',
   question_fiches_C: 'assets/js/question_fiches_C.js',
@@ -78,12 +79,12 @@ const PAGE_BUNDLES = {
   'index.html': {
     css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_mobile', 'ppl_auth', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
     headBlocking: ['ppl_settings', 'ppl_storage', 'ppl_auth', 'ppl_module_host'],
-    bodyDefer: ['questions_bank', 'formulas_meta', 'topics_utils', 'ppl_formulas_lazy', 'question_fiche_engine', 'ppl_session_fiches', 'ppl_quiz_engine'],
+    bodyDefer: ['questions_bank', 'formulas_meta', 'topics_utils', 'ppl_formulas_lazy', 'question_fiche_core', 'question_fiche_engine', 'ppl_session_fiches', 'ppl_quiz_engine'],
   },
   'fiches.html': {
     css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_resources', 'ppl_mobile', 'ppl_auth', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],
     headBlocking: ['ppl_settings', 'ppl_storage', 'ppl_auth', 'ppl_module_host'],
-    bodyDefer: ['questions_bank', 'topics_utils', 'ppl_formulas_lazy', 'question_fiche_engine', 'ppl_session_fiches', 'ppl_fiches_page'],
+    bodyDefer: ['questions_bank', 'topics_utils', 'ppl_formulas_lazy', 'question_fiche_core', 'question_fiche_engine', 'ppl_session_fiches', 'ppl_fiches_page'],
   },
   'formules.html': {
     css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_resources', 'ppl_mobile', 'ppl_auth', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_fiches_pro'],

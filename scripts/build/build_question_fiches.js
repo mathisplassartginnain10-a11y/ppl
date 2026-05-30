@@ -37,7 +37,7 @@ Q.forEach((q, idx) => {
 const metaOut = path.join(OUT_DIR, 'question_fiches_meta.js');
 const metaJs = [
   '// Métadonnées banque fiches — généré par scripts/build/build_question_fiches.js',
-  'const Q_FICHE_BANK_META=' + JSON.stringify({ version: 2, total: Q.length, mods: counts }) + ';',
+  'const Q_FICHE_BANK_META=' + JSON.stringify({ version: 3, total: Q.length, mods: counts }) + ';',
   '',
 ].join('\n');
 fs.writeFileSync(metaOut, metaJs, 'utf8');

@@ -1,205 +1,25 @@
 /**
- * Fiches ultra-détaillées par question — affichées en cas d'erreur.
- * Banque pré-générée par module (lazy-load Q_FICHES_C/A/M/R).
+ * Fiches erreur — affichage et hydratation (moteur dans question_fiche_core.js).
  */
 (function (global) {
   'use strict';
+
+  const Core = global.PPLQuestionFicheCore;
+  if (!Core) {
+    console.error('[PPL] question_fiche_core.js doit être chargé avant question_fiche_engine.js');
+    return;
+  }
 
   function esc(s) {
     return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   function modStr(m) {
-    return { C: 'Communications', A: 'Aéronef', M: 'Météorologie', R: 'Réglementation' }[m] || m;
+    return Core.modLabel(m);
   }
 
   function modClass(m) {
     return { C: 'bd-comm', A: 'bd-aero', M: 'bd-met', R: 'bd-reg' }[m] || '';
-  }
-
-  function textSim(a, b) {
-    const wa = new Set(String(a).toLowerCase().split(/\W+/).filter((w) => w.length > 2));
-    const wb = new Set(String(b).toLowerCase().split(/\W+/).filter((w) => w.length > 2));
-    if (!wa.size || !wb.size) return 0;
-    let inter = 0;
-    wa.forEach((w) => { if (wb.has(w)) inter++; });
-    return inter / Math.max(wa.size, wb.size);
-  }
-
-  function firstSentence(text) {
-    const t = String(text || '').trim();
-    const m = t.match(/^[^.!?]+[.!?]?/);
-    const s = m ? m[0].trim() : t;
-    return s.length > 180 ? s.slice(0, 177) + '…' : s;
-  }
-
-  function analyzeTraps(q, chosenIdx) {
-    const correct = q.o[q.a];
-    return q.o.map((o, i) => {
-      if (i === q.a) return null;
-      const traps = [];
-      if (/\d/.test(o) && /\d/.test(correct)) traps.push('Piège numérique — compare chaque chiffre avec la règle.');
-      if (textSim(o, correct) > 0.45) traps.push('Formulation très proche — relis mot à mot.');
-      if (o.split(/[\s,]+/)[0] === correct.split(/[\s,]+/)[0] && o !== correct) {
-        traps.push('Même début de phrase — la fin change le sens.');
-      }
-      if (o.length > 10 && correct.length > 10 && o.substring(0, 4) === correct.substring(0, 4)) {
-        traps.push('Début identique — piège classique à l\'examen.');
-      }
-      if (chosenIdx === i) traps.push('C\'est l\'option que tu as choisie.');
-      return { i, text: o, traps: traps.length ? traps : ['Distracteur : élimine par la règle du cours.'] };
-    }).filter(Boolean);
-  }
-
-  function genMnemonic(q) {
-    const r = (q.r || '').toLowerCase();
-    if (r.includes('alphabet') || r.includes('oaci')) {
-      return 'Alfa (2 a) · Bravo · Charlie · Delta — récite l\'alphabet OACI 2 fois par jour.';
-    }
-    if (r.includes('fréquence') || r.includes('frequence')) {
-      const nums = q.o.filter((o, i) => i === q.a || /\d/.test(o))
-        .map((o) => o.match(/[\d,.]+/)?.[0]).filter(Boolean);
-      if (nums.length) return 'Fréquences clés : ' + nums.join(' · ') + ' — associe usage + chiffre.';
-    }
-    if (r.includes('phraséologie') || r.includes('phras')) {
-      return 'ROGER ≠ WILCO : Roger = reçu · Wilco = reçu ET exécuté.';
-    }
-    if (r.includes('portée') || r.includes('vhf')) {
-      return 'D = 1,23 × √h — h en pieds, D en NM.';
-    }
-    if (r.includes('metar') || r.includes('taf') || r.includes('temsi')) {
-      return 'METAR = observation · TAF = prévision · décode vent → visi → nuages → T/QNH.';
-    }
-    if (r.includes('lisibilité')) {
-      return '1 = illisible → 5 = parfait (plus le chiffre est grand, mieux c\'est).';
-    }
-    const tips = {
-      C: 'Module comm : mémorise fréquences et phraséologie mot pour mot.',
-      A: 'Module aéronef : vérifie les unités (kt, ft, hPa) avant de répondre.',
-      M: 'Module météo : relie phénomène → cause → conséquence pour le pilote.',
-      R: 'Module réglem : les seuils chiffrés tombent souvent — fiche récap obligatoire.',
-    };
-    return tips[q.m] || null;
-  }
-
-  function genExamTip(q) {
-    const r = (q.r || '').toLowerCase();
-    if (r.includes('alphabet') || r.includes('oaci')) {
-      return 'À l\'examen : l\'alphabet OACI est souvent testé dans les deux sens (lettre → mot et mot → lettre).';
-    }
-    if (r.includes('vfr') || r.includes('visibilit')) {
-      return 'Crée un tableau des minima VFR par espace aérien (A, C, D, E).';
-    }
-    if (r.includes('metar') || r.includes('taf')) {
-      return 'Décode METAR/TAF groupe par groupe : vent → visi → temps → nuages → T/Td → QNH.';
-    }
-    if (r.includes('calcul') || r.includes('portée') || r.includes('isa')) {
-      return 'Écris la formule sur papier avant de calculer — une erreur d\'unité = mauvaise réponse.';
-    }
-    return 'Relis la règle, puis enchaîne 5 questions du thème « ' + q.r + ' » sans correction.';
-  }
-
-  function whyCorrect(q) {
-    const correct = q.o[q.a];
-    const base = q.e || 'Voir l\'explication officielle.';
-    return 'La réponse attendue est « ' + correct + ' ». ' + base;
-  }
-
-  function whyWrong(q, i, chosenIdx, trap) {
-    if (i === q.a) return '';
-    const letter = String.fromCharCode(65 + i);
-    const text = q.o[i];
-    if (chosenIdx === i) {
-      const trapTxt = trap ? trap.traps.filter((t) => !t.startsWith('C\'est')).join(' ') : '';
-      return letter + ' (« ' + text + ' ») : tu as choisi cette option. ' +
-        (trapTxt || 'Ce n\'est pas conforme au programme pour cette question.');
-    }
-    if (trap && trap.traps.length) {
-      return letter + ' (« ' + text + ' ») : ' + trap.traps[0];
-    }
-    return letter + ' (« ' + text + ' ») : distracteur — ce n\'est pas la bonne réponse.';
-  }
-
-  function retainBullets(q) {
-    const bullets = [];
-    if (q.e) bullets.push(firstSentence(q.e));
-    bullets.push('Thème : ' + q.r + ' (' + modStr(q.m) + ').');
-    bullets.push('Bonne réponse : « ' + q.o[q.a] + ' ».');
-    const uniq = [];
-    bullets.forEach((b) => { if (b && !uniq.includes(b)) uniq.push(b); });
-    return uniq.slice(0, 4);
-  }
-
-  function revisionSteps(q, mnemo) {
-    const steps = [
-      'Relire la règle ci-dessus et la répéter à voix haute.',
-      'Relire chaque option A–D et expliquer pourquoi elle est vraie ou fausse.',
-      'Refaire 3 questions du thème « ' + q.r + ' » sans regarder la correction.',
-    ];
-    if (mnemo) steps.splice(2, 0, 'Mémoriser : ' + mnemo);
-    return steps.slice(0, 5);
-  }
-
-  function buildQuestionErrorFiche(q, chosenIdx) {
-    chosenIdx = chosenIdx == null ? -1 : chosenIdx;
-    const traps = analyzeTraps(q, chosenIdx);
-    const trapByIdx = {};
-    traps.forEach((t) => { trapByIdx[t.i] = t; });
-
-    const opts = q.o.map((text, i) => ({
-      l: String.fromCharCode(65 + i),
-      ok: i === q.a,
-      chosen: chosenIdx === i,
-      t: text,
-      w: i === q.a
-        ? '✓ Bonne réponse. ' + (q.e || 'Conforme au programme.')
-        : whyWrong(q, i, chosenIdx, trapByIdx[i]),
-    }));
-
-    const mnemo = genMnemonic(q);
-    return {
-      e: firstSentence(q.e || q.q),
-      w: whyCorrect(q),
-      o: opts,
-      k: retainBullets(q),
-      m: mnemo || '',
-      t: genExamTip(q),
-      s: revisionSteps(q, mnemo),
-      r: q.r,
-      mod: q.m,
-    };
-  }
-
-  function expandCompactFiche(c, q, chosenIdx) {
-    if (!c) return null;
-    if (c.v !== 2 || !Array.isArray(c.ow)) return c;
-    chosenIdx = chosenIdx == null ? -1 : chosenIdx;
-    return {
-      e: c.e,
-      w: c.w,
-      k: c.k,
-      m: c.m,
-      t: c.t,
-      s: c.s,
-      r: c.r,
-      mod: c.mod || q.m,
-      o: q.o.map((text, i) => ({
-        l: String.fromCharCode(65 + i),
-        ok: i === q.a,
-        chosen: chosenIdx === i,
-        t: text,
-        w: c.ow[i] || '',
-      })),
-    };
-  }
-
-  function getChunkFiche(idx, q) {
-    const mod = q.m;
-    const bucket = global['Q_FICHES_' + mod];
-    if (!bucket) return null;
-    const raw = bucket[idx];
-    if (!raw) return null;
-    return expandCompactFiche(raw, q, -1);
   }
 
   function resolveQIdx(q, idx) {
@@ -209,15 +29,21 @@
     return -1;
   }
 
+  function getChunkFiche(idx, q, chosenIdx) {
+    const mod = q.m;
+    const bucket = global['Q_FICHES_' + mod];
+    if (!bucket) return null;
+    const raw = bucket[idx];
+    if (!raw) return null;
+    return Core.expandCompactFiche(raw, q, chosenIdx);
+  }
+
   function getQuestionFiche(idx, q, chosenIdx) {
     chosenIdx = chosenIdx == null ? -1 : chosenIdx;
-    if (chosenIdx >= 0) return buildQuestionErrorFiche(q, chosenIdx);
-    const chunk = getChunkFiche(idx, q);
+    if (chosenIdx >= 0) return Core.buildQuestionErrorFiche(q, chosenIdx);
+    const chunk = getChunkFiche(idx, q, chosenIdx);
     if (chunk) return chunk;
-    if (typeof Q_FICHES !== 'undefined' && Array.isArray(Q_FICHES) && Q_FICHES[idx]) {
-      return Q_FICHES[idx];
-    }
-    return buildQuestionErrorFiche(q, chosenIdx);
+    return Core.buildQuestionErrorFiche(q, chosenIdx);
   }
 
   function renderBehCompact(beh, logEntry) {
@@ -288,25 +114,24 @@
     const retainHtml = (f.k || []).map((b) => '<li>' + esc(b) + '</li>').join('');
     const stepsHtml = (f.s || []).map((s) => '<li>' + esc(s) + '</li>').join('');
     const behHtml = renderBehCompact(beh, logEntry);
-
-    const behBlock = behHtml
-      ? renderCard('◷', '', 'Comportement', behHtml)
-      : '';
+    const behBlock = behHtml ? renderCard('◷', '', 'Comportement', behHtml) : '';
+    const oneliner = f.p ? '<p class="fiche-pro-oneliner">' + esc(f.p) + '</p>' : '';
 
     return '<article class="fiche-pro q-fiche-ultra fiche-error-ultra">'
       + '<header class="fiche-pro-head">'
-      + '<div class="fiche-pro-top"><span class="fiche-pro-kicker">Fiche de révision</span>'
+      + '<div class="fiche-pro-top"><span class="fiche-pro-kicker">Fiche explicative</span>'
       + '<div class="fiche-pro-tags">' + tags + '</div></div>'
       + '<p class="fiche-pro-q q-fiche-question">' + esc(q.q) + '</p>'
       + compareHtml
       + '</header>'
       + '<div class="fiche-pro-lead">'
-      + '<span class="fiche-pro-lead-label">L\'essentiel</span>'
+      + '<span class="fiche-pro-lead-label">Comprendre simplement</span>'
+      + oneliner
       + '<p class="q-fiche-essentiel">' + esc(f.e) + '</p>'
       + '</div>'
       + '<div class="fiche-pro-body">'
       + renderCard('✓', 'ok', 'Pourquoi c\'est la bonne réponse', '<p class="q-fiche-why">' + esc(f.w) + '</p>')
-      + renderCard('AB', '', 'Les 4 options expliquées', '<div class="fiche-pro-opts err-opt-list">' + optRows + '</div>')
+      + renderCard('AB', '', 'Chaque option expliquée', '<div class="fiche-pro-opts err-opt-list">' + optRows + '</div>')
       + renderCard('•', '', 'À retenir pour l\'examen', '<ul class="fiche-pro-list q-fiche-retain">' + retainHtml + '</ul>')
       + (f.m ? renderCard('★', 'tip', 'Astuce mémo', '<div class="fiche-pro-highlight fiche-pro-highlight--memo fiche-mnemo">' + esc(f.m) + '</div>') : '')
       + renderCard('→', 'tip', 'Conseil examen', '<div class="fiche-pro-highlight fiche-pro-highlight--exam fiche-exam-tip">' + esc(f.t) + '</div>')
@@ -329,10 +154,6 @@
       render();
       return;
     }
-    if (typeof Q_FICHES !== 'undefined' && Array.isArray(Q_FICHES)) {
-      render();
-      return;
-    }
     const lazy = global.PPLQuestionFicheLazy;
     if (lazy && typeof lazy.ensureBankForQuestion === 'function') {
       lazy.ensureBankForQuestion(q, idx).then(render).catch(render);
@@ -343,12 +164,12 @@
     }
   }
 
-  global.buildQuestionErrorFiche = buildQuestionErrorFiche;
+  global.buildQuestionErrorFiche = Core.buildQuestionErrorFiche;
   global.getQuestionFiche = getQuestionFiche;
   global.renderQuestionErrorFicheHTML = renderQuestionErrorFicheHTML;
   global.hydrateErrorFicheSlot = hydrateErrorFicheSlot;
   global.PPLQuestionFiche = {
-    buildQuestionErrorFiche,
+    buildQuestionErrorFiche: Core.buildQuestionErrorFiche,
     getQuestionFiche,
     renderQuestionErrorFicheHTML,
     hydrateErrorFicheSlot,

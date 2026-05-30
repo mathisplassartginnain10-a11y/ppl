@@ -593,9 +593,13 @@ function startReactLive(diff){
   stopReactLive();
   curQDiff=diff||2;
   const box=document.getElementById('react-live');
-  if(box){box.className='react-live wait';document.getElementById('react-val').textContent='—';}
-  if(getSettings().showTimer===false){box&&(box.style.display='none');return;}
-  if(box) box.style.display='';
+  const s=getSettings();
+  const showReact=s.showReactLive!==false;
+  if(box){
+    box.style.display=showReact?'':'none';
+    if(showReact){box.className='react-live wait';document.getElementById('react-val').textContent='—';}
+  }
+  if(!showReact) return;
   updateReactLive();
   reactLiveOn=true;
   reactInt=setInterval(()=>{if(reactLiveOn&&!document.hidden) updateReactLive();},400);
@@ -2307,6 +2311,81 @@ function launch(){
 
 function getSettings(){return window.PPLSettings?.get?.()||window.PPLSettings?.load?.()||{};}
 
+let _audioCtx=null;
+function playFeedbackSound(ok){
+  if(getSettings().soundFeedback!==true) return;
+  try{
+    if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const ctx=_audioCtx;
+    if(ctx.state==='suspended') ctx.resume();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.value=ok?880:280;
+    gain.gain.value=0.07;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const t=ctx.currentTime;
+    osc.start(t);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+(ok?0.12:0.18));
+    osc.stop(t+(ok?0.14:0.2));
+  }catch(e){/* ignore */}
+}
+
+function triggerAnswerHaptic(ok){
+  if(getSettings().vibrationFeedback!==true||!navigator.vibrate) return;
+  try{navigator.vibrate(ok?25:[35,40,35]);}catch(e){/* ignore */}
+}
+
+function applyHomeQuestionDefaults(){
+  const n=getSettings().defaultQuestionCount;
+  if(n==null||n==='') return;
+  const cfN=document.getElementById('cf-n');
+  if(cfN) cfN.value=n;
+  document.querySelectorAll('.n-pre').forEach(b=>{
+    b.classList.toggle('on',b.dataset.n===String(n));
+  });
+}
+
+function bindQuizKeyboard(){
+  if(window._pplKbBound) return;
+  window._pplKbBound=true;
+  document.addEventListener('keydown',(e)=>{
+    if(getSettings().keyboardShortcuts===false) return;
+    if(!document.getElementById('sq')?.classList.contains('on')) return;
+    const tag=(e.target&&e.target.tagName)||'';
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||e.target?.isContentEditable) return;
+    if(e.ctrlKey||e.metaKey||e.altKey) return;
+    const key=e.key.toLowerCase();
+    if(!answered&&['a','b','c','d'].includes(key)&&!paused){
+      e.preventDefault();
+      const idx=key.charCodeAt(0)-97;
+      if(document.getElementById('o'+idx)) doAns(idx);
+      return;
+    }
+    if(key==='p'&&!answered){
+      e.preventDefault();
+      togglePause();
+      return;
+    }
+    if((key==='enter'||key===' ')&&answered){
+      e.preventDefault();
+      const btn=document.getElementById('bnxt');
+      if(btn&&btn.style.display!=='none') btn.click();
+    }
+  });
+}
+
+function bindPauseOnBlur(){
+  if(window._pplBlurBound) return;
+  window._pplBlurBound=true;
+  document.addEventListener('visibilitychange',()=>{
+    if(getSettings().pauseOnBlur!==true) return;
+    if(!document.getElementById('sq')?.classList.contains('on')) return;
+    if(document.hidden&&!paused&&!answered) togglePause();
+  });
+}
+
 function buildOptOrder(n,shuffle){
   const a=Array.from({length:n},(_,i)=>i);
   if(!shuffle) return a;
@@ -2406,6 +2485,8 @@ function doAns(i){
     if(correctDisp>=0) document.getElementById('o'+correctDisp).classList.add('sh');
   }
   record(ok,el,beh); showFb(ok,q,el,beh);
+  playFeedbackSound(ok);
+  triggerAnswerHaptic(ok);
   document.getElementById('bnxt').style.display='block';
   document.getElementById('bsk').style.display='none';
   scheduleAutoAdvance();
@@ -2516,7 +2597,9 @@ function showFb(ok,q,el,beh){
     ansBlock+=`<div class="fb-ans fb-correct">✓ Bonne réponse : ${esc(q.o[q.a])}</div>`;
   }
 
-  const ficheSlot=!ok?`<div class="fb-fiche-wrap" id="fb-fiche-slot"><div class="fiche-lazy-spin">Préparation de la fiche…</div></div>`:'';
+  const ficheSlot=(!ok&&getSettings().showErrorFiche!==false)
+    ?`<div class="fb-fiche-wrap" id="fb-fiche-slot"><div class="fiche-lazy-spin">Préparation de la fiche…</div></div>`
+    :'';
 
   document.getElementById('fb').innerHTML=`
     <div class="fb ${ok?'ok':'ko'} fb-brief">
@@ -2535,7 +2618,7 @@ function showFb(ok,q,el,beh){
       <a href="${statsHref}" class="fb-stats-link" target="_blank" rel="noopener">📊 Stats détaillées de cette réponse →</a>
     </div>`;
 
-  if(!ok&&typeof hydrateErrorFicheSlot==='function'){
+  if(!ok&&getSettings().showErrorFiche!==false&&typeof hydrateErrorFicheSlot==='function'){
     const slot=document.getElementById('fb-fiche-slot');
     hydrateErrorFicheSlot(slot,q,{idx,chosenIdx,beh,entry:revLog.entries?.[idx],logEntry:lastEntry});
   }
@@ -2807,14 +2890,17 @@ function handleDeepLink(){
 window.addEventListener('ppl-data-erased',()=>{location.reload();});
 window.addEventListener('ppl-settings-changed',()=>{
   invalidateExamCache();
+  applyHomeQuestionDefaults();
   if(document.getElementById('sq')?.classList.contains('on')){
     if(!answered) startTimer();
     else scheduleAutoAdvance();
     const showT=getSettings().showTimer!==false;
+    const showReact=getSettings().showReactLive!==false;
     const tb=document.getElementById('tb');
     const reactBox=document.getElementById('react-live');
     if(tb) tb.style.display=showT?'':'none';
-    if(reactBox) reactBox.style.display=showT?'':'none';
+    if(reactBox) reactBox.style.display=showReact?'':'none';
+    if(reactLiveOn&&showReact) updateReactLive();
   }
   if(document.getElementById('react-live')&&reactLiveOn) updateReactLive();
 });
@@ -2827,10 +2913,13 @@ document.getElementById('rc')?.addEventListener('toggle',e=>{
     PPLFormulasLazy.hydrateFicheFormulaSlots(e.target);
 },true);
 function bootQuiz(){
+  bindQuizKeyboard();
+  bindPauseOnBlur();
   const hasConsent=window.PPLSettings?.hasPrivacyConsent?.();
   upHome({deferHeavy:!!hasConsent,lite:!hasConsent});
+  applyHomeQuestionDefaults();
   if(hasConsent) handleDeepLink();
-  else window.addEventListener('ppl-privacy-consent',()=>{handleDeepLink();},{once:true});
+  else window.addEventListener('ppl-privacy-consent',()=>{handleDeepLink();applyHomeQuestionDefaults();},{once:true});
   if(window.PPLModuleHost) PPLModuleHost.emit('onAppReady',{page:'quiz'});
 }
 bootQuiz();
