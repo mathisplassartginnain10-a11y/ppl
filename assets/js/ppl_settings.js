@@ -680,7 +680,12 @@
     if (typeof global.__PPL_SETTINGS_TEST__ === 'object') {
       return current.privacyConsentAt != null && current.privacyConsentAt !== '';
     }
-    return sessionConsentGranted;
+    if (sessionConsentGranted) return true;
+    if (global.PPLSessionGate && global.PPLSessionGate.shouldSkipLaunchConsent()) {
+      sessionConsentGranted = true;
+      return true;
+    }
+    return false;
   }
 
   function pickPrivacyState(src) {
@@ -772,6 +777,9 @@
 
   function factoryReset(opts) {
     wipeAllPplStorage({ keepSettings: false, keepAuth: false });
+    if (global.PPLSessionGate && global.PPLSessionGate.clearSession) {
+      global.PPLSessionGate.clearSession();
+    }
     current = sanitize(DEFAULTS);
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
     apply(current);
@@ -1139,7 +1147,7 @@
           <p class="set-consent-lead">${review
     ? 'Modifiez vos autorisations. Rien n\'est envoyé sur internet : tout reste sur cet appareil.'
     : (launch
-      ? '<strong>À chaque ouverture</strong>, confirmez les 4 paramètres ci-dessous. Rien n\'est envoyé sur Internet.'
+      ? '<strong>À chaque rechargement</strong>, confirmez les 4 paramètres ci-dessous. Rien n\'est envoyé sur Internet.'
       : 'Avant de commencer, choisissez ce que l\'application peut enregistrer <strong>localement</strong> sur cet appareil. Vous pouvez <strong>tout refuser</strong> et utiliser le quiz sans aucune sauvegarde.')}</p>
         </header>
         <div class="set-consent-body">
@@ -1180,6 +1188,9 @@
 
   function finishConsent(patch) {
     sessionConsentGranted = true;
+    if (global.PPLSessionGate && global.PPLSessionGate.markConsent) {
+      global.PPLSessionGate.markConsent();
+    }
     save({ ...patch, privacyConsentAt: Date.now() });
 
     function complete() {
@@ -1805,6 +1816,16 @@
     setupClearOnExit();
     const onReady = () => {
       mountSettingsButton();
+      if (global.PPLSessionGate && global.PPLSessionGate.shouldSkipLaunchConsent()) {
+        sessionConsentGranted = true;
+        mountUI();
+        uiMounted = true;
+        purgeRetention();
+        try {
+          global.dispatchEvent(new CustomEvent('ppl-privacy-consent', { detail: { ...current } }));
+        } catch (e) { /* ignore */ }
+        return;
+      }
       sessionConsentGranted = false;
       waitForAuthThenLaunchConsent();
     };

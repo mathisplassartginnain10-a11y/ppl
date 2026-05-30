@@ -1,8 +1,121 @@
 /**
  * Animations d'entrée — code d'accès & confidentialité (thème aviation PPL).
+ * + Session onglet (navigation interne sans re-demander code / confidentialité).
  */
 (function (global) {
   'use strict';
+
+  var SESSION_AUTH = 'ppl_session_auth';
+  var SESSION_CONSENT = 'ppl_session_consent';
+  var APP_PAGES = /^(index\.html|fiches\.html|formules\.html|stats\.html)$/;
+
+  function isAppPagePath(pathname) {
+    try {
+      var leaf = (pathname || '').split('/').pop() || '';
+      if (!leaf || leaf === '/') leaf = 'index.html';
+      return APP_PAGES.test(leaf);
+    } catch (e) { /* ignore */ }
+    return false;
+  }
+
+  function isPageReload() {
+    try {
+      var nav = performance.getEntriesByType('navigation')[0];
+      return nav && nav.type === 'reload';
+    } catch (e) { /* ignore */ }
+    return false;
+  }
+
+  function isInternalAppNavigation() {
+    var ref = document.referrer;
+    if (!ref) return false;
+    try {
+      var refUrl = new URL(ref);
+      if (refUrl.origin !== location.origin) return false;
+      return isAppPagePath(refUrl.pathname);
+    } catch (e) { /* ignore */ }
+    return false;
+  }
+
+  function clearSession() {
+    try {
+      sessionStorage.removeItem(SESSION_AUTH);
+      sessionStorage.removeItem(SESSION_CONSENT);
+    } catch (e) { /* ignore */ }
+  }
+
+  function bootstrapSession() {
+    if (isPageReload()) clearSession();
+  }
+
+  function markAuth() {
+    try { sessionStorage.setItem(SESSION_AUTH, '1'); } catch (e) { /* ignore */ }
+  }
+
+  function markConsent() {
+    try { sessionStorage.setItem(SESSION_CONSENT, '1'); } catch (e) { /* ignore */ }
+  }
+
+  function hasAuth() {
+    try { return sessionStorage.getItem(SESSION_AUTH) === '1'; } catch (e) { return false; }
+  }
+
+  function hasConsent() {
+    try { return sessionStorage.getItem(SESSION_CONSENT) === '1'; } catch (e) { return false; }
+  }
+
+  /** Session valide dans l'onglet — sans dépendre du referrer (souvent vide). */
+  function shouldSkipAuthGate() {
+    return !isPageReload() && hasAuth();
+  }
+
+  function shouldSkipLaunchConsent() {
+    return !isPageReload() && hasAuth() && hasConsent();
+  }
+
+  function preserveSessionForNav() {
+    if (hasAuth()) markAuth();
+    if (hasConsent()) markConsent();
+  }
+
+  function bindInternalNavPersistence() {
+    document.addEventListener('click', function (e) {
+      var link = e.target && e.target.closest
+        ? e.target.closest('a.app-nav-link, a.app-brand')
+        : null;
+      if (!link || !link.href) return;
+      try {
+        var url = new URL(link.href, location.href);
+        if (url.origin !== location.origin) return;
+        if (!isAppPagePath(url.pathname)) return;
+        if (global.PPLAuth && global.PPLAuth.isAuthed && global.PPLAuth.isAuthed()) markAuth();
+        if (global.PPLSettings && global.PPLSettings.hasPrivacyConsent
+          && global.PPLSettings.hasPrivacyConsent()) markConsent();
+        else preserveSessionForNav();
+      } catch (err) { /* ignore */ }
+    }, true);
+  }
+
+  bootstrapSession();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindInternalNavPersistence);
+  } else {
+    bindInternalNavPersistence();
+  }
+
+  global.PPLSessionGate = {
+    isPageReload: isPageReload,
+    isInternalAppNavigation: isInternalAppNavigation,
+    clearSession: clearSession,
+    markAuth: markAuth,
+    markConsent: markConsent,
+    hasAuth: hasAuth,
+    hasConsent: hasConsent,
+    shouldSkipAuthGate: shouldSkipAuthGate,
+    shouldSkipLaunchConsent: shouldSkipLaunchConsent,
+    preserveSessionForNav: preserveSessionForNav,
+  };
 
   var PLANE_SVG =
     '<svg class="ppl-entry-plane-svg" viewBox="0 0 80 80" aria-hidden="true">' +

@@ -8,7 +8,7 @@
   var MAX_LOCKOUTS = 15;
   var DAY_MS = 24 * 60 * 60 * 1000;
 
-  /** Authentifié uniquement pour cette page (re-demandé à chaque navigation). */
+  /** Authentifié pour cette page ou session onglet (navigation interne). */
   var pageAuthed = false;
 
   function load() {
@@ -40,7 +40,12 @@
   }
 
   function isAuthed() {
-    return pageAuthed;
+    if (pageAuthed) return true;
+    if (window.PPLSessionGate && window.PPLSessionGate.shouldSkipAuthGate()) {
+      pageAuthed = true;
+      return true;
+    }
+    return false;
   }
 
   function getBlock(now) {
@@ -95,6 +100,9 @@
 
   function registerSuccess() {
     pageAuthed = true;
+    if (window.PPLSessionGate && window.PPLSessionGate.markAuth) {
+      window.PPLSessionGate.markAuth();
+    }
     var prev = normalize(load());
     save({
       ok: false,
@@ -142,6 +150,8 @@
 
   if (needsGate()) {
     document.documentElement.classList.add('ppl-gated');
+  } else {
+    document.documentElement.classList.remove('ppl-gated');
   }
 
   var tickTimer = null;
@@ -320,6 +330,9 @@
     } else {
       document.documentElement.classList.remove('ppl-gated');
       stopTick();
+      try {
+        window.dispatchEvent(new CustomEvent('ppl-auth-success'));
+      } catch (e) {}
     }
 
     try {
