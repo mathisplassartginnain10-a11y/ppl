@@ -5,7 +5,11 @@ html {
 }
 
 body {
-  background: var(--bg, #080b12) !important;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -18%, var(--mesh-a, rgba(91, 138, 240, 0.16)) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 50% at 100% 45%, var(--mesh-b, rgba(124, 108, 246, 0.09)) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 0% 90%, var(--mesh-c, rgba(52, 211, 168, 0.06)) 0%, transparent 45%),
+    var(--bg, #060912) !important;
 }
 
 .mesh-bg,
@@ -74,8 +78,8 @@ body {
 }
 
 .app-header {
-  background: rgba(8, 11, 18, 0.96);
-  box-shadow: 0 1px 0 rgba(100, 130, 255, 0.1);
+  background: color-mix(in srgb, var(--bg) 92%, var(--s1));
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--acc) 15%, transparent);
 }
 
 .kpi-c,
