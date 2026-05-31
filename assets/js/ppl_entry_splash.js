@@ -8,7 +8,7 @@
   var SESSION_AUTH = 'ppl_session_auth';
   var SESSION_CONSENT = 'ppl_session_consent';
   var SESSION_NAV = 'ppl_internal_nav';
-  var APP_PAGES = /^(index\.html|fiches\.html|formules\.html|stats\.html)$/;
+  var APP_PAGES = /^(index\.html|apprendre\.html|fiches\.html|formules\.html|stats\.html)$/;
   var loadWasInternalNav = false;
 
   function isAppPagePath(pathname) {

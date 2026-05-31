@@ -1020,6 +1020,7 @@ function launchSingleQuestion(idx){
 }
 
 const revPanel=document.getElementById('rev-panel');
+if(revPanel){
 revPanel.addEventListener('click',e=>{
   const tab=e.target.closest('[data-rev-tab]');
   if(tab){revTab=tab.dataset.revTab;buildFichesPanel();return;}
@@ -1099,6 +1100,7 @@ revPanel.addEventListener('input',e=>{
 revPanel.addEventListener('change',e=>{
   if(e.target.id==='fiche-date-sort'){ficheDateSort=e.target.value;buildFichesPanel();}
 });
+}
 document.addEventListener('input',e=>{if(e.target.closest('[data-calc-type]')) handleFormulaCalcInput(e);});
 function handleFicheDeepLink(){
   const params=new URLSearchParams(location.search);
@@ -1158,7 +1160,14 @@ function bootFichesPage(){
   window.addEventListener('ppl-privacy-consent',run,{once:true});
 }
 bootFichesPage();
-if(window.PPLModuleHost) PPLModuleHost.emit('onAppReady',{page:'fiches'});
-window.addEventListener('ppl-data-erased',()=>location.reload());
-window.addEventListener('ppl-settings-changed',()=>buildFichesPanel());
-window.addEventListener('ppl-privacy-consent',()=>buildFichesPanel());
+}else{
+  window.addEventListener('ppl-privacy-consent',()=>{}, {once:true});
+}
+window.PPLFichesAPI={
+  initTopicKB,buildTopicFiche,renderTopicFicheHTML,
+  esc,modStr,modClass,diffStr,diffClass,getTopicStats,MOD_ORDER,MOD_ICON,MOD_ACCENT
+};
+if(window.PPLModuleHost) PPLModuleHost.emit('onAppReady',{page:revPanel?'fiches':'fiches-api'});
+window.addEventListener('ppl-data-erased',()=>{if(revPanel) location.reload();});
+window.addEventListener('ppl-settings-changed',()=>{if(revPanel) buildFichesPanel();});
+window.addEventListener('ppl-privacy-consent',()=>{if(revPanel) buildFichesPanel();});

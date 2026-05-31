@@ -433,6 +433,16 @@ html[data-anim='on'] .bank-hero-n {
   color: var(--acc-hi);
 }
 
+.hc-learn {
+  border-top: 3px solid color-mix(in srgb, var(--acc2) 70%, transparent);
+}
+
+.hc-learn .hc-badge {
+  background: color-mix(in srgb, var(--acc2) 16%, var(--s2));
+  border-color: color-mix(in srgb, var(--acc2) 32%, transparent);
+  color: color-mix(in srgb, var(--acc2) 85%, #fff);
+}
+
 .hc-fiches .hc-badge {
   background: color-mix(in srgb, var(--green) 14%, var(--s2));
   border-color: color-mix(in srgb, var(--green) 32%, transparent);

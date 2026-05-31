@@ -9,7 +9,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 
 /** Version cache-bust globale (YYYYMMDD + lettre). */
-const CACHE_VERSION = '20260530u';
+const CACHE_VERSION = '20260530v';
 
 /** Fichiers générés par scripts/build — ne pas éditer à la main. */
 const GENERATED = [
@@ -21,6 +21,7 @@ const GENERATED = [
   'assets/js/question_fiches_A.js',
   'assets/js/question_fiches_M.js',
   'assets/js/question_fiches_R.js',
+  'assets/js/learn_corpus.js',
   'data/questions_meta.json',
 ];
 
@@ -36,6 +37,7 @@ const CSS = {
   ppl_pro: 'assets/css/ppl_pro.css',
   ppl_design_ultra: 'assets/css/ppl_design_ultra.css',
   ppl_fiches_pro: 'assets/css/ppl_fiches_pro.css',
+  ppl_apprendre: 'assets/css/ppl_apprendre.css',
   ppl_resources: 'assets/css/ppl_resources.css',
   ppl_stats: 'assets/css/ppl_stats.css',
   ppl_plane_bg: 'assets/css/ppl_plane_bg.css',
@@ -55,6 +57,8 @@ const JS = {
   ppl_formulas_page: 'assets/js/ppl_formulas_page.js',
   ppl_stats_page: 'assets/js/ppl_stats_page.js',
   ppl_plane_bg: 'assets/js/ppl_plane_bg.js',
+  ppl_apprendre_page: 'assets/js/ppl_apprendre_page.js',
+  learn_corpus: 'assets/js/learn_corpus.js',
   questions_bank: 'assets/js/questions_bank.js',
   formulas_meta: 'assets/js/formulas_meta.js',
   formulas_bank: 'assets/js/formulas_bank.js',
@@ -71,7 +75,7 @@ const JS = {
 };
 
 /** Pages HTML du site. */
-const PAGES = ['index.html', 'fiches.html', 'formules.html', 'stats.html'];
+const PAGES = ['index.html', 'apprendre.html', 'fiches.html', 'formules.html', 'stats.html'];
 
 /**
  * Bundles par page — ordre de chargement.
@@ -98,6 +102,11 @@ const PAGE_BUNDLES = {
     css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_stats', 'ppl_mobile', 'ppl_auth', 'ppl_entry_splash', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_design_ultra', 'ppl_fiches_pro'],
     headBlocking: ['ppl_entry_splash', 'ppl_settings', 'ppl_auth', 'ppl_module_host'],
     bodyDefer: ['ppl_stats_page'],
+  },
+  'apprendre.html': {
+    css: ['ppl_theme', 'ppl_theme_enhance', 'ppl_resources', 'ppl_mobile', 'ppl_auth', 'ppl_entry_splash', 'ppl_perf', 'ppl_settings', 'ppl_pro', 'ppl_design_ultra', 'ppl_fiches_pro', 'ppl_apprendre'],
+    headBlocking: ['ppl_entry_splash', 'ppl_settings', 'ppl_storage', 'ppl_auth', 'ppl_module_host'],
+    bodyDefer: ['questions_bank', 'topics_utils', 'formulas_meta', 'ppl_formulas_lazy', 'fiche_enrich', 'question_fiche_core', 'question_fiche_engine', 'learn_corpus', 'ppl_fiches_page', 'ppl_apprendre_page'],
   },
 };
 
