@@ -148,14 +148,17 @@
     wasInternalNav: function () { return loadWasInternalNav; },
   };
 
-  var PLANE_SVG =
-    '<svg class="ppl-entry-plane-svg" viewBox="0 0 80 80" aria-hidden="true">' +
-    '<defs><linearGradient id="pplEntryPlaneGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
-    '<stop offset="0%" stop-color="#5b8af0"/><stop offset="100%" stop-color="#34d3a8"/>' +
-    '</linearGradient></defs>' +
-    '<path fill="url(#pplEntryPlaneGrad)" d="M40 8 L48 34 L72 38 L48 42 L52 68 L40 58 L28 68 L32 42 L8 38 L32 34 Z" opacity="0.95"/>' +
-    '<path fill="rgba(52,211,168,0.35)" d="M36 38 L40 48 L44 38 Z"/>' +
-    '</svg>';
+  function planeSVG(gradId) {
+    return (
+      '<svg class="ppl-entry-plane-svg" viewBox="0 0 80 80" aria-hidden="true">' +
+      '<defs><linearGradient id="' + gradId + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
+      '<stop offset="0%" stop-color="#5b8af0"/><stop offset="100%" stop-color="#34d3a8"/>' +
+      '</linearGradient></defs>' +
+      '<path fill="url(#' + gradId + ')" d="M40 8 L48 34 L72 38 L48 42 L52 68 L40 58 L28 68 L32 42 L8 38 L32 34 Z" opacity="0.95"/>' +
+      '<path fill="rgba(52,211,168,0.35)" d="M36 38 L40 48 L44 38 Z"/>' +
+      '</svg>'
+    );
+  }
 
   var CHECK_SVG =
     '<svg viewBox="0 0 52 52" aria-hidden="true">' +
@@ -176,12 +179,21 @@
     },
   };
 
+  var splashSeq = 0;
+
   function prefersReduced() {
     try {
       if (global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+      if (global.document && global.document.documentElement.dataset.anim === 'off') return true;
       if (global.PPLSettings && global.PPLSettings.get && global.PPLSettings.get().reduceMotion) return true;
     } catch (e) { /* ignore */ }
     return false;
+  }
+
+  function splashHoldMs(type, reduced) {
+    if (reduced) return 420;
+    /* Aligné sur la barre de progression (delay 0,35 s + fill 2,1 / 2,4 s) + marge */
+    return type === 'consent' ? 3100 : 2800;
   }
 
   function consentSubText(detail) {
@@ -203,9 +215,10 @@
     return html;
   }
 
-  function buildHTML(type, detail) {
+  function buildHTML(type, detail, gradId) {
     var preset = PRESETS[type] || PRESETS.auth;
     var sub = type === 'consent' ? consentSubText(detail) : preset.sub;
+    gradId = gradId || 'pplEntryPlaneGrad';
     return (
       '<div class="ppl-entry-bg">' +
       '<div class="ppl-entry-aurora"></div>' +
@@ -220,13 +233,14 @@
       '<div class="ppl-entry-grid"></div>' +
       '</div>' +
       '<div class="ppl-entry-core">' +
+      '<div class="ppl-entry-stack">' +
       '<div class="ppl-entry-hud">' +
       '<svg class="ppl-entry-hud-ring" viewBox="0 0 140 140" aria-hidden="true">' +
       '<circle cx="70" cy="70" r="62" class="ppl-entry-hud-orbit"/>' +
       '<circle cx="70" cy="70" r="48" class="ppl-entry-hud-orbit ppl-entry-hud-orbit--inner"/>' +
       '<path d="M70 18v16M70 106v16M18 70h16M106 70h16" class="ppl-entry-hud-cross"/>' +
       '</svg>' +
-      '<div class="ppl-entry-plane-wrap">' + PLANE_SVG + '</div>' +
+      '<div class="ppl-entry-plane-wrap">' + planeSVG(gradId) + '</div>' +
       '<div class="ppl-entry-check">' + CHECK_SVG + '</div>' +
       '</div>' +
       '<p class="ppl-entry-kicker">' + preset.kicker + '</p>' +
@@ -234,6 +248,7 @@
       '<p class="ppl-entry-sub">' + sub + '</p>' +
       '<div class="ppl-entry-runway">' + buildRunwayLights() + '</div>' +
       '<div class="ppl-entry-progress" aria-hidden="true"><span></span></div>' +
+      '</div>' +
       '</div>'
     );
   }
@@ -242,8 +257,10 @@
     opts = opts || {};
     var type = opts.type === 'consent' ? 'consent' : 'auth';
     var reduced = prefersReduced();
-    var hold = reduced ? 420 : (type === 'consent' ? 2700 : 2300);
+    var hold = splashHoldMs(type, reduced);
     var fade = reduced ? 180 : 700;
+    splashSeq += 1;
+    var gradId = 'pplEntryPlaneGrad' + splashSeq;
 
     return new Promise(function (resolve) {
       var existing = document.getElementById('ppl-entry-splash');
@@ -255,14 +272,18 @@
       el.setAttribute('role', 'status');
       el.setAttribute('aria-live', 'polite');
       el.setAttribute('aria-label', PRESETS[type].title);
-      el.innerHTML = buildHTML(type, opts.detail);
+      el.innerHTML = buildHTML(type, opts.detail, gradId);
       document.body.appendChild(el);
 
-      requestAnimationFrame(function () {
+      if (reduced) {
+        el.classList.add('is-active');
+      } else {
         requestAnimationFrame(function () {
-          el.classList.add('is-active');
+          requestAnimationFrame(function () {
+            el.classList.add('is-active');
+          });
         });
-      });
+      }
 
       global.setTimeout(function () {
         el.classList.add('is-leaving');

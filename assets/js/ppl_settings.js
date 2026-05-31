@@ -598,6 +598,7 @@
   let consentOpen = false;
   let consentReview = false;
   let consentLaunch = false;
+  let consentFinishing = false;
   let uiMounted = false;
   let consentDraft = null;
   /** Consentement validé pour la page en cours uniquement. */
@@ -1190,6 +1191,12 @@
   }
 
   function finishConsent(patch) {
+    if (consentFinishing) return;
+    consentFinishing = true;
+    const overlay = document.getElementById('set-consent-overlay');
+    if (overlay) {
+      overlay.querySelectorAll('button, input').forEach((el) => { el.disabled = true; });
+    }
     sessionConsentGranted = true;
     if (global.PPLSessionGate && global.PPLSessionGate.markConsent) {
       global.PPLSessionGate.markConsent();
@@ -1197,6 +1204,7 @@
     save({ ...patch, privacyConsentAt: Date.now() });
 
     function complete() {
+      consentFinishing = false;
       closeConsentGate();
       if (!uiMounted) {
         mountUI();

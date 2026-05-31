@@ -125,20 +125,22 @@
     '<line x1="1" y1="1" x2="23" y2="23"/>' +
     '</svg>';
 
+  var authSuccessPending = false;
+
   function playSuccessAndEnter(gate) {
+    if (authSuccessPending) return;
+    authSuccessPending = true;
     registerSuccess();
     stopTick();
+    gate.classList.add('is-leaving');
 
     function done() {
       try {
         window.dispatchEvent(new CustomEvent('ppl-auth-success'));
       } catch (e) {}
-      gate.classList.add('is-leaving');
       document.documentElement.classList.remove('ppl-gated');
-      setTimeout(function () {
-        gate.innerHTML = '';
-        gate.className = '';
-      }, 520);
+      gate.innerHTML = '';
+      gate.className = '';
     }
 
     if (window.PPLEntrySplash && window.PPLEntrySplash.play) {
