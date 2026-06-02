@@ -9,6 +9,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
 const OUT = path.join(ROOT, 'assets', 'js', 'learn_corpus.js');
+const MANIFEST = path.join(ROOT, 'assets', 'docs', 'manifest.json');
 
 const SOURCES = [
   {
@@ -97,6 +98,25 @@ function escJs(s) {
 
 const corpus = { version: 1, builtAt: new Date().toISOString(), sources: [] };
 
+let pageManifest = null;
+if (fs.existsSync(MANIFEST)) {
+  try {
+    pageManifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+    console.log('Manifeste pages:', pageManifest.totalPages, 'pages');
+  } catch (e) {
+    console.warn('Manifeste pages illisible:', e.message);
+  }
+} else {
+  console.warn('Manifeste pages absent — lancer: python scripts/build/extract_doc_pages.py');
+}
+
+function pagesForSource(id) {
+  if (!pageManifest) return null;
+  const src = pageManifest.sources.find((s) => s.id === id);
+  if (!src) return null;
+  return { pageCount: src.pageCount, pages: src.pages };
+}
+
 SOURCES.forEach((src) => {
   const abs = path.join(ROOT, 'docs', src.file);
   if (!fs.existsSync(abs)) {
@@ -105,6 +125,7 @@ SOURCES.forEach((src) => {
   }
   const content = fs.readFileSync(abs, 'utf8');
   const sections = parseDoc(content);
+  const pageData = pagesForSource(src.id);
   corpus.sources.push({
     id: src.id,
     mod: src.mod,
@@ -114,6 +135,7 @@ SOURCES.forEach((src) => {
     chars: content.length,
     sectionCount: sections.length,
     sections,
+    ...(pageData ? { pageCount: pageData.pageCount, pages: pageData.pages } : {}),
   });
   console.log(src.file, '→', sections.length, 'sections');
 });

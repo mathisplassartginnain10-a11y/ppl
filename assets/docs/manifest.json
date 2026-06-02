@@ -1,0 +1,716 @@
+{
+  "version": 1,
+  "maxWidth": 1100,
+  "jpegQuality": 82,
+  "sources": [
+    {
+      "id": "010",
+      "mod": "R",
+      "title": "010 — Réglementation aérienne",
+      "pdf": "010_compilation_droit-aerien_reglementation.pdf",
+      "pageCount": 40,
+      "pages": [
+        {
+          "n": 1,
+          "file": "assets/docs/010/page-001.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 143986
+        },
+        {
+          "n": 2,
+          "file": "assets/docs/010/page-002.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 286155
+        },
+        {
+          "n": 3,
+          "file": "assets/docs/010/page-003.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 277213
+        },
+        {
+          "n": 4,
+          "file": "assets/docs/010/page-004.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 231139
+        },
+        {
+          "n": 5,
+          "file": "assets/docs/010/page-005.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 291401
+        },
+        {
+          "n": 6,
+          "file": "assets/docs/010/page-006.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 305000
+        },
+        {
+          "n": 7,
+          "file": "assets/docs/010/page-007.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 263811
+        },
+        {
+          "n": 8,
+          "file": "assets/docs/010/page-008.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 259925
+        },
+        {
+          "n": 9,
+          "file": "assets/docs/010/page-009.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 219020
+        },
+        {
+          "n": 10,
+          "file": "assets/docs/010/page-010.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 230100
+        },
+        {
+          "n": 11,
+          "file": "assets/docs/010/page-011.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 254398
+        },
+        {
+          "n": 12,
+          "file": "assets/docs/010/page-012.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 173931
+        },
+        {
+          "n": 13,
+          "file": "assets/docs/010/page-013.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 208069
+        },
+        {
+          "n": 14,
+          "file": "assets/docs/010/page-014.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 269146
+        },
+        {
+          "n": 15,
+          "file": "assets/docs/010/page-015.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 180926
+        },
+        {
+          "n": 16,
+          "file": "assets/docs/010/page-016.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 245340
+        },
+        {
+          "n": 17,
+          "file": "assets/docs/010/page-017.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 123372
+        },
+        {
+          "n": 18,
+          "file": "assets/docs/010/page-018.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 136900
+        },
+        {
+          "n": 19,
+          "file": "assets/docs/010/page-019.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 248241
+        },
+        {
+          "n": 20,
+          "file": "assets/docs/010/page-020.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 151453
+        },
+        {
+          "n": 21,
+          "file": "assets/docs/010/page-021.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 271689
+        },
+        {
+          "n": 22,
+          "file": "assets/docs/010/page-022.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 261103
+        },
+        {
+          "n": 23,
+          "file": "assets/docs/010/page-023.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 231401
+        },
+        {
+          "n": 24,
+          "file": "assets/docs/010/page-024.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 286336
+        },
+        {
+          "n": 25,
+          "file": "assets/docs/010/page-025.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 326368
+        },
+        {
+          "n": 26,
+          "file": "assets/docs/010/page-026.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 245971
+        },
+        {
+          "n": 27,
+          "file": "assets/docs/010/page-027.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 250716
+        },
+        {
+          "n": 28,
+          "file": "assets/docs/010/page-028.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 217182
+        },
+        {
+          "n": 29,
+          "file": "assets/docs/010/page-029.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 242282
+        },
+        {
+          "n": 30,
+          "file": "assets/docs/010/page-030.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 252944
+        },
+        {
+          "n": 31,
+          "file": "assets/docs/010/page-031.jpg",
+          "w": 1236,
+          "h": 1730,
+          "bytes": 276180
+        },
+        {
+          "n": 32,
+          "file": "assets/docs/010/page-032.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 202642
+        },
+        {
+          "n": 33,
+          "file": "assets/docs/010/page-033.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 236455
+        },
+        {
+          "n": 34,
+          "file": "assets/docs/010/page-034.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 157015
+        },
+        {
+          "n": 35,
+          "file": "assets/docs/010/page-035.jpg",
+          "w": 1236,
+          "h": 1730,
+          "bytes": 327107
+        },
+        {
+          "n": 36,
+          "file": "assets/docs/010/page-036.jpg",
+          "w": 1236,
+          "h": 1730,
+          "bytes": 313066
+        },
+        {
+          "n": 37,
+          "file": "assets/docs/010/page-037.jpg",
+          "w": 1236,
+          "h": 1730,
+          "bytes": 320742
+        },
+        {
+          "n": 38,
+          "file": "assets/docs/010/page-038.jpg",
+          "w": 1236,
+          "h": 1730,
+          "bytes": 319791
+        },
+        {
+          "n": 39,
+          "file": "assets/docs/010/page-039.jpg",
+          "w": 1236,
+          "h": 1730,
+          "bytes": 329123
+        },
+        {
+          "n": 40,
+          "file": "assets/docs/010/page-040.jpg",
+          "w": 1236,
+          "h": 1730,
+          "bytes": 353317
+        }
+      ]
+    },
+    {
+      "id": "020",
+      "mod": "A",
+      "title": "020 — Connaissance générale aéronef",
+      "pdf": "020_compilation-connaissance_generale_aeronef.pdf",
+      "pageCount": 29,
+      "pages": [
+        {
+          "n": 1,
+          "file": "assets/docs/020/page-001.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 95724
+        },
+        {
+          "n": 2,
+          "file": "assets/docs/020/page-002.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 153686
+        },
+        {
+          "n": 3,
+          "file": "assets/docs/020/page-003.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 146975
+        },
+        {
+          "n": 4,
+          "file": "assets/docs/020/page-004.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 158907
+        },
+        {
+          "n": 5,
+          "file": "assets/docs/020/page-005.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 202203
+        },
+        {
+          "n": 6,
+          "file": "assets/docs/020/page-006.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 204097
+        },
+        {
+          "n": 7,
+          "file": "assets/docs/020/page-007.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 211321
+        },
+        {
+          "n": 8,
+          "file": "assets/docs/020/page-008.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 196844
+        },
+        {
+          "n": 9,
+          "file": "assets/docs/020/page-009.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 181967
+        },
+        {
+          "n": 10,
+          "file": "assets/docs/020/page-010.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 206816
+        },
+        {
+          "n": 11,
+          "file": "assets/docs/020/page-011.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 164904
+        },
+        {
+          "n": 12,
+          "file": "assets/docs/020/page-012.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 285093
+        },
+        {
+          "n": 13,
+          "file": "assets/docs/020/page-013.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 233303
+        },
+        {
+          "n": 14,
+          "file": "assets/docs/020/page-014.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 234824
+        },
+        {
+          "n": 15,
+          "file": "assets/docs/020/page-015.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 237320
+        },
+        {
+          "n": 16,
+          "file": "assets/docs/020/page-016.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 209523
+        },
+        {
+          "n": 17,
+          "file": "assets/docs/020/page-017.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 199239
+        },
+        {
+          "n": 18,
+          "file": "assets/docs/020/page-018.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 297140
+        },
+        {
+          "n": 19,
+          "file": "assets/docs/020/page-019.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 254213
+        },
+        {
+          "n": 20,
+          "file": "assets/docs/020/page-020.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 245126
+        },
+        {
+          "n": 21,
+          "file": "assets/docs/020/page-021.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 264830
+        },
+        {
+          "n": 22,
+          "file": "assets/docs/020/page-022.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 248108
+        },
+        {
+          "n": 23,
+          "file": "assets/docs/020/page-023.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 294947
+        },
+        {
+          "n": 24,
+          "file": "assets/docs/020/page-024.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 222274
+        },
+        {
+          "n": 25,
+          "file": "assets/docs/020/page-025.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 258763
+        },
+        {
+          "n": 26,
+          "file": "assets/docs/020/page-026.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 165976
+        },
+        {
+          "n": 27,
+          "file": "assets/docs/020/page-027.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 236921
+        },
+        {
+          "n": 28,
+          "file": "assets/docs/020/page-028.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 260558
+        },
+        {
+          "n": 29,
+          "file": "assets/docs/020/page-029.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 257505
+        }
+      ]
+    },
+    {
+      "id": "050",
+      "mod": "M",
+      "title": "050 — Météorologie",
+      "pdf": "050_compilation_meteorologie.pdf",
+      "pageCount": 25,
+      "pages": [
+        {
+          "n": 1,
+          "file": "assets/docs/050/page-001.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 97204
+        },
+        {
+          "n": 2,
+          "file": "assets/docs/050/page-002.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 241927
+        },
+        {
+          "n": 3,
+          "file": "assets/docs/050/page-003.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 213533
+        },
+        {
+          "n": 4,
+          "file": "assets/docs/050/page-004.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 315020
+        },
+        {
+          "n": 5,
+          "file": "assets/docs/050/page-005.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 173990
+        },
+        {
+          "n": 6,
+          "file": "assets/docs/050/page-006.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 267969
+        },
+        {
+          "n": 7,
+          "file": "assets/docs/050/page-007.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 326837
+        },
+        {
+          "n": 8,
+          "file": "assets/docs/050/page-008.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 253230
+        },
+        {
+          "n": 9,
+          "file": "assets/docs/050/page-009.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 244474
+        },
+        {
+          "n": 10,
+          "file": "assets/docs/050/page-010.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 247378
+        },
+        {
+          "n": 11,
+          "file": "assets/docs/050/page-011.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 261148
+        },
+        {
+          "n": 12,
+          "file": "assets/docs/050/page-012.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 184133
+        },
+        {
+          "n": 13,
+          "file": "assets/docs/050/page-013.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 216983
+        },
+        {
+          "n": 14,
+          "file": "assets/docs/050/page-014.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 283119
+        },
+        {
+          "n": 15,
+          "file": "assets/docs/050/page-015.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 158815
+        },
+        {
+          "n": 16,
+          "file": "assets/docs/050/page-016.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 203855
+        },
+        {
+          "n": 17,
+          "file": "assets/docs/050/page-017.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 237191
+        },
+        {
+          "n": 18,
+          "file": "assets/docs/050/page-018.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 367967
+        },
+        {
+          "n": 19,
+          "file": "assets/docs/050/page-019.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 222225
+        },
+        {
+          "n": 20,
+          "file": "assets/docs/050/page-020.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 170621
+        },
+        {
+          "n": 21,
+          "file": "assets/docs/050/page-021.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 294912
+        },
+        {
+          "n": 22,
+          "file": "assets/docs/050/page-022.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 300588
+        },
+        {
+          "n": 23,
+          "file": "assets/docs/050/page-023.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 259388
+        },
+        {
+          "n": 24,
+          "file": "assets/docs/050/page-024.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 327409
+        },
+        {
+          "n": 25,
+          "file": "assets/docs/050/page-025.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 326589
+        }
+      ]
+    },
+    {
+      "id": "091",
+      "mod": "C",
+      "title": "091 — Communications",
+      "pdf": "fiche_resume_communications.pdf",
+      "pageCount": 2,
+      "pages": [
+        {
+          "n": 1,
+          "file": "assets/docs/091/page-001.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 262733
+        },
+        {
+          "n": 2,
+          "file": "assets/docs/091/page-002.jpg",
+          "w": 1191,
+          "h": 1684,
+          "bytes": 237943
+        }
+      ]
+    }
+  ],
+  "totalPages": 96
+}

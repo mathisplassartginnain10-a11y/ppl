@@ -13,6 +13,7 @@
   let search = '';
   let selectedKey = '';
   let selectedQIdx = -1;
+  let docView = 'both';
 
   const root = document.getElementById('learn-root');
 
@@ -54,7 +55,8 @@
     const qs = typeof Q !== 'undefined' ? Q.length : 0;
     const fm = typeof FORMULA_META !== 'undefined' ? FORMULA_META.total : (typeof FORMULAS !== 'undefined' ? FORMULAS.length : 145);
     const docs = window.LEARN_CORPUS ? window.LEARN_CORPUS.sources.reduce((n, s) => n + s.sectionCount, 0) : 0;
-    return { topics, qs, fm, docs };
+    const pages = window.LEARN_CORPUS ? window.LEARN_CORPUS.sources.reduce((n, s) => n + (s.pageCount || 0), 0) : 0;
+    return { topics, qs, fm, docs, pages };
   }
 
   function getTopics() {
@@ -83,8 +85,9 @@
     const st = getStats();
     return `<div class="learn-hero">
       <h2>Apprendre — encyclopédie PPL</h2>
-      <p class="learn-hero-sub">Toutes les compilations Aérogligli, les ${st.topics} thèmes, ${st.qs} fiches QCM et ${st.fm} formules — ultra-développé, 100 % local.</p>
+      <p class="learn-hero-sub">Toutes les compilations Aérogligli (${st.pages ? st.pages + ' pages originales · ' : ''}${st.docs} sections), les ${st.topics} thèmes, ${st.qs} fiches QCM et ${st.fm} formules — ultra-développé, 100 % local.</p>
       <div class="learn-stats">
+        ${st.pages ? `<span class="learn-stat">${st.pages} pages PDF</span>` : ''}
         <span class="learn-stat">${st.docs} sections source</span>
         <span class="learn-stat">${st.topics} thèmes</span>
         <span class="learn-stat">${st.qs} questions</span>
@@ -115,16 +118,44 @@
     </div>`;
   }
 
+  function renderDocPagesHtml(src, opts) {
+    if (!src?.pages?.length) {
+      return '<div class="learn-empty">Pages originales non disponibles. Regénérez avec <code>npm run learn:pages</code>.</div>';
+    }
+    const start = opts?.pageStart || 1;
+    const end = opts?.pageEnd || src.pages.length;
+    const slice = src.pages.filter((p) => p.n >= start && p.n <= end);
+    return slice.map((p) =>
+      `<figure class="learn-page-fig" id="learn-page-${src.id}-${p.n}">
+        <div class="learn-page-hd"><span class="learn-page-n">Page ${p.n}</span><span class="learn-page-dim">${p.w}×${p.h}</span></div>
+        <img class="learn-page-img" src="${esc(p.file)}" alt="${esc(src.title)} — page ${p.n}" loading="lazy" width="${p.w}" height="${p.h}">
+      </figure>`
+    ).join('');
+  }
+
+  function renderDocViewTabs(srcId, active) {
+    return `<div class="learn-doc-view-tabs" role="tablist">
+      <button type="button" class="learn-doc-view-tab${active === 'text' ? ' on' : ''}" data-doc-view="text" data-doc-src="${esc(srcId)}">Texte intégral</button>
+      <button type="button" class="learn-doc-view-tab${active === 'pages' ? ' on' : ''}" data-doc-view="pages" data-doc-src="${esc(srcId)}">Fiche originale (images)</button>
+      <button type="button" class="learn-doc-view-tab${active === 'both' ? ' on' : ''}" data-doc-view="both" data-doc-src="${esc(srcId)}">Complet texte + images</button>
+    </div>`;
+  }
+
   function renderSidebarItems() {
     if (tab === 'docs' && window.LEARN_CORPUS) {
       return window.LEARN_CORPUS.sources
         .filter((s) => mod === 'all' || s.mod === mod)
         .map((src) => {
           const fullKey = 'docfull:' + src.id;
+          const pagesKey = 'docpages:' + src.id;
           const fullBtn = `<button type="button" class="learn-nav-item learn-nav-full${selectedKey === fullKey ? ' on' : ''}" data-learn-key="${esc(fullKey)}">
-            <span>📄 Tout — ${esc(src.title.length > 40 ? src.title.slice(0, 38) + '…' : src.title)}</span>
-            <span class="learn-nav-meta">${src.sectionCount} sections · ${MOD_ICON[src.mod]}</span>
+            <span>📄 Complet — ${esc(src.title.length > 36 ? src.title.slice(0, 34) + '…' : src.title)}</span>
+            <span class="learn-nav-meta">${src.sectionCount} sections${src.pageCount ? ' · ' + src.pageCount + ' p.' : ''} · ${MOD_ICON[src.mod]}</span>
           </button>`;
+          const pagesBtn = src.pageCount ? `<button type="button" class="learn-nav-item learn-nav-pages${selectedKey === pagesKey ? ' on' : ''}" data-learn-key="${esc(pagesKey)}">
+            <span>🖼 Fiche originale — ${esc(src.id)}</span>
+            <span class="learn-nav-meta">${src.pageCount} pages · ${MOD_ICON[src.mod]}</span>
+          </button>` : '';
           const secs = src.sections
             .map((sec, i) => {
               const key = 'doc:' + src.id + ':' + i;
@@ -135,7 +166,7 @@
             </button>`;
             })
             .join('');
-          return fullBtn + secs;
+          return fullBtn + pagesBtn + secs;
         })
         .join('');
     }
@@ -205,7 +236,7 @@
     if (tab === 'home') {
       return `<div class="learn-home-grid">
         <button type="button" class="learn-home-card" data-learn-goto="docs">
-          <div class="learn-home-card-ico">📚</div><h4>Compilations Aérogligli</h4><p>4 documents source · ${getStats().docs} sections intégrales (010, 020, 050, 091)</p>
+          <div class="learn-home-card-ico">📚</div><h4>Compilations Aérogligli</h4><p>4 documents · ${getStats().docs} sections + ${getStats().pages || 0} pages originales avec schémas et tableaux</p>
         </button>
         <button type="button" class="learn-home-card" data-learn-goto="topics">
           <div class="learn-home-card-ico">🎯</div><h4>${getStats().topics} thèmes</h4><p>Fiches ultra-développées : règles, pièges, formules, QCM du thème</p>
@@ -227,12 +258,25 @@
       const srcId = selectedKey.slice(8);
       const src = window.LEARN_CORPUS?.sources.find((s) => s.id === srcId);
       if (!src) return '<div class="learn-empty">Document introuvable.</div>';
-      const sections = src.sections.map((sec) =>
+      const sections = (docView === 'pages' ? '' : src.sections.map((sec) =>
         `<section class="learn-doc-block"><h4 class="learn-doc-h4">${esc(sec.title)}</h4>${corpusBodyHtml(sec.body)}</section>`
-      ).join('');
+      ).join(''));
+      const pages = (docView === 'text' ? '' : `<div class="learn-doc-pages">${renderDocPagesHtml(src)}</div>`);
       return `<div class="learn-panel learn-panel-full">
-        <div class="learn-panel-hd"><h3>${esc(src.title)}</h3><p>Compilation intégrale · ${src.sectionCount} sections · source Aérogligli ${esc(src.id)}</p></div>
-        <div class="learn-doc-full">${sections}</div>
+        <div class="learn-panel-hd"><h3>${esc(src.title)}</h3><p>Compilation intégrale · ${src.sectionCount} sections${src.pageCount ? ' · ' + src.pageCount + ' pages originales' : ''} · source Aérogligli ${esc(src.id)}</p></div>
+        ${src.pageCount ? renderDocViewTabs(srcId, docView) : ''}
+        ${docView !== 'pages' ? `<div class="learn-doc-full">${sections}</div>` : ''}
+        ${pages}
+      </div>`;
+    }
+
+    if (selectedKey.startsWith('docpages:')) {
+      const srcId = selectedKey.slice(9);
+      const src = window.LEARN_CORPUS?.sources.find((s) => s.id === srcId);
+      if (!src) return '<div class="learn-empty">Document introuvable.</div>';
+      return `<div class="learn-panel learn-panel-full">
+        <div class="learn-panel-hd"><h3>${esc(src.title)}</h3><p>Fiche originale Aérogligli · ${src.pageCount || 0} pages · schémas, tableaux et illustrations</p></div>
+        <div class="learn-doc-pages learn-doc-pages-only">${renderDocPagesHtml(src)}</div>
       </div>`;
     }
 
@@ -241,8 +285,10 @@
       const src = window.LEARN_CORPUS?.sources.find((s) => s.id === srcId);
       const sec = src?.sections[parseInt(idxStr, 10)];
       if (!sec) return '<div class="learn-empty">Section introuvable.</div>';
+      const secIdx = parseInt(idxStr, 10);
+      const pageHint = src.pageCount ? `<p class="learn-sec-page-hint">Consultez aussi la <button type="button" class="learn-inline-link" data-learn-key="docpages:${esc(srcId)}">fiche originale (${src.pageCount} pages)</button> pour les schémas et tableaux.</p>` : '';
       return `<div class="learn-panel">
-        <div class="learn-panel-hd"><h3>${esc(sec.title)}</h3><p>${esc(src.title)} · source Aérogligli</p></div>
+        <div class="learn-panel-hd"><h3>${esc(sec.title)}</h3><p>${esc(src.title)} · section ${secIdx + 1}/${src.sectionCount} · source Aérogligli</p>${pageHint}</div>
         <div class="learn-doc-section">${corpusBodyHtml(sec.body)}</div>
       </div>`;
     }
@@ -327,36 +373,48 @@
 
   function bindEvents() {
     root.querySelectorAll('[data-learn-tab]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.onclick = () => {
         tab = btn.dataset.learnTab;
         selectedKey = '';
         renderAll();
-      });
+      };
     });
     root.querySelectorAll('[data-learn-mod]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.onclick = () => {
         mod = btn.dataset.learnMod;
         selectedKey = '';
         renderAll();
-      });
-    });
-    root.querySelectorAll('[data-learn-key]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        selectedKey = btn.dataset.learnKey;
-        selectedQIdx = selectedKey.startsWith('q:') ? parseInt(selectedKey.slice(2), 10) : -1;
-        document.getElementById('learn-main').innerHTML = renderMainContent();
-        root.querySelectorAll('[data-learn-key]').forEach((b) => b.classList.toggle('on', b.dataset.learnKey === selectedKey));
-        hydrateSelection();
-        document.getElementById('learn-main')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+      };
     });
     root.querySelectorAll('[data-learn-goto]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.onclick = () => {
         tab = btn.dataset.learnGoto;
         selectedKey = '';
         renderAll();
-      });
+      };
     });
+    if (!root.dataset.learnDelegated) {
+      root.dataset.learnDelegated = '1';
+      root.addEventListener('click', (e) => {
+        const docViewBtn = e.target.closest('[data-doc-view]');
+        if (docViewBtn) {
+          docView = docViewBtn.dataset.docView;
+          const main = document.getElementById('learn-main');
+          if (main) main.innerHTML = renderMainContent();
+          return;
+        }
+        const keyBtn = e.target.closest('[data-learn-key]');
+        if (!keyBtn) return;
+        selectedKey = keyBtn.dataset.learnKey;
+        if (selectedKey.startsWith('docfull:')) docView = 'both';
+        selectedQIdx = selectedKey.startsWith('q:') ? parseInt(selectedKey.slice(2), 10) : -1;
+        const main = document.getElementById('learn-main');
+        if (main) main.innerHTML = renderMainContent();
+        root.querySelectorAll('.learn-nav-item[data-learn-key]').forEach((b) => b.classList.toggle('on', b.dataset.learnKey === selectedKey));
+        hydrateSelection();
+        main?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
     const inp = document.getElementById('learn-search');
     if (inp) {
       let t;
