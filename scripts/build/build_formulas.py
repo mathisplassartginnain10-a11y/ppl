@@ -5,7 +5,7 @@ from pathlib import Path
 from collections import Counter
 from formula_enrich import enrich_all
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets" / "js" / "formulas_bank.js"
 
 

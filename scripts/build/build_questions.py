@@ -3,7 +3,7 @@
 import json, re, math, random
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 HTML = ROOT / "index.html"
 OUT = ROOT / "assets" / "js" / "questions_bank.js"
