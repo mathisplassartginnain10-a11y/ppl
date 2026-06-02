@@ -12,8 +12,11 @@ META = ROOT / "data" / "questions_meta.json"
 random.seed(42)
 
 
-def q(m, d, question, opts, a, e, r):
-    return {"m": m, "d": d, "q": question, "o": opts, "a": a, "e": e, "r": r}
+def q(m, d, question, opts, a, e, r, img=None):
+    item = {"m": m, "d": d, "q": question, "o": opts, "a": a, "e": e, "r": r}
+    if img:
+        item["img"] = img
+    return item
 
 
 def norm_opt(s):
@@ -1883,6 +1886,8 @@ def main():
     bank = []
     bank.extend(gen_comm())
     bank.extend(gen_aero())
+    from aero_image_questions import gen_aero_image_questions
+    bank.extend(gen_aero_image_questions(q))
     bank.extend(gen_meteo())
     bank.extend(gen_meteo_symbols_advanced())
     bank.extend(gen_meteo_metar_taf_decode())
@@ -1921,10 +1926,11 @@ def main():
     ]
     for item in bank:
         o = json.dumps(item["o"], ensure_ascii=False)
+        extra = f',img:{json.dumps(item["img"], ensure_ascii=False)}' if item.get("img") else ""
         lines.append(
             f'{{m:"{item["m"]}",d:{item["d"]},q:{json.dumps(item["q"], ensure_ascii=False)},'
             f'o:{o},a:{item["a"]},e:{json.dumps(item["e"], ensure_ascii=False)},'
-            f'r:{json.dumps(item["r"], ensure_ascii=False)}}},'
+            f'r:{json.dumps(item["r"], ensure_ascii=False)}{extra}}},'
         )
     lines.append("];")
     OUT.write_text("\n".join(lines), encoding="utf-8")

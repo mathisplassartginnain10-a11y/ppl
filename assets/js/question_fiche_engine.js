@@ -122,6 +122,7 @@
       + '<div class="fiche-pro-top"><span class="fiche-pro-kicker">Fiche explicative</span>'
       + '<div class="fiche-pro-tags">' + tags + '</div></div>'
       + '<p class="fiche-pro-q q-fiche-question">' + esc(q.q) + '</p>'
+      + (q.img ? '<figure class="q-fiche-img-wrap"><img class="q-fiche-img" src="' + esc(q.img) + '" alt="Schéma fiche Aérogligli"></figure>' : '')
       + compareHtml
       + '</header>'
       + '<div class="fiche-pro-lead">'

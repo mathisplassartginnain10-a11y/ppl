@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "crops": [
+    {
+      "id": "geo-aile-plan",
+      "file": "assets/docs/020/crops/geo-aile-plan.jpg",
+      "page": "page-003.jpg",
+      "w": 1120,
+      "h": 656,
+      "bytes": 71921
+    },
+    {
+      "id": "geo-dimensions",
+      "file": "assets/docs/020/crops/geo-dimensions.jpg",
+      "page": "page-003.jpg",
+      "w": 1120,
+      "h": 606,
+      "bytes": 41283
+    },
+    {
+      "id": "geo-diedre-calage",
+      "file": "assets/docs/020/crops/geo-diedre-calage.jpg",
+      "page": "page-004.jpg",
+      "w": 1120,
+      "h": 690,
+      "bytes": 55215
+    },
+    {
+      "id": "geo-trains-angles",
+      "file": "assets/docs/020/crops/geo-trains-angles.jpg",
+      "page": "page-004.jpg",
+      "w": 1120,
+      "h": 809,
+      "bytes": 92298
+    },
+    {
+      "id": "moteur-4cyl",
+      "file": "assets/docs/020/crops/moteur-4cyl.jpg",
+      "page": "page-006.jpg",
+      "w": 1120,
+      "h": 522,
+      "bytes": 103036
+    },
+    {
+      "id": "moteur-cylindre",
+      "file": "assets/docs/020/crops/moteur-cylindre.jpg",
+      "page": "page-006.jpg",
+      "w": 1120,
+      "h": 724,
+      "bytes": 77188
+    },
+    {
+      "id": "anemo-schema",
+      "file": "assets/docs/020/crops/anemo-schema.jpg",
+      "page": "page-011.jpg",
+      "w": 1072,
+      "h": 791,
+      "bytes": 119319
+    },
+    {
+      "id": "alti-schema",
+      "file": "assets/docs/020/crops/alti-schema.jpg",
+      "page": "page-016.jpg",
+      "w": 1072,
+      "h": 775,
+      "bytes": 145865
+    },
+    {
+      "id": "vario-schema",
+      "file": "assets/docs/020/crops/vario-schema.jpg",
+      "page": "page-019.jpg",
+      "w": 1072,
+      "h": 725,
+      "bytes": 128695
+    },
+    {
+      "id": "horizon-schema",
+      "file": "assets/docs/020/crops/horizon-schema.jpg",
+      "page": "page-021.jpg",
+      "w": 1072,
+      "h": 741,
+      "bytes": 137518
+    },
+    {
+      "id": "directionnel-schema",
+      "file": "assets/docs/020/crops/directionnel-schema.jpg",
+      "page": "page-024.jpg",
+      "w": 1072,
+      "h": 741,
+      "bytes": 132537
+    },
+    {
+      "id": "coordinateur-schema",
+      "file": "assets/docs/020/crops/coordinateur-schema.jpg",
+      "page": "page-027.jpg",
+      "w": 1072,
+      "h": 741,
+      "bytes": 99807
+    }
+  ]
+}

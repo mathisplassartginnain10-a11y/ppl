@@ -2435,7 +2435,8 @@ function renderQ(){
         ${sessionRecycle?'<span class="bd" style="border-color:var(--acc);color:var(--acc)">VARIANTES</span>':''}
         <span class="qnum">#${qi+1}</span>
       </div>
-      <div class="qtext">${q.q}</div>
+      <div class="qtext">${esc(q.q)}</div>
+      ${q.img ? `<figure class="q-fig"><button type="button" class="q-fig-btn" data-q-img="${esc(q.img)}" aria-label="Agrandir le schéma"><img class="q-img" src="${esc(q.img)}" alt="Schéma fiche Aérogligli"></button><figcaption class="q-fig-cap">Schéma fiche Aérogligli — cliquer pour agrandir</figcaption></figure>` : ''}
       ${diversityLabel(q)?`<div style="font-size:10px;color:var(--t3);margin:-.35rem 0 .5rem">${diversityLabel(q)}</div>`:''}
       <div class="opts">
         ${curOptOrder.map((oi,di)=>`<button class="opt" id="o${di}" onclick="doAns(${di})"><span class="olet">${String.fromCharCode(65+di)}</span><span class="otxt">${q.o[oi]}</span></button>`).join('')}
@@ -2444,7 +2445,49 @@ function renderQ(){
     </div>`;
   QBehavior.reset();
   QBehavior.attach();
+  bindQuizFigZoom();
   startReactLive(q.d);
+}
+
+function bindQuizFigZoom(){
+  document.querySelectorAll('.q-fig-btn').forEach(btn=>{
+    btn.onclick=()=>openQuizImgLightbox(btn.dataset.qImg, btn.closest('.qcard')?.querySelector('.qtext')?.textContent||'');
+  });
+}
+
+function ensureQuizImgLightbox(){
+  if(document.getElementById('quiz-img-lightbox')) return;
+  const el=document.createElement('div');
+  el.id='quiz-img-lightbox';
+  el.className='quiz-img-lightbox';
+  el.hidden=true;
+  el.innerHTML=`<div class="quiz-img-lightbox-backdrop" data-qiz-close></div>
+    <div class="quiz-img-lightbox-panel" role="dialog" aria-modal="true">
+      <header class="quiz-img-lightbox-hd"><span class="quiz-img-lightbox-title"></span>
+        <button type="button" class="quiz-img-lightbox-close" data-qiz-close aria-label="Fermer">✕</button></header>
+      <div class="quiz-img-lightbox-stage"><img class="quiz-img-lightbox-img" alt=""></div>
+    </div>`;
+  document.body.appendChild(el);
+  el.addEventListener('click',e=>{if(e.target.closest('[data-qiz-close]')) closeQuizImgLightbox();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!el.hidden) closeQuizImgLightbox();});
+}
+
+function openQuizImgLightbox(src,caption){
+  ensureQuizImgLightbox();
+  const el=document.getElementById('quiz-img-lightbox');
+  el.querySelector('.quiz-img-lightbox-title').textContent=caption||'Schéma';
+  const img=el.querySelector('.quiz-img-lightbox-img');
+  img.src=src;
+  img.alt=caption||'Schéma fiche';
+  el.hidden=false;
+  document.body.classList.add('quiz-img-lightbox-open');
+}
+
+function closeQuizImgLightbox(){
+  const el=document.getElementById('quiz-img-lightbox');
+  if(!el) return;
+  el.hidden=true;
+  document.body.classList.remove('quiz-img-lightbox-open');
 }
 
 function setTb(v){

@@ -6,7 +6,7 @@
     "verify": "node scripts/check/verify_assets.js",
     "cache:sync": "node scripts/build/sync_cache_versions.js",
     "cache:bump": "node scripts/build/sync_cache_versions.js",
-    "questions:build": "python scripts/build/build_questions.py",
+    "questions:build": "python scripts/build/extract_aero_crops.py && python scripts/build/build_questions.py",
     "formulas:build": "python scripts/build/build_formulas.py",
     "fiches:build": "node scripts/build/build_question_fiches.js",
     "learn:pages": "python scripts/build/extract_doc_pages.py",

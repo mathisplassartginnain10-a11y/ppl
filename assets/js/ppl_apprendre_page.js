@@ -14,8 +14,10 @@
   let selectedKey = '';
   let selectedQIdx = -1;
   let docView = 'both';
+  let lightbox = { srcId: '', index: 0, pages: [], title: '' };
 
   const root = document.getElementById('learn-root');
+  let lightboxEl = null;
 
   function esc(s) {
     return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -127,10 +129,128 @@
     const slice = src.pages.filter((p) => p.n >= start && p.n <= end);
     return slice.map((p) =>
       `<figure class="learn-page-fig" id="learn-page-${src.id}-${p.n}">
-        <div class="learn-page-hd"><span class="learn-page-n">Page ${p.n}</span><span class="learn-page-dim">${p.w}×${p.h}</span></div>
-        <img class="learn-page-img" src="${esc(p.file)}" alt="${esc(src.title)} — page ${p.n}" loading="lazy" width="${p.w}" height="${p.h}">
+        <div class="learn-page-hd">
+          <span class="learn-page-n">Page ${p.n}</span>
+          <div class="learn-page-hd-actions">
+            <span class="learn-page-dim">${p.w}×${p.h}</span>
+            <button type="button" class="learn-page-zoom-btn" data-page-zoom="${esc(src.id)}" data-page-n="${p.n}" title="Voir en grand écran">⛶ Grand écran</button>
+          </div>
+        </div>
+        <button type="button" class="learn-page-img-btn" data-page-zoom="${esc(src.id)}" data-page-n="${p.n}" aria-label="Page ${p.n} — agrandir">
+          <img class="learn-page-img" src="${esc(p.file)}" alt="${esc(src.title)} — page ${p.n}" loading="lazy" width="${p.w}" height="${p.h}">
+          <span class="learn-page-zoom-hint">Cliquer pour agrandir</span>
+        </button>
       </figure>`
     ).join('');
+  }
+
+  function openLightbox(srcId, pageN) {
+    const src = window.LEARN_CORPUS?.sources.find((s) => s.id === srcId);
+    if (!src?.pages?.length) return;
+    const index = src.pages.findIndex((p) => p.n === pageN);
+    lightbox = {
+      srcId,
+      index: index >= 0 ? index : 0,
+      pages: src.pages,
+      title: src.title,
+    };
+    renderLightbox();
+    document.body.classList.add('learn-lightbox-open');
+  }
+
+  function closeLightbox() {
+    if (lightboxEl && document.fullscreenElement === lightboxEl.querySelector('.learn-lightbox-panel')) {
+      document.exitFullscreen?.().catch(() => {});
+    }
+    lightbox = { srcId: '', index: 0, pages: [], title: '' };
+    if (lightboxEl) {
+      lightboxEl.hidden = true;
+      lightboxEl.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('learn-lightbox-open');
+  }
+
+  function moveLightbox(delta) {
+    if (!lightbox.pages.length) return;
+    lightbox.index = (lightbox.index + delta + lightbox.pages.length) % lightbox.pages.length;
+    renderLightbox();
+  }
+
+  function renderLightbox() {
+    ensureLightbox();
+    const p = lightbox.pages[lightbox.index];
+    if (!p) return;
+    lightboxEl.hidden = false;
+    lightboxEl.setAttribute('aria-hidden', 'false');
+    lightboxEl.querySelector('.learn-lightbox-title').textContent = lightbox.title + ' — page ' + p.n;
+    lightboxEl.querySelector('.learn-lightbox-counter').textContent = (lightbox.index + 1) + ' / ' + lightbox.pages.length;
+    const img = lightboxEl.querySelector('.learn-lightbox-img');
+    img.src = p.file;
+    img.alt = lightbox.title + ' — page ' + p.n;
+    lightboxEl.querySelector('[data-lb-prev]').disabled = lightbox.pages.length <= 1;
+    lightboxEl.querySelector('[data-lb-next]').disabled = lightbox.pages.length <= 1;
+  }
+
+  function ensureLightbox() {
+    if (lightboxEl) return;
+    lightboxEl = document.createElement('div');
+    lightboxEl.id = 'learn-lightbox';
+    lightboxEl.className = 'learn-lightbox';
+    lightboxEl.hidden = true;
+    lightboxEl.setAttribute('aria-hidden', 'true');
+    lightboxEl.innerHTML = `
+      <div class="learn-lightbox-backdrop" data-lb-close tabindex="-1"></div>
+      <div class="learn-lightbox-panel" role="dialog" aria-modal="true" aria-label="Page compilation agrandie">
+        <header class="learn-lightbox-hd">
+          <span class="learn-lightbox-title"></span>
+          <div class="learn-lightbox-actions">
+            <button type="button" class="learn-lightbox-btn" data-lb-prev aria-label="Page précédente">←</button>
+            <span class="learn-lightbox-counter"></span>
+            <button type="button" class="learn-lightbox-btn" data-lb-next aria-label="Page suivante">→</button>
+            <button type="button" class="learn-lightbox-btn learn-lightbox-btn-fs" data-lb-fs aria-label="Plein écran navigateur">⛶</button>
+            <button type="button" class="learn-lightbox-btn learn-lightbox-btn-close" data-lb-close aria-label="Fermer">✕</button>
+          </div>
+        </header>
+        <div class="learn-lightbox-stage">
+          <img class="learn-lightbox-img" alt="">
+        </div>
+        <p class="learn-lightbox-hint">← → pour naviguer · Échap pour fermer · double-clic pour plein écran</p>
+      </div>`;
+    document.body.appendChild(lightboxEl);
+    lightboxEl.addEventListener('click', (e) => {
+      if (e.target.closest('[data-lb-close]')) { closeLightbox(); return; }
+      if (e.target.closest('[data-lb-prev]')) { moveLightbox(-1); return; }
+      if (e.target.closest('[data-lb-next]')) { moveLightbox(1); return; }
+      if (e.target.closest('[data-lb-fs]')) { toggleLightboxFullscreen(); return; }
+    });
+    lightboxEl.querySelector('.learn-lightbox-stage')?.addEventListener('dblclick', toggleLightboxFullscreen);
+  }
+
+  function toggleLightboxFullscreen() {
+    const panel = lightboxEl?.querySelector('.learn-lightbox-panel');
+    if (!panel) return;
+    if (document.fullscreenElement === panel) {
+      document.exitFullscreen?.().catch(() => {});
+    } else {
+      panel.requestFullscreen?.().catch(() => {});
+    }
+  }
+
+  function bindLightboxGlobal() {
+    if (document.body.dataset.learnLbBound) return;
+    document.body.dataset.learnLbBound = '1';
+    document.addEventListener('click', (e) => {
+      const zoom = e.target.closest('[data-page-zoom]');
+      if (!zoom || !document.getElementById('learn-root')?.contains(zoom)) return;
+      e.preventDefault();
+      openLightbox(zoom.dataset.pageZoom, parseInt(zoom.dataset.pageN, 10));
+    });
+    document.addEventListener('keydown', (e) => {
+      if (lightboxEl?.hidden) return;
+      if (e.key === 'Escape') { closeLightbox(); return; }
+      if (e.key === 'ArrowLeft') { moveLightbox(-1); return; }
+      if (e.key === 'ArrowRight') { moveLightbox(1); return; }
+    });
   }
 
   function renderDocViewTabs(srcId, active) {
@@ -448,6 +568,7 @@
 
   function init() {
     if (!root) return;
+    bindLightboxGlobal();
     if (window.PPLSettings?.hasPrivacyConsent?.()) {
       if (typeof requestIdleCallback === 'function') requestIdleCallback(boot, { timeout: 1200 });
       else setTimeout(boot, 40);
