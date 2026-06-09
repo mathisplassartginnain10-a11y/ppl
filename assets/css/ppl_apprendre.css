@@ -691,24 +691,69 @@ body.learn-lightbox-open {
   color: var(--t2);
 }
 
+.learn-lightbox-zoom-level {
+  min-width: 44px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-mono, monospace);
+  color: var(--acc-hi);
+}
+
+.learn-lightbox-sep {
+  width: 1px;
+  height: 22px;
+  background: color-mix(in srgb, var(--acc) 18%, var(--b1));
+  margin: 0 2px;
+}
+
 .learn-lightbox-stage {
   flex: 1;
   min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  padding: 12px;
+  overflow: hidden;
+  padding: 0;
   background: #0a0e16;
 }
 
+.learn-lightbox-viewport {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  max-height: calc(96vh - 120px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+}
+
+.learn-lightbox-panel:fullscreen .learn-lightbox-viewport {
+  max-height: calc(100vh - 100px);
+  min-height: 0;
+}
+
+.learn-lightbox-viewport.can-pan {
+  cursor: grab;
+}
+
+.learn-lightbox-viewport.is-panning {
+  cursor: grabbing;
+}
+
+.learn-lightbox-zoom-wrap {
+  transform-origin: center center;
+  will-change: transform;
+  line-height: 0;
+}
+
 .learn-lightbox-panel:fullscreen .learn-lightbox-stage {
-  padding: 16px;
+  padding: 0;
 }
 
 .learn-lightbox-img {
   display: block;
-  max-width: 100%;
+  max-width: min(96vw, 1360px);
   max-height: calc(96vh - 120px);
   width: auto;
   height: auto;
@@ -716,9 +761,11 @@ body.learn-lightbox-open {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
 }
 
 .learn-lightbox-panel:fullscreen .learn-lightbox-img {
+  max-width: 98vw;
   max-height: calc(100vh - 100px);
 }
 

@@ -9,7 +9,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 
 /** Version cache-bust globale (YYYYMMDD + lettre). */
-const CACHE_VERSION = '20260602b';
+const CACHE_VERSION = '20260608a';
 
 /** Fichiers générés par scripts/build — ne pas éditer à la main. */
 const GENERATED = [
